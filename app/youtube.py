@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 
 VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
+LENGTH_SECONDS_PATTERN = re.compile(r'"lengthSeconds":"(?P<seconds>\d+)"')
 
 
 class InvalidYouTubeUrl(ValueError):
@@ -23,6 +24,7 @@ class ParsedVideo:
     thumbnail_url: str
     title: str
     metadata_source: str
+    duration_seconds: int | None
 
 
 def _strip_angle_brackets(value: str) -> str:
@@ -87,37 +89,69 @@ def thumbnail_url(video_id: str) -> str:
     return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
 
 
-def fetch_title(video_id: str, timeout: float = 3.0) -> tuple[str, str]:
-    url = f"https://www.youtube.com/oembed?url={canonical_watch_url(video_id)}&format=json"
+def _request(url: str, timeout: float) -> bytes | None:
     request = Request(
         url,
         headers={
             "User-Agent": "PartyTube/1.0 (+https://local.party)",
-            "Accept": "application/json",
+            "Accept": "application/json,text/html;q=0.9,*/*;q=0.8",
         },
     )
     try:
         with urlopen(request, timeout=timeout) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-            title = str(payload.get("title", "")).strip()
-            if title:
-                return title, "youtube-oembed"
-    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError):
-        pass
-    return f"YouTube Video {video_id}", "fallback"
+            return response.read()
+    except (HTTPError, URLError, TimeoutError):
+        return None
+
+
+def fetch_title_and_duration(video_id: str, timeout: float = 3.0) -> tuple[str, str, int | None]:
+    title = f"YouTube Video {video_id}"
+    metadata_source = "fallback"
+    duration_seconds: int | None = None
+
+    oembed_bytes = _request(
+        f"https://www.youtube.com/oembed?url={canonical_watch_url(video_id)}&format=json",
+        timeout=timeout,
+    )
+    if oembed_bytes:
+        try:
+            payload = json.loads(oembed_bytes.decode("utf-8"))
+            candidate = str(payload.get("title", "")).strip()
+            if candidate:
+                title = candidate
+                metadata_source = "youtube-oembed"
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            pass
+
+    watch_page_bytes = _request(canonical_watch_url(video_id), timeout=timeout)
+    if watch_page_bytes:
+        try:
+            watch_page = watch_page_bytes.decode("utf-8", errors="ignore")
+            match = LENGTH_SECONDS_PATTERN.search(watch_page)
+            if match:
+                duration_seconds = int(match.group("seconds"))
+                metadata_source = (
+                    "youtube-oembed+watch"
+                    if metadata_source == "youtube-oembed"
+                    else "youtube-watch"
+                )
+        except ValueError:
+            pass
+
+    return title, metadata_source, duration_seconds
 
 
 def parse_video(value: str, timeout: float = 3.0, enable_lookup: bool = True) -> ParsedVideo:
     video_id = extract_video_id(value)
-    title, metadata_source = (
-        fetch_title(video_id, timeout=timeout)
-        if enable_lookup
-        else (f"YouTube Video {video_id}", "fallback")
-    )
+    if enable_lookup:
+        title, metadata_source, duration_seconds = fetch_title_and_duration(video_id, timeout=timeout)
+    else:
+        title, metadata_source, duration_seconds = f"YouTube Video {video_id}", "fallback", None
     return ParsedVideo(
         video_id=video_id,
         canonical_url=canonical_watch_url(video_id),
         thumbnail_url=thumbnail_url(video_id),
         title=title,
         metadata_source=metadata_source,
+        duration_seconds=duration_seconds,
     )

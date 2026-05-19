@@ -4,14 +4,17 @@
     <div class="hero-copy">
         <p class="eyebrow">Host-Konsole</p>
         <h1>Wichtige Host-Aktionen zuerst, Erklaerungen spaeter.</h1>
+        <p class="hero-text">Login setzen, sichere Player-Links erzeugen, Queue moderieren und Netzwerkdaten live aktualisieren.</p>
     </div>
     <div class="hero-actions stacked">
         <a class="primary-button" href="/start">Party starten</a>
-        <a class="ghost-button" href="/audio" target="_blank" rel="noreferrer">Audio oeffnen</a>
-        <a class="ghost-button" href="/player" target="_blank" rel="noreferrer">Player oeffnen</a>
+        <a class="ghost-button" id="admin-open-audio" href="/audio" target="_blank" rel="noreferrer">Audio oeffnen</a>
+        <a class="ghost-button" id="admin-open-player" href="/player" target="_blank" rel="noreferrer">Player oeffnen</a>
         <a class="ghost-button" href="/qr" target="_blank" rel="noreferrer">QR-Poster</a>
     </div>
 </section>
+
+<section class="alert-stack" id="admin-warning-list" aria-live="polite"></section>
 
 <section class="layout-grid">
     <div class="panel login-panel" id="admin-login-panel">
@@ -29,6 +32,7 @@
             </label>
             <button class="primary-button" type="submit">Einloggen</button>
         </form>
+        <p class="subtle-note">Host-Login erzeugt jetzt eine echte Session mit CSRF-Schutz fuer alle Schreibaktionen.</p>
     </div>
 
     <div class="panel hidden" id="admin-console-panel">
@@ -52,30 +56,67 @@
     </div>
 </section>
 
-<section class="panel lower-grid compact-qr-panel">
-    <div class="panel-header compact">
-        <div>
-            <p class="eyebrow">Schnellzugriff</p>
-            <h2>Kleine QR-Codes fuer Join und WLAN</h2>
+<section class="layout-grid lower-grid">
+    <div class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Host-Setup</p>
+                <h2>Wichtige Links und Daten</h2>
+            </div>
+        </div>
+        <div class="access-list">
+            <div class="access-row">
+                <span>Lokale Adresse</span>
+                <strong id="admin-display-address">{{ settings.base_url }}</strong>
+            </div>
+            <div class="access-row">
+                <span>Party-Link</span>
+                <a id="admin-join-url" href="{{ settings.join_url }}" target="_blank" rel="noreferrer">{{ settings.join_url }}</a>
+            </div>
+            <div class="access-row">
+                <span>Host-Konsole</span>
+                <a href="{{ settings.admin_url }}" target="_blank" rel="noreferrer">{{ settings.admin_url }}</a>
+            </div>
+            <div class="access-row">
+                <span>TV-Link</span>
+                <a id="admin-player-url" href="/player" target="_blank" rel="noreferrer">Wird nach Login abgesichert</a>
+            </div>
+            <div class="access-row">
+                <span>Audio-Link</span>
+                <a id="admin-audio-url" href="/audio" target="_blank" rel="noreferrer">Wird nach Login abgesichert</a>
+            </div>
+            <div class="access-row">
+                <span>Party-Code</span>
+                <strong>{{ settings.party_code }}</strong>
+            </div>
         </div>
     </div>
-    <div class="compact-qr-grid">
-        <article class="compact-qr-card">
-            <span class="tag-pill">Party Join</span>
-            <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
-            <p class="compact-qr-text">{{ settings.join_url }}</p>
-        </article>
-        <article class="compact-qr-card">
-            <span class="tag-pill">WLAN</span>
-            {% if wifi_qr_data_uri %}
-            <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
-            <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
-            {% else %}
-            <div class="compact-qr-placeholder">
-                <p>WLAN-Daten unten eintragen.</p>
+
+    <div class="panel compact-qr-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Schnellzugriff</p>
+                <h2>Kleine QR-Codes fuer Join und WLAN</h2>
             </div>
-            {% endif %}
-        </article>
+        </div>
+        <div class="compact-qr-grid">
+            <article class="compact-qr-card">
+                <span class="tag-pill">Party Join</span>
+                <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+                <p class="compact-qr-text">{{ settings.join_url }}</p>
+            </article>
+            <article class="compact-qr-card">
+                <span class="tag-pill">WLAN</span>
+                {% if wifi_qr_data_uri %}
+                <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+                <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
+                {% else %}
+                <div class="compact-qr-placeholder">
+                    <p>WLAN-Daten unten eintragen.</p>
+                </div>
+                {% endif %}
+            </article>
+        </div>
     </div>
 </section>
 
@@ -85,6 +126,16 @@
             <div>
                 <p class="eyebrow">Queue-Moderation</p>
                 <h2>Naechste Songs</h2>
+            </div>
+        </div>
+        <div class="meta-grid queue-meta-grid">
+            <div class="meta-card">
+                <span class="eyebrow">Naechster Start</span>
+                <strong id="admin-next-song">Noch offen</strong>
+            </div>
+            <div class="meta-card">
+                <span class="eyebrow">Gesamtdauer</span>
+                <strong id="admin-queue-duration">Wird berechnet</strong>
             </div>
         </div>
         <div id="admin-queue-list" class="queue-list"></div>
@@ -101,11 +152,34 @@
     </div>
 </section>
 
+<section class="layout-grid lower-grid">
+    <div class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Chat-Moderation</p>
+                <h2>Live-Nachrichten</h2>
+            </div>
+            <span class="counter-pill" id="admin-chat-count">0 live</span>
+        </div>
+        <div id="admin-message-list" class="chat-list"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Gesperrte Geraete</p>
+                <h2>Temporare Mutes</h2>
+            </div>
+        </div>
+        <div id="admin-muted-devices" class="muted-list"></div>
+    </div>
+</section>
+
 <section class="panel lower-grid hidden" id="admin-settings-panel">
     <div class="panel-header">
         <div>
             <p class="eyebrow">Party & Netzwerk</p>
-            <h2>QR- und WLAN-Daten live pflegen</h2>
+            <h2>QR-, Sicherheits- und Live-Settings pflegen</h2>
         </div>
     </div>
     <form class="add-form settings-form" id="admin-settings-form">
@@ -146,11 +220,32 @@
                 <input id="settings-autoplay-enabled" name="autoplayEnabled" type="checkbox">
                 <span>Autoplay aus dem Party-Verlauf aktivieren, wenn die Queue leer wird</span>
             </label>
+            <label class="checkbox-label">
+                <input id="settings-chat-enabled" name="chatEnabled" type="checkbox">
+                <span>Chat aktivieren</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-voting-enabled" name="votingEnabled" type="checkbox">
+                <span>Voting aktivieren</span>
+            </label>
+            <label class="checkbox-label settings-span-2">
+                <input id="settings-invite-only" name="inviteOnlyMode" type="checkbox">
+                <span>Invite-only Mode aktivieren. Root `/` zeigt dann nur noch den Join-Code-Einstieg.</span>
+            </label>
+            <label>
+                <span>Max Songs pro Geraet</span>
+                <input id="settings-max-songs-per-device" name="maxSongsPerDevice" type="number" min="1" max="20" inputmode="numeric">
+            </label>
+            <label>
+                <span>Max Queue-Laenge</span>
+                <input id="settings-max-queue-items" name="maxQueueItems" type="number" min="1" max="500" inputmode="numeric">
+            </label>
         </div>
         <div class="settings-preview">
             <p class="subtle-note">Wenn die Basis-URL leer bleibt, nimmt die App automatisch den Host, unter dem du sie gerade oeffnest.</p>
             <p class="subtle-note">Aktuelle Join-URL: <strong id="settings-join-preview">-</strong></p>
             <p class="subtle-note">Autoplay nutzt bereits gespielte Tracks als lokalen Fallback und stoppt sofort wieder, sobald ein echter Queue-Song reinkommt.</p>
+            <p class="subtle-note">Admin-Schreibaktionen sind nur mit Session + CSRF-Token aktiv. Unsichere Defaults werden oben eingeblendet.</p>
         </div>
         <button class="primary-button" type="submit">Netzwerkdaten speichern</button>
     </form>

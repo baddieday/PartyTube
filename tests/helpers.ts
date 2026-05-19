@@ -27,11 +27,24 @@ export async function loginAsAdmin(page: Page) {
   await page.goto("/admin");
   await page.getByLabel("Admin-PIN").fill(ADMIN_PIN);
   await page.getByRole("button", { name: "Einloggen" }).click();
-  await expect(page.getByText("Host-Login aktiv.")).toBeVisible();
+  await expectToast(page, "Host-Login aktiv.");
+  await expect(page.locator("#admin-open-player")).toHaveAttribute("href", /player_key=/);
 }
 
 export async function expectToast(page: Page, text: string) {
   await expect(page.locator(".toast").filter({ hasText: text }).last()).toBeVisible();
+}
+
+export async function getSecurePlayerUrl(page: Page) {
+  const href = await page.locator("#admin-open-player").getAttribute("href");
+  expect(href).toContain("player_key=");
+  return href!;
+}
+
+export async function getSecureAudioUrl(page: Page) {
+  const href = await page.locator("#admin-open-audio").getAttribute("href");
+  expect(href).toContain("player_key=");
+  return href!;
 }
 
 export async function saveShot(page: Page, name: string) {

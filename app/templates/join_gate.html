@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card join-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Party Join</p>
+        <h1>{% if invite_gate %}Invite-only aktiv. Erst mit Party-Code rein.{% else %}Mit Party-Code direkt zur Session.{% endif %}</h1>
+        <p class="hero-text">Der Party-Code ist hier ein Einladungslink fuer diese Session. Gib ihn ein oder scanne den QR-Code vom Host.</p>
+    </div>
+    <div class="hero-badge">
+        <span>Status</span>
+        <strong>{% if invite_gate %}Invite-only{% else %}Join{% endif %}</strong>
+        <small>{{ settings.display_address }}</small>
+    </div>
+</section>
+
+{% if join_error %}
+<section class="alert-stack" aria-live="polite">
+    <article class="alert-card alert-critical">
+        <strong>Code nicht gefunden</strong>
+        <p>{{ join_error }}</p>
+    </article>
+</section>
+{% endif %}
+
+<section class="join-grid">
+    <article class="panel panel-glow">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Beitreten</p>
+                <h2>Party-Code eingeben</h2>
+            </div>
+        </div>
+        <form class="add-form join-form" action="/join" method="get">
+            <label>
+                <span>Party-Code</span>
+                <input
+                    id="join-code"
+                    name="code"
+                    type="text"
+                    inputmode="text"
+                    autocomplete="one-time-code"
+                    maxlength="40"
+                    placeholder="z. B. party"
+                    required
+                >
+            </label>
+            <button class="primary-button" type="submit">Zur Party</button>
+            <p class="subtle-note">Wenn du schon den richtigen Link hast, funktioniert auch direkt `/join/dein-code`.</p>
+        </form>
+    </article>
+
+    <article class="panel accent-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Hinweise</p>
+                <h2>Wenn es nicht klappt</h2>
+            </div>
+        </div>
+        <ul class="check-list">
+            <li>QR-Code vom Host nochmal neu scannen.</li>
+            <li>Darauf achten, dass du im gleichen WLAN bist.</li>
+            <li>Falls `party.lokal` nicht aufloest, die LAN-IP vom Host verwenden.</li>
+            <li>Bei Invite-only ist der Root-Link `/` bewusst nicht direkt die Queue.</li>
+        </ul>
+    </article>
+</section>
+{% endblock %}

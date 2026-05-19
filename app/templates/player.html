@@ -9,6 +9,12 @@
             </div>
             <span class="live-pill" id="player-status-pill">Bereit</span>
         </div>
+        {% if not app_config.playerAuthorized %}
+        <div class="alert-card alert-warning player-sidebar-section">
+            <strong>Nur Video-Link aktiv</strong>
+            <p>Dieser TV-Tab wurde ohne signierten Host-Link geoeffnet. Bild funktioniert, aber das automatische Weiterschalten der Queue bleibt gesperrt, bis du ihn ueber `/start` oder `/admin` nach Host-Login oeffnest.</p>
+        </div>
+        {% endif %}
         <p class="subtle-note" id="player-mode-note">Wenn das Audio-Fenster aktiv ist, bleibt der Ton dort. Dieser TV-Tab zeigt dann nur noch das Video.</p>
         <div class="player-frame-wrap">
             <div id="youtube-player" class="player-frame"></div>

@@ -3,7 +3,10 @@
 }
 
 party.home.arpa:80 {
-    reverse_proxy app:8088
+    reverse_proxy app:8088 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+    }
     encode zstd gzip
 
     header {
@@ -11,4 +14,3 @@ party.home.arpa:80 {
         Referrer-Policy "no-referrer"
     }
 }
-

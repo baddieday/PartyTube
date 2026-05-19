@@ -9,6 +9,12 @@
             </div>
             <span class="live-pill" id="audio-status-pill">Bereit</span>
         </div>
+        {% if not app_config.playerAuthorized %}
+        <div class="alert-card alert-warning player-sidebar-section">
+            <strong>Host-Link fehlt</strong>
+            <p>Dieses Audio-Deck wurde ohne signierten Host-Link geoeffnet. Musik kann starten, aber das automatische Abschliessen des Songs bleibt gesperrt, bis du es ueber `/start` oder `/admin` nach Host-Login oeffnest.</p>
+        </div>
+        {% endif %}
         <p class="subtle-note" id="audio-mode-note">Dieses Fenster haelt die Musik stabil am Laufen. Den TV-Tab kannst du parallel fuer das Video offen lassen.</p>
         <div class="player-frame-wrap audio-only-wrap">
             <div id="audio-youtube-player" class="player-frame"></div>

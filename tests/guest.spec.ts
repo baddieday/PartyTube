@@ -9,9 +9,10 @@ test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async (
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Songs reinwerfen und direkt gemeinsam nach oben voten/i })).toBeVisible();
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
+  await expect(page.locator("#queue-duration")).toBeVisible();
 
   await addSong(page, SAMPLE_URLS.watch, "Gast A");
-  await expectToast(page, "Song ist jetzt live in der Queue.");
+  await expectToast(page, "Song ist live in der Queue");
   await expect(page.locator("#current-song")).toContainText("YouTube Video dQw4w9WgXcQ");
 
   await addSong(page, SAMPLE_URLS.short, "Gast B");
@@ -25,7 +26,12 @@ test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async (
 
   await page.getByLabel("YouTube-Link").fill(SAMPLE_URLS.watch);
   await page.getByRole("button", { name: "Song in die Queue" }).click();
-  await expectToast(page, "Song existiert schon in der aktiven Queue.");
+  await expectToast(page, "Schon in der Queue");
+
+  await page.getByLabel("Nachricht").fill("Hallo PartyTube");
+  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await expectToast(page, "Nachricht live gesendet.");
+  await expect(page.locator("#chat-list")).toContainText("Hallo PartyTube");
 
   await saveShot(page, "guest-home");
 });

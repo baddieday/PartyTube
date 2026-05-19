@@ -5,7 +5,7 @@ test.beforeEach(async ({ request }) => {
   await resetTestState(request);
 });
 
-test("Voting: Live-Sync, Sortierung, Vote-Limit und Refresh-Persistenz", async ({ browser, page }) => {
+test("Voting: Live-Sync, Sortierung, Duplicate-Vote-Schutz und Refresh-Persistenz", async ({ browser, page }) => {
   await page.goto("/");
   await addSong(page, SAMPLE_URLS.watch, "Host");
   await addSong(page, SAMPLE_URLS.short, "Gast B");
@@ -15,18 +15,16 @@ test("Voting: Live-Sync, Sortierung, Vote-Limit und Refresh-Persistenz", async (
   const guestBPage = await guestB.newPage();
   await guestBPage.goto("/");
 
-  await guestBPage.locator("#queue-list [data-action='vote']").first().click();
+  const targetCard = guestBPage.locator("#queue-list .song-card").nth(1);
+  await targetCard.locator("[data-action='vote']").click();
   await expectToast(guestBPage, "Vote registriert.");
 
   const topQueueCard = page.locator("#queue-list .song-card").first();
+  await expect(topQueueCard).toContainText("YouTube Video M7lc1UVf-VE");
   await expect(topQueueCard).toContainText("2 Votes");
 
-  await guestBPage.locator("#queue-list [data-action='vote']").first().click();
-  await expectToast(guestBPage, "Dieses Geraet hat fuer den Song schon gevotet.");
-
   await guestBPage.reload();
-  await expect(guestBPage.locator("#queue-list [data-action='vote']").first()).toBeDisabled();
+  await expect(guestBPage.locator("#queue-list .song-card").first().locator("[data-action='vote']")).toBeDisabled();
 
   await guestB.close();
 });
-

@@ -1,39 +1,38 @@
 # PartyTube
 
-Lokale Party-Jukebox fuer YouTube im Heimnetz: Gaeste werfen per Browser Songs rein, voten live, sehen die Queue und der Host steuert alles ueber Admin- und TV-Modus.
+PartyTube ist eine lokale Party-Jukebox fuer YouTube im Heimnetz. Gaeste oeffnen einfach den Browser, werfen Songs in die Queue, voten live und sehen sofort, was gerade laeuft. Der Host bekommt dazu eine sichere Admin-Konsole, eine Startseite fuer den Abend und getrennte TV-/Audio-Modi.
 
 ## Highlights
 
-- Smartphone-first Web-App ohne Extra-Installation
-- Lokale SQLite-Persistenz ueber Neustarts hinweg
-- Live-Updates per WebSocket auf allen Geraeten
-- Gastmodus, Host/Admin, TV-/Player-Modus und QR-Poster
-- dedizierte Startseite fuer den Host mit Audio+TV-Start-Flow
-- separates Audio-Fenster fuer unterbrechungsfreies Playback beim Seitenwechsel
-- TV-/Player-Modus bleibt auf Wunsch rein visuell, sobald das Audio-Fenster aktiv ist
-- optionaler Autoplay-Fallback aus dem Party-Verlauf, wenn die Queue leer wird
-- kompakte QR-Karten auf Start-, Queue-, Host- und TV-Seite
-- Duplicate-Erkennung fuer aktive Songs
-- Upvotes mit Vote-Limit pro Geraet
-- Admin-PIN und Rate-Limits gegen WLAN-Spam
-- Druckbare QR-Seite fuer WLAN und Party-Link
-- Party-, Join- und WLAN-Daten live im Admin pflegbar
-- Docker Compose, `.env.example`, Playwright-E2E und Persistenztests
+- FastAPI + SQLite + Vanilla JS, bewusst einfach und lokal betreibbar
+- Live-Queue und Chat per WebSocket
+- robuste YouTube-Linkerkennung fuer `watch`, `youtu.be`, `shorts`, `embed` und direkte IDs
+- Duplicate-Erkennung, Vote-Limits, Rate-Limits und Moderationsfunktionen
+- Invite-only-Modus mit `/join/{party_code}`
+- echte Admin-Session statt statischem Cookie
+- CSRF-Schutz fuer Admin-Schreibaktionen
+- geschuetzter Player-Token fuer `/api/player/ended`
+- Startseite fuer Hosts mit QR, Links, Warnungen und Audio+TV-Launch
+- separates Audio-Deck gegen Tonabbrueche beim Tabwechsel
+- TV-Modus mit Video, Audio-Modus mit Ton
+- optionales Autoplay aus dem lokalen Party-Verlauf
+- PWA-/Homescreen-Basis mit Manifest, Icons und Service Worker
+- Playwright-E2E, Accessibility-Checks, Load-/Persistence-Tests
 
 ## Architektur
 
 - Backend: FastAPI + Uvicorn
-- Datenhaltung: SQLite (`/app/data/party.db`)
-- Frontend: serverseitig ausgelieferte HTML-Templates + Vanilla JS + CSS
-- Realtime: WebSocket-Broadcast bei Queue-Aenderungen
+- Datenhaltung: SQLite mit WAL
+- Frontend: serverseitige Jinja-Templates + Vanilla JS + CSS
+- Realtime: WebSocket-Broadcast fuer Queue-, Chat- und Runtime-Updates
 - QR-Codes: lokal generierte SVGs
-- YouTube: URL-Normalisierung fuer `watch`, `youtu.be`, `shorts`, `embed`, direkte IDs
+- Observability: optionaler `/metrics`-Endpoint im Prometheus-Format
 
 Warum diese Architektur:
 
-- Ein einzelner Service ist fuer Heimnetz-Partys robuster und leichter zu betreiben als Frontend-/Backend-Split.
-- SQLite ist fuer lokale Sessions schnell, ausfallsicher genug und restart-freundlich.
-- Kein Build-Step fuer die UI senkt die Fehlerflaeche bei lokaler Nutzung.
+- Ein einzelner Service ist fuer LAN-Partys leichter zu starten, zu debuggen und zu sichern.
+- SQLite reicht fuer den lokalen Mehrbenutzerfall aus und ueberlebt Neustarts sauber.
+- Kein Build-heavy Frontend senkt die Ausfallflaeche vor einer Party.
 
 ## Projektstruktur
 
@@ -42,91 +41,75 @@ Warum diese Architektur:
 ├─ app/
 │  ├─ config.py
 │  ├─ main.py
+│  ├─ metrics.py
 │  ├─ qr.py
 │  ├─ security.py
 │  ├─ storage.py
 │  ├─ youtube.py
 │  ├─ static/
 │  │  ├─ css/styles.css
-│  │  ├─ img/icon.svg
+│  │  ├─ img/
 │  │  ├─ js/
-│  │  │  ├─ admin.js
-│  │  │  ├─ audio.js
-│  │  │  ├─ guest.js
-│  │  │  ├─ player.js
-│  │  │  ├─ qr.js
-│  │  │  ├─ start.js
-│  │  │  └─ shared.js
+│  │  ├─ vendor/axe.min.js
 │  │  └─ sw.js
 │  └─ templates/
-│     ├─ admin.html
-│     ├─ audio.html
-│     ├─ base.html
-│     ├─ guest.html
-│     ├─ player.html
-│     ├─ qr.html
-│     └─ start.html
 ├─ deploy/Caddyfile.example
+├─ scripts/
+│  ├─ generate-icons.mjs
+│  └─ start-test-server.mjs
 ├─ tests/
+│  ├─ accessibility.spec.ts
 │  ├─ admin.spec.ts
 │  ├─ audio.spec.ts
 │  ├─ autoplay.spec.ts
+│  ├─ chat.spec.ts
 │  ├─ guest.spec.ts
 │  ├─ load.spec.ts
 │  ├─ multiuser.spec.ts
 │  ├─ persistence.spec.ts
 │  ├─ player.spec.ts
 │  ├─ qr.spec.ts
+│  ├─ security.spec.ts
 │  ├─ start.spec.ts
 │  └─ voting.spec.ts
+├─ .github/
+│  ├─ dependabot.yml
+│  └─ workflows/
 ├─ Dockerfile
 ├─ Dockerfile.tests
 ├─ docker-compose.yml
-├─ package.json
-├─ playwright.config.ts
-├─ requirements.txt
+├─ IMPLEMENTATION_NOTES.md
+├─ SECURITY.md
+├─ CONTRIBUTING.md
+├─ CHANGELOG.md
 └─ TEST_REPORT.md
 ```
 
-## Schnellstart mit Docker Compose
-
-1. Datei vorbereiten:
+## Quickstart mit Docker
 
 ```bash
 cp .env.example .env
-```
-
-2. Werte in `.env` anpassen:
-
-- `HOST_IP=192.168.178.77`
-- `BASE_URL=http://192.168.178.77:8088` nur wenn du die URL fest verdrahten willst
-- `WIFI_SSID`, `WIFI_PASSWORD`
-- `ADMIN_PIN`
-- optional `PARTY_NAME`, `PARTY_CODE`
-
-3. Container starten:
-
-```bash
 docker compose up -d --build
 ```
 
-4. Im Heimnetz aufrufen:
+Danach:
 
 - Gastmodus: `http://192.168.178.77:8088/`
+- Join-Link: `http://192.168.178.77:8088/join/party`
 - Host-Startseite: `http://192.168.178.77:8088/start`
-- QR-Seite: `http://192.168.178.77:8088/qr`
 - Admin: `http://192.168.178.77:8088/admin`
-- TV/Player: `http://192.168.178.77:8088/player`
-- Audio-Fenster: `http://192.168.178.77:8088/audio`
+- TV: `http://192.168.178.77:8088/player`
+- Audio-Deck: `http://192.168.178.77:8088/audio`
+- QR-Poster: `http://192.168.178.77:8088/qr`
+- Health: `http://192.168.178.77:8088/health`
 
-## Direkter Start ohne Docker
+Testcontainer:
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8088
+docker compose --profile tests run --rm tests
 ```
+
+## Quickstart lokal
 
 Windows PowerShell:
 
@@ -138,155 +121,226 @@ $env:PORT='8088'
 uvicorn app.main:app --host 0.0.0.0 --port 8088
 ```
 
-## Konfiguration
+Linux/macOS:
 
-Wichtige Variablen aus `.env.example`:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+PORT=8088 uvicorn app.main:app --host 0.0.0.0 --port 8088
+```
 
-- `PORT`: externer Port, Default `8088`
-- `HOST_IP`: sichtbare Heimnetz-IP fuer QR-Link, Default `192.168.178.77`
-- `BASE_URL`: fuer QR und UI-Links
-- leer lassen = URL automatisch aus dem aktuellen Host ableiten
-- `PARTY_NAME`: sichtbarer Event-Name
-- `PARTY_CODE`: Session-Code fuer `/join/<code>`
-- `ADMIN_PIN`: Host-Login
-- `ADMIN_COOKIE_SECRET`: Signatur fuer Admin-Session-Cookie
-- `WIFI_SSID`, `WIFI_PASSWORD`, `WIFI_SECURITY`: fuer den WLAN-QR
-- `AUTOPLAY_ENABLED`: optionaler Default fuer den Verlauf-Fallback bei leerer Queue
-- `MAX_ADDS_PER_WINDOW`, `MAX_VOTES_PER_WINDOW`, `RATE_LIMIT_WINDOW_SECONDS`: Missbrauchsschutz
-- `MAX_QUEUE_ITEMS`: harte Queue-Grenze
-- `ENABLE_TITLE_LOOKUP`: optionaler YouTube-oEmbed-Titelabruf
+## Host-Setup in unter 2 Minuten
 
-## Bedienung
+1. `/admin` oeffnen und mit der Host-PIN einloggen.
+2. Optional Party-Name, Party-Code, WLAN-Daten und Basis-URL pflegen.
+3. `/start` oeffnen.
+4. QR-Code oder Join-Link an die Gaeste geben.
+5. `Audio + TV starten` benutzen.
 
-### Gastmodus
+Wichtig:
 
-- YouTube-Link einfuegen
-- optional Namen angeben
-- Song wird mit Erststimme hinzugefuegt
-- pro Song genau ein Upvote pro Geraet
-- kleine QR-Karten fuer Party-Link und WLAN direkt in der Queue-Ansicht
+- Das Audio-Deck sollte auf dem Steuergeraet offen bleiben.
+- Der TV-Tab zeigt im Regelfall nur das Video.
+- Ohne Host-Login starten TV/Audio bewusst nur als oeffentliche Ansichten, nicht als steuerberechtigte Player.
 
-### Startseite
+## Admin-Login und Security-Hardening
 
-- priorisiert Audio-Deck, TV-Tab und Host-Aktionen
-- startet Audio + TV mit einem Klick
-- zeigt kleine QR-Karten fuer Join und WLAN
-- legt Erklaerungen bewusst weiter nach unten, damit die Oberflaeche ruhiger bleibt
+Neu im geharteten Stand:
 
-### Host/Admin
+- echte serverseitige Admin-Session statt deterministischem Cookie
+- Session-Cookie per `HttpOnly`, `SameSite=Lax`, `SESSION_COOKIE_SECURE` optional fuer HTTPS
+- CSRF-Schutz fuer alle Admin-Schreibaktionen
+- dedizierter Player-Token fuer `/api/player/ended`
+- Warnungen bei Default-PIN und schwachem Secret
+- optional `TRUSTED_HOSTS`
+- optional `ENFORCE_HTTPS`
 
-- PIN-Login
-- Party-Name, Party-Code, Join-URL und WLAN-Daten direkt im Browser pflegen
-- Autoplay-Fallback aus dem Verlauf bei leerer Queue per Checkbox steuerbar
-- aktuellen Song skippen
-- aktuellen Song als gespielt markieren
-- Songs entfernen
-- Queue leeren
-- kompletten Abend resetten
-- Queue als JSON exportieren
+Empfohlene Mindesthaertung:
 
-### TV-/Player-Modus
+- `ADMIN_PIN` auf einen eigenen Wert setzen
+- `SESSION_SECRET` auf einen langen Zufallswert setzen
+- fuer Reverse Proxy / HTTPS:
+  - `SESSION_COOKIE_SECURE=true`
+  - `ENFORCE_HTTPS=true`
+  - `TRUSTED_HOSTS=party.lokal,192.168.178.77`
 
-- zeigt den aktuellen Song gross an
-- nutzt YouTube IFrame API
-- schaltet beim Songende automatisch auf den naechsten Queue-Eintrag
-- zeigt leere Queue sauber an
-- dockt nach Reload moeglichst an die aktuelle Songposition an
-- bleibt stumm, sobald das Audio-Fenster aktiv ist oder der Start-Flow gerade das Audio-Deck hochzieht
-- kann je nach Browser eine einmalige Nutzerinteraktion fuer Autoplay brauchen
-- zeigt kleine QR-Karten fuer Party-Beitritt und WLAN direkt im Sidebar-Bereich
-- kann bei leerer Queue automatisch in einen lokalen Verlauf-Fallback wechseln
+## Wichtige ENV-Variablen
 
-### Audio-Fenster
+Siehe [\.env.example](/C:/Users/USER/Documents/YT_Site/.env.example). Die wichtigsten:
 
-- oeffnet sich einmalig per Browser als separates Audio-Deck
-- bleibt offen, waehrend du im Haupt-Tab zwischen Queue, Host und QR wechselst
-- vermeidet dadurch Tonunterbrechungen durch Seitenwechsel im Haupt-Tab
-- der TV-Tab bleibt fuer das sichtbare Video gedacht
-- kann bei leerer Queue automatisch weiter aus bereits gespielten Tracks spielen
+- `PORT`, `HOST_IP`, `BASE_URL`
+- `PARTY_NAME`, `PARTY_CODE`
+- `INVITE_ONLY_MODE`
+- `ADMIN_PIN`
+- `SESSION_SECRET`, `PLAYER_TOKEN_SECRET`
+- `SESSION_COOKIE_SECURE`, `SESSION_MAX_AGE_SECONDS`
+- `TRUSTED_HOSTS`, `ENFORCE_HTTPS`
+- `WIFI_SSID`, `WIFI_PASSWORD`, `WIFI_SECURITY`, `WIFI_HIDDEN`
+- `AUTOPLAY_ENABLED`
+- `CHAT_ENABLED`, `VOTING_ENABLED`
+- `MAX_QUEUE_ITEMS`, `MAX_SONGS_PER_DEVICE`
+- `MAX_MESSAGE_LENGTH`, `CHAT_HISTORY_LIMIT`
+- `MAX_ADDS_PER_WINDOW`, `MAX_VOTES_PER_WINDOW`, `MAX_MESSAGES_PER_WINDOW`
+- `ENABLE_TITLE_LOOKUP`, `TITLE_LOOKUP_TIMEOUT_SECONDS`
+- `ENABLE_METRICS`
 
-## Tests
+## Invite-only-Modus
 
-Node/Playwright:
+Wenn `INVITE_ONLY_MODE=true`:
+
+- `/` zeigt die Join-Code-Seite statt direkt die Queue
+- `/join/{party_code}` ist der echte Einstieg
+- falsche Codes bekommen eine eigene, verstaendliche Fehlerseite
+
+Wichtig fuer die Kommunikation:
+
+- Der Party-Code ist ein Einladungslink, kein starkes Passwort.
+- Fuer echte Internet-Freigabe reicht Invite-only allein nicht. Dann brauchst du HTTPS, sichere Secrets und einen Reverse Proxy.
+
+## Player/TV-Modus und Audio-Fenster
+
+### TV
+
+- zeigt das Video gross an
+- kann nach Reload wieder an die aktuelle Songposition andocken
+- bleibt stumm, wenn das Audio-Deck aktiv ist
+
+### Audio
+
+- haelt den Ton in einem separaten Fenster stabil
+- vermeidet Unterbrechungen beim Wechsel zwischen Queue, QR und Host
+- meldet Song-Ende nur mit gueltigem Player-Token
+
+### Autoplay-Hinweis
+
+Browser und YouTube koennen Autoplay blockieren. In diesem Fall zeigt PartyTube klare Hinweise wie `Playback starten` oder `Audio starten`.
+
+## Chat und Moderation
+
+- Gaeste koennen kurze Nachrichten senden
+- Nachrichten laufen live per WebSocket auf allen Geraeten
+- Admin kann Nachrichten loeschen
+- Admin kann Geraete ueber Song- oder Chat-Aktionen temporaer muten
+- pro Geraet gelten Rate-Limits
+- XSS wird durch serverseitige Bereinigung plus HTML-Escaping abgefangen
+
+## QR-Code und WLAN
+
+- `/qr` liefert eine druckbare Posteransicht
+- auf Start-, Guest-, Admin- und TV-Seite erscheinen zusaetzlich kleine QR-Karten
+- WLAN-QR wird automatisch erzeugt, sobald `WIFI_SSID` und passende WLAN-Daten gesetzt sind
+
+## Metrics und Observability
+
+Wenn `ENABLE_METRICS=true`, liefert `/metrics` Prometheus-kompatible Kennzahlen:
+
+- aktive Songs
+- sichtbare Chat-Nachrichten
+- aktive WebSocket-Verbindungen
+- Vote-/Song-/Chat-Zaehler
+- Player-ended-Events
+- API-Request-Metriken
+
+Standardmaessig bleibt `/metrics` aus, damit die LAN-Oberflaeche klein und ruhig bleibt.
+
+## Reverse Proxy mit Caddy
+
+Ein Beispiel liegt in [deploy/Caddyfile.example](/C:/Users/USER/Documents/YT_Site/deploy/Caddyfile.example).
+
+Typischer Betrieb:
+
+- Caddy terminiert HTTPS
+- PartyTube laeuft intern weiter auf `http://app:8088`
+- `BASE_URL` und `TRUSTED_HOSTS` werden passend gesetzt
+- `SESSION_COOKIE_SECURE=true`
+- `ENFORCE_HTTPS=true`
+
+## Lokale DNS-Namen
+
+Empfehlung:
+
+- `party.home.arpa` fuer standardnaehe lokale DNS-Namen
+- `party.lokal` wenn du es bewusst im Heimnetz so verteilst
+
+Moeglich mit:
+
+- Pi-hole
+- eigener DNS-Forwarder
+- FRITZ!Box + lokaler DNS
+
+Wichtig bei FRITZ!Box / IPv6:
+
+- Clients bevorzugen haeufig den per Router Advertisement gelernten IPv6-DNS
+- dein lokaler DNS sollte deshalb idealerweise auch ueber IPv6 erreichbar sein
+
+## Backup und Restore
+
+SQLite-Backup:
+
+```bash
+cp data/party.db backups/party-$(date +%F-%H%M).db
+```
+
+Restore:
+
+```bash
+cp backups/party-2026-05-19-2230.db data/party.db
+```
+
+Vor dem Restore am besten den Container bzw. Prozess kurz stoppen.
+
+## Tests lokal
 
 ```bash
 npm install
 npm run test
 ```
 
-Alternativ im Container:
+Einzelne Suiten:
 
 ```bash
-docker compose --profile tests run --rm tests
+npm run test:security
+npm run test:accessibility
+npm run test:load
 ```
 
-Abgedeckte Themen:
+Abgedeckt sind:
 
-- Gast-Flow inkl. URL-Varianten, Invalids und Duplicates
-- Voting, Sortierung, Refresh-Verhalten
-- Admin-PIN und Host-Aktionen
-- QR-Seite
-- TV-/Player-Modus
-- separates Audio-Fenster fuer dauerhafte Wiedergabe
-- dedizierte Startseite mit Audio+TV-Launch
-- Autoplay-Fallback aus dem Party-Verlauf
-- Admin-Settings fuer Party-/WLAN-Daten
-- Multiuser mit Gast A / Gast B / Host
-- Persistenz ueber Neustart
-- Last- und Fehlerfaelle
+- Guest-Flow
+- Voting
+- Admin-Flow
+- Invite-only
+- Chat
+- Security fuer Session/CSRF/Player-Token
+- Audio/TV/Start
+- Persistenz
+- Multiuser
+- Load-/Fehlerfaelle
+- Accessibility
 
-## Missbrauchsschutz
+## CI
 
-- Rate-Limits pro Geraet/IP fuer Add und Vote
-- Admin-Aktionen per PIN-geschuetztem Cookie
-- Duplicate-Erkennung per DB-Constraint
-- Eingabegrenzen fuer URL- und Namensfelder
-- Autoescaping im Frontend plus serverseitige Bereinigung des optionalen Gastnamens
+- [\.github/workflows/ci.yml](/C:/Users/USER/Documents/YT_Site/.github/workflows/ci.yml)
+- [\.github/workflows/codeql.yml](/C:/Users/USER/Documents/YT_Site/.github/workflows/codeql.yml)
+- [\.github/dependabot.yml](/C:/Users/USER/Documents/YT_Site/.github/dependabot.yml)
 
-## Heimnetz-Tipps
+CI macht:
 
-### QR-Poster
+- Python-Dependencies installieren
+- Node/Playwright installieren
+- App starten
+- `/health` pruefen
+- gesamte Playwright-Suite laufen lassen
+- Report als Artifact hochladen
 
-- Hange `/qr` auf einem Tablet oder drucke die Seite direkt aus.
-- Wenn du keinen WLAN-QR willst, lass `WIFI_SSID` und `WIFI_PASSWORD` leer.
+## Bekannte Grenzen
 
-### Eigener Hostname
+- YouTube-Autoplay bleibt browserabhaengig.
+- Invite-only ist kein Ersatz fuer echtes Internet-Hardening.
+- Titel- und Dauerermittlung ohne API-Key bleibt best effort.
+- `party.local` kann in manchen Netzen mit mDNS kollidieren.
 
-Falls du statt IP lieber einen Namen willst:
+## Lizenz
 
-- empfehlenswert: `party.home.arpa`
-- moeglich mit lokalem DNS: `party.lokal`
-- moeglich, aber oft konfliktanfaellig: `party.local`
-
-Mit Pi-hole oder lokalem DNS:
-
-- `party.home.arpa -> 192.168.178.77`
-- `party.lokal -> 192.168.178.77`
-
-Mit Reverse Proxy:
-
-- siehe [deploy/Caddyfile.example](/C:/Users/USER/Documents/YT_Site/deploy/Caddyfile.example)
-
-### FRITZ!Box und DNSv6
-
-Wenn `party.lokal` trotz eingetragenem lokalem DNS-Server nicht aufloest, ist meist IPv6 der Grund:
-
-- Viele Clients bevorzugen den per Router Advertisement gelernten IPv6-DNS der FRITZ!Box vor dem eigenen LAN-DNS.
-- Dein lokaler DNS sollte deshalb auf `53/tcp` und `53/udp` sowohl per IPv4 als auch per ULA-IPv6 lauschen.
-- In FRITZ!OS hilft oft, unter `Internet > Zugangsdaten > IPv6` die Option `DNS-Server auch ueber Router Advertisement bekanntgeben (RFC 5005)` zu pruefen, wenn Clients weiter zuerst die FRITZ!Box als IPv6-DNS verwenden.
-- Fuer saubere Heimnetz-Namen ist `party.home.arpa` meist standardnaeher; `party.lokal` funktioniert gut, wenn dein lokaler DNS auf IPv4 und IPv6 wirklich bevorzugt verteilt wird.
-
-## Annahmen
-
-- YouTube ist aus dem Heimnetz erreichbar.
-- Die Party findet in einem vertrauenswuerdigen lokalen WLAN statt.
-- Der TV-/Player-Browser darf YouTube-Embeds laden.
-- Ein einzelner lokaler Prozess reicht fuer den Einsatzzweck aus.
-
-## Sinnvolle naechste Ausbaustufen
-
-- Queue-Import aus JSON im Admin
-- Song-Dauer, ETA und Restzeit
-- dedizierter Host-Only Player-Key statt offenem `/api/player/ended`
-- Nachtmodus fuers QR-Poster mit groesserem WLAN-Teil
-- mehrsprachige UI
+MIT, siehe [LICENSE](/C:/Users/USER/Documents/YT_Site/LICENSE).

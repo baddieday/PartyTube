@@ -4,7 +4,17 @@ const stateStore = {
   current: null,
   queue: [],
   history: [],
-  stats: { activeCount: 0, historyCount: 0 },
+  messages: [],
+  queueMeta: {},
+  runtime: {
+    autoplayEnabled: Boolean(appConfig.autoplayEnabled),
+    chatEnabled: Boolean(appConfig.chatEnabled),
+    votingEnabled: Boolean(appConfig.votingEnabled),
+    inviteOnlyMode: Boolean(appConfig.inviteOnlyMode),
+    maxSongsPerDevice: Number(appConfig.maxSongsPerDevice || 0),
+    maxQueueItems: Number(appConfig.maxQueueItems || 0),
+  },
+  stats: { activeCount: 0, historyCount: 0, messageCount: 0 },
 };
 
 const AUDIO_WINDOW_NAME = "partytube-audio-window";
@@ -14,6 +24,13 @@ const AUDIO_STATE_KEY = "partytube-audio-window-state";
 const AUDIO_HEARTBEAT_MAX_AGE_MS = 6500;
 const AUDIO_LAUNCH_INTENT_KEY = "partytube-audio-launch-intent";
 const AUDIO_LAUNCH_INTENT_TTL_MS = 12000;
+
+function updateAppConfig(values = {}) {
+  Object.assign(appConfig, values);
+  if (values.runtime) {
+    Object.assign(stateStore.runtime, values.runtime);
+  }
+}
 
 function getDeviceId() {
   const key = "partytube-device-id";
@@ -52,6 +69,18 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function formatDuration(totalSeconds) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "";
+  const seconds = Math.round(totalSeconds);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(remainder).padStart(2, "0")}`;
+}
+
 function relativeTime(value) {
   if (!value) return "";
   const date = new Date(value);
@@ -84,29 +113,84 @@ function toast(message, kind = "info") {
   setTimeout(() => {
     item.classList.remove("visible");
     setTimeout(() => item.remove(), 250);
-  }, 3400);
+  }, 3600);
+}
+
+function describeApiError(body) {
+  if (typeof body === "string") {
+    return body;
+  }
+  if (!body || typeof body !== "object") {
+    return "Aktion fehlgeschlagen.";
+  }
+  if (typeof body.detail === "string") {
+    return body.detail;
+  }
+  if (typeof body.message === "string") {
+    return body.message;
+  }
+  if (body.detail && typeof body.detail.message === "string") {
+    return body.detail.message;
+  }
+  return "Aktion fehlgeschlagen.";
 }
 
 async function apiFetch(url, options = {}) {
+  const method = (options.method || "GET").toUpperCase();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
+  const needsCsrf =
+    !["GET", "HEAD", "OPTIONS"].includes(method) &&
+    url.startsWith("/api/admin/") &&
+    !url.endsWith("/login");
+  if (needsCsrf && appConfig.csrfToken) {
+    headers["X-PartyTube-CSRF"] = appConfig.csrfToken;
+  }
+
+  if (url === "/api/player/ended" && appConfig.playerControlToken) {
+    headers["X-PartyTube-Player-Token"] = appConfig.playerControlToken;
+  }
+
   const response = await fetch(url, {
     credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
+    headers,
     ...options,
   });
 
   const contentType = response.headers.get("content-type") || "";
   const body = contentType.includes("application/json") ? await response.json() : await response.text();
   if (!response.ok) {
-    const detail = typeof body === "string" ? body : body.detail || "Aktion fehlgeschlagen.";
-    const error = new Error(detail);
+    const error = new Error(describeApiError(body));
     error.status = response.status;
     error.payload = body;
+    error.retryAfterSeconds =
+      body?.retryAfterSeconds ||
+      body?.detail?.retryAfterSeconds ||
+      Number(response.headers.get("Retry-After") || 0) ||
+      0;
     throw error;
   }
   return body;
+}
+
+function songMetaChips(song) {
+  const chips = [];
+  if (song.pinned) {
+    chips.push('<span class="tag-pill">Priorisiert</span>');
+  }
+  if (Number.isFinite(song.durationSeconds)) {
+    chips.push(`<span class="tag-pill">${formatDuration(song.durationSeconds)}</span>`);
+  }
+  if (Number.isFinite(song.estimatedWaitSeconds)) {
+    chips.push(`<span class="tag-pill">ca. in ${formatDuration(song.estimatedWaitSeconds)}</span>`);
+  }
+  if (Number.isFinite(song.remainingSeconds)) {
+    chips.push(`<span class="tag-pill">noch ${formatDuration(song.remainingSeconds)}</span>`);
+  }
+  return chips.join("");
 }
 
 function songCard(song, options = {}) {
@@ -123,15 +207,19 @@ function songCard(song, options = {}) {
           <h3>${escapeHtml(song.title)}</h3>
           <span class="vote-chip">${song.votes} Vote${song.votes === 1 ? "" : "s"}</span>
         </div>
+        <div class="song-chip-row">
+          ${songMetaChips(song)}
+        </div>
         <p class="song-subline">
           ${song.guestName ? `von <strong>${escapeHtml(song.guestName)}</strong>` : "von einem Gast"}
           <span class="dot-sep"></span>
           ${relativeTime(song.addedAt)}
+          ${song.submitterLabel ? `<span class="dot-sep"></span>Geraet ${escapeHtml(song.submitterLabel)}` : ""}
         </p>
         ${song.playedAt ? `<p class="song-subline">gespielt ${relativeTime(song.playedAt)}</p>` : ""}
         <div class="song-actions">
           ${
-            !adminMode && !playerMode
+            !adminMode && !playerMode && stateStore.runtime.votingEnabled
               ? `<button class="chip-button vote-button" ${voted ? "disabled" : ""} data-action="vote">
                   ${voted ? "Schon gevotet" : "Vote +1"}
                 </button>`
@@ -139,12 +227,40 @@ function songCard(song, options = {}) {
           }
           ${
             adminMode
-              ? `<button class="chip-button danger" data-action="remove">Entfernen</button>`
+              ? `
+                <button class="chip-button" data-action="pin">${song.pinned ? "Entpinnen" : "Priorisieren"}</button>
+                <button class="chip-button danger" data-action="clear-device">Geraet-Songs loeschen</button>
+                <button class="chip-button danger" data-action="mute-device">Geraet sperren</button>
+                <button class="chip-button danger" data-action="remove">Entfernen</button>
+              `
               : ""
           }
           <a class="chip-button link-chip" href="${escapeHtml(song.canonicalUrl)}" target="_blank" rel="noreferrer">YouTube</a>
         </div>
       </div>
+    </article>
+  `;
+}
+
+function messageCard(message, options = {}) {
+  const adminMode = options.adminMode || false;
+  return `
+    <article class="chat-card" data-message-id="${message.id}">
+      <div class="chat-line">
+        <strong>${escapeHtml(message.guestName || "Gast")}</strong>
+        <span>${relativeTime(message.createdAt)}</span>
+      </div>
+      <p>${escapeHtml(message.message)}</p>
+      ${
+        adminMode
+          ? `
+            <div class="chat-actions">
+              <button class="chip-button danger" data-action="delete-message">Loeschen</button>
+              <button class="chip-button danger" data-action="mute-message-device">Geraet sperren</button>
+            </div>
+          `
+          : ""
+      }
     </article>
   `;
 }
@@ -193,7 +309,7 @@ function updateConnectionPill(connected) {
     document.getElementById("player-status-pill") ||
     document.getElementById("audio-status-pill");
   if (!pill) return;
-  pill.textContent = connected ? "Live verbunden" : "Reconnecting...";
+  pill.textContent = connected ? "Live verbunden" : "Verbindung verloren - reconnecting...";
   pill.classList.toggle("live-ok", connected);
 }
 
@@ -209,6 +325,9 @@ function connectLive(onState) {
   socket.addEventListener("message", (event) => {
     const payload = JSON.parse(event.data);
     if (payload.type === "state") {
+      if (payload.runtime) {
+        Object.assign(stateStore.runtime, payload.runtime);
+      }
       onState(payload);
     }
   });
@@ -289,7 +408,7 @@ function dispatchAudioWindowStatus() {
 }
 
 function openAudioWindow() {
-  const popup = window.open("/audio", AUDIO_WINDOW_NAME, "popup,width=460,height=820");
+  const popup = window.open(appConfig.audioUrl || "/audio", AUDIO_WINDOW_NAME, "popup,width=460,height=820");
   if (!popup) {
     toast("Popup wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
     return null;
@@ -299,7 +418,7 @@ function openAudioWindow() {
 }
 
 function openPlayerWindow() {
-  const playerWindow = window.open("/player", "partytube-tv-window");
+  const playerWindow = window.open(appConfig.playerUrl || "/player", "partytube-tv-window");
   if (!playerWindow) {
     toast("TV-Tab wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
     return null;
@@ -321,17 +440,18 @@ function buildAmbientAudioController() {
   const status = document.getElementById("ambient-audio-status");
   const toggle = document.getElementById("ambient-audio-toggle");
 
-  if (!root || ["player", "audio"].includes(appConfig.page)) {
+  if (!root || ["player", "audio", "join"].includes(appConfig.page)) {
     return {
       sync() {},
       isWindowActive() {
         return readAudioWindowStatus().active;
       },
-    openWindow: openAudioWindow,
-    getStatus: readAudioWindowStatus,
-    hasLaunchIntent: isAudioLaunchIntentActive,
-  };
-}
+      openWindow: openAudioWindow,
+      getStatus: readAudioWindowStatus,
+      hasLaunchIntent: isAudioLaunchIntentActive,
+      launchPartyStack,
+    };
+  }
 
   let currentSong = null;
 
@@ -392,8 +512,8 @@ function buildAmbientAudioController() {
     },
     openWindow: openAudioWindow,
     getStatus: readAudioWindowStatus,
-    launchPartyStack,
     hasLaunchIntent: isAudioLaunchIntentActive,
+    launchPartyStack,
   };
 }
 
@@ -410,11 +530,13 @@ const ambientAudio = buildAmbientAudioController();
 window.PartyTube = {
   appConfig,
   stateStore,
+  updateAppConfig,
   getDeviceId,
   getVotedSongs,
   rememberVote,
   clearRememberedVotes,
   songCard,
+  messageCard,
   emptyState,
   connectLive,
   apiFetch,
@@ -423,6 +545,7 @@ window.PartyTube = {
   registerPwaShell,
   loadYouTubeApi,
   playbackStartSeconds,
+  formatDuration,
   buildAutoplayPool,
   autoplayCard,
   ambientAudio,

@@ -18,6 +18,8 @@
     </div>
 </section>
 
+<section class="alert-stack" id="start-warning-list" aria-live="polite"></section>
+
 <section class="start-grid">
     <article class="panel panel-glow start-priority">
         <div class="panel-header compact">
@@ -32,6 +34,7 @@
             <a class="ghost-button" href="/admin">Host-Konsole</a>
             <a class="ghost-button" href="/">Gaeste-Queue</a>
         </div>
+        <p class="subtle-note">Fuer sichere Queue-Steuerung bitte einmal im Host-Bereich einloggen. Danach startet `Audio + TV` mit geschuetzten Player-Links.</p>
     </article>
 
     <article class="panel start-status-panel">
@@ -42,6 +45,10 @@
             </div>
         </div>
         <div class="status-stack">
+            <div class="status-row">
+                <span class="counter-pill" id="start-host-auth">Host-Login prueft...</span>
+                <span class="subtle-note" id="start-host-auth-note">Ohne Host-Session oeffnen Audio und TV nur die oeffentlichen Seiten.</span>
+            </div>
             <div class="status-row">
                 <span class="counter-pill" id="start-audio-state">Audio-Fenster aus</span>
                 <span class="subtle-note">Der Ton darf nur dort laufen, damit kein Echo entsteht.</span>
@@ -55,6 +62,67 @@
                 <span class="subtle-note">Queue und Voting laufen weiter im Haupt-Tab.</span>
             </div>
         </div>
+    </article>
+</section>
+
+<section class="layout-grid lower-grid">
+    <article class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Host-Setup</p>
+                <h2>Alles fuer den Start in einem Blick</h2>
+            </div>
+        </div>
+        <div class="access-list">
+            <div class="access-row">
+                <span>Lokale URL</span>
+                <a href="{{ settings.base_url }}" target="_blank" rel="noreferrer">{{ settings.base_url }}</a>
+            </div>
+            <div class="access-row">
+                <span>Party-Link</span>
+                <a id="start-join-url" href="{{ settings.join_url }}" target="_blank" rel="noreferrer">{{ settings.join_url }}</a>
+            </div>
+            <div class="access-row">
+                <span>Admin-Link</span>
+                <a id="start-admin-url" href="{{ settings.admin_url }}" target="_blank" rel="noreferrer">{{ settings.admin_url }}</a>
+            </div>
+            <div class="access-row">
+                <span>TV-Link</span>
+                <a id="start-player-url" href="/player" target="_blank" rel="noreferrer">Nach Host-Login abgesichert</a>
+            </div>
+            <div class="access-row">
+                <span>Audio-Link</span>
+                <a id="start-audio-url" href="/audio" target="_blank" rel="noreferrer">Nach Host-Login abgesichert</a>
+            </div>
+            <div class="access-row">
+                <span>Party-Code</span>
+                <strong>{{ settings.party_code }}</strong>
+            </div>
+            <div class="access-row">
+                <span>WLAN</span>
+                <strong>{{ settings.wifi_ssid or "Nicht konfiguriert" }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Queue Ueberblick</p>
+                <h2>Was gleich passiert</h2>
+            </div>
+        </div>
+        <div class="meta-grid queue-meta-grid">
+            <div class="meta-card">
+                <span class="eyebrow">Als naechstes</span>
+                <strong id="start-next-song">Noch offen</strong>
+            </div>
+            <div class="meta-card">
+                <span class="eyebrow">Gesamtdauer</span>
+                <strong id="start-queue-duration">Wird berechnet</strong>
+            </div>
+        </div>
+        <p class="subtle-note">Wenn die Queue leer wird und Autoplay aktiv ist, springt PartyTube automatisch in den Verlauf-Fallback.</p>
     </article>
 </section>
 

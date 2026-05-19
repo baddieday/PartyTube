@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PORT: 8090
+      HOST_IP: 127.0.0.1
+      BASE_URL: http://127.0.0.1:8090
+      DATA_DIR: .tmp
+      DATABASE_PATH: .tmp/ci-party.db
+      ADMIN_PIN: 2468
+      PARTY_NAME: CI Party
+      PARTY_CODE: ci-rave
+      WIFI_SSID: PartyLAN
+      WIFI_PASSWORD: HouseParty2026!
+      WIFI_SECURITY: WPA
+      TEST_MODE: "1"
+      ENABLE_TITLE_LOOKUP: "0"
+      TITLE_LOOKUP_TIMEOUT_SECONDS: "0.1"
+      SKIP_WEBSERVER: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Compile backend
+        run: python -m compileall app
+
+      - name: Start PartyTube
+        run: |
+          mkdir -p .tmp
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8090 > uvicorn.log 2>&1 &
+          echo $! > .tmp/uvicorn.pid
+
+      - name: Wait for health
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8090/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat uvicorn.log
+          exit 1
+
+      - name: Run Playwright suite
+        run: npm run test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+            uvicorn.log

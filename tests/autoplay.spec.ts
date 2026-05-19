@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, expectToast, loginAsAdmin, resetTestState } from "./helpers";
+import { SAMPLE_URLS, expectToast, getSecureAudioUrl, loginAsAdmin, resetTestState } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -11,7 +11,11 @@ test("Autoplay-Fallback: wenn die Queue leer wird, laeuft der Party-Verlauf weit
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");
 
-  await page.goto("/audio");
+  const secureAudioUrl = await getSecureAudioUrl(page);
+  const playerToken = new URL(`http://local${secureAudioUrl}`).searchParams.get("player_key");
+  expect(playerToken).toBeTruthy();
+
+  await page.goto(secureAudioUrl);
 
   const firstAdd = await request.post("/api/songs", {
     data: { url: SAMPLE_URLS.watch, guestName: "Auto A", deviceId: "auto-a" },
@@ -25,11 +29,17 @@ test("Autoplay-Fallback: wenn die Queue leer wird, laeuft der Party-Verlauf weit
 
   await expect(page.locator("#audio-current-card")).toContainText("YouTube Video dQw4w9WgXcQ");
 
-  const firstEnded = await request.post("/api/player/ended", { data: {} });
+  const firstEnded = await request.post("/api/player/ended", {
+    data: {},
+    headers: { "X-PartyTube-Player-Token": playerToken! },
+  });
   expect(firstEnded.ok()).toBeTruthy();
   await expect(page.locator("#audio-current-card")).toContainText("YouTube Video 3JZ4pnNtyxQ");
 
-  const secondEnded = await request.post("/api/player/ended", { data: {} });
+  const secondEnded = await request.post("/api/player/ended", {
+    data: {},
+    headers: { "X-PartyTube-Player-Token": playerToken! },
+  });
   expect(secondEnded.ok()).toBeTruthy();
   await expect(page.locator("#audio-current-card")).toContainText("Autoplay aus Verlauf");
   await expect(page.locator("#audio-current-card")).toContainText("YouTube Video dQw4w9WgXcQ");

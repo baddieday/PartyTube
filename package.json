@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
+    "test:accessibility": "playwright test tests/accessibility.spec.ts",
+    "test:load": "playwright test tests/load.spec.ts",
+    "test:security": "playwright test tests/security.spec.ts",
     "test:headed": "playwright test --headed",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "generate:icons": "node scripts/generate-icons.mjs"
   },
   "devDependencies": {
     "playwright": "1.59.1"
   }
 }
-

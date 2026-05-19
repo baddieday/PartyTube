@@ -1,4 +1,4 @@
-const CACHE_NAME = "partytube-assets-v6";
+const CACHE_NAME = "partytube-assets-v7";
 const STATIC_URLS = [
   "/static/css/styles.css",
   "/static/js/shared.js",
@@ -10,6 +10,10 @@ const STATIC_URLS = [
   "/static/js/qr.js",
   "/static/img/logo.svg",
   "/static/img/icon.svg",
+  "/static/img/icon-128.png",
+  "/static/img/icon-192.png",
+  "/static/img/icon-512.png",
+  "/static/img/apple-touch-icon.png",
   "/manifest.webmanifest",
 ];
 

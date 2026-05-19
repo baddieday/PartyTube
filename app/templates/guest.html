@@ -4,6 +4,7 @@
     <div class="hero-copy">
         <p class="eyebrow">Gaeste-Queue</p>
         <h1>Songs reinwerfen und direkt gemeinsam nach oben voten.</h1>
+        <p class="hero-text">Ein Link reicht. PartyTube erkennt YouTube-Links aus `watch`, `youtu.be`, `shorts`, `embed` und direkten Video-IDs.</p>
         <div class="hero-actions">
             <a class="primary-button" href="#add-song-form">Song hinzufuegen</a>
             <button class="ghost-button" id="copy-join-link" type="button">Party-Link kopieren</button>
@@ -17,6 +18,8 @@
         <small>{{ settings.display_address }}</small>
     </div>
 </section>
+
+<section class="alert-stack" id="guest-runtime-alerts" aria-live="polite"></section>
 
 <section class="layout-grid">
     <div class="panel panel-glow">
@@ -60,6 +63,16 @@
             </div>
             <span class="counter-pill" id="queue-count">0 offen</span>
         </div>
+        <div class="meta-grid queue-meta-grid" id="queue-meta-grid">
+            <div class="meta-card">
+                <span class="eyebrow">Als naechstes</span>
+                <strong id="next-song-hint">Noch offen</strong>
+            </div>
+            <div class="meta-card">
+                <span class="eyebrow">Gesamtdauer</span>
+                <strong id="queue-duration">Wird berechnet</strong>
+            </div>
+        </div>
         <div id="queue-list" class="queue-list"></div>
     </div>
 </section>
@@ -75,6 +88,27 @@
         <div id="history-list" class="history-list"></div>
     </div>
 
+    <div class="panel" id="chat-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Party Chat</p>
+                <h2>Kurze Nachrichten an alle</h2>
+            </div>
+            <span class="counter-pill" id="chat-count">0 live</span>
+        </div>
+        <form class="add-form" id="message-form">
+            <label>
+                <span>Nachricht</span>
+                <textarea id="chat-message" name="message" rows="3" maxlength="280" placeholder="z. B. Nacher bitte was Schnelles fuer die Kueche"></textarea>
+            </label>
+            <button class="primary-button" id="submit-message" type="submit">Nachricht senden</button>
+            <p class="subtle-note" id="chat-status-note">Kurze Messages laufen live auf allen Geraeten mit.</p>
+        </form>
+        <div id="chat-list" class="chat-list" aria-live="polite"></div>
+    </div>
+</section>
+
+<section class="layout-grid lower-grid">
     <div class="panel compact-qr-panel">
         <div class="panel-header compact">
             <div>
@@ -105,8 +139,8 @@
     <div class="panel accent-panel guest-help-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Nur wenn noetig</p>
-                <h2>Kurze Hilfe</h2>
+                <p class="eyebrow">Kurz erklaert</p>
+                <h2>Wichtiges zuerst</h2>
             </div>
         </div>
         <ul class="check-list">
@@ -114,6 +148,7 @@
             <li>Jedes Geraet kann pro Song genau einmal voten.</li>
             <li>Doppelte aktive Songs werden automatisch abgefangen.</li>
             <li>Alles aktualisiert sich live ohne Reload.</li>
+            <li>Wenn Invite-only aktiv ist, ist der Party-Code nur dein Einladungslink und kein Passwort.</li>
         </ul>
     </div>
 </section>

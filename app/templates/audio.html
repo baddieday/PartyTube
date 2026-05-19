@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="player-layout">
+    <div class="panel player-stage">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Dauerhaft offen lassen</p>
+                <h1>Audio Deck</h1>
+            </div>
+            <span class="live-pill" id="audio-status-pill">Bereit</span>
+        </div>
+        <p class="subtle-note" id="audio-mode-note">Dieses Fenster haelt die Musik stabil am Laufen. Den TV-Tab kannst du parallel fuer das Video offen lassen.</p>
+        <div class="player-frame-wrap audio-only-wrap">
+            <div id="audio-youtube-player" class="player-frame"></div>
+            <div id="audio-overlay" class="player-overlay">
+                <div>
+                    <strong>Audio starten</strong>
+                    <p>Falls der Browser blockt, hier einmal tippen. Danach kann dieses Fenster die Musik dauerhaft halten.</p>
+                    <button class="primary-button" id="resume-audio" type="button">Audio starten</button>
+                </div>
+            </div>
+        </div>
+        <div id="audio-current-card" class="song-slot empty-state">
+            <p>Keine aktive Wiedergabe. Sobald ein Song dran ist, uebernimmt dieses Fenster den Ton.</p>
+        </div>
+    </div>
+
+    <div class="panel player-sidebar">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Als naechstes</p>
+                <h2>Queue Vorschau</h2>
+            </div>
+        </div>
+        <div id="audio-queue-preview" class="queue-list"></div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/audio.js" defer></script>
+{% endblock %}

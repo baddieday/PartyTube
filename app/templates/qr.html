@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card qr-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">QR-Poster</p>
+        <h1>Einmal aufstellen, dann kann jede Person sofort beitreten.</h1>
+        <p class="hero-text">Scannen, WLAN verbinden, Link oeffnen, Song reinschieben.</p>
+    </div>
+    <div class="hero-actions">
+        <button class="ghost-button" id="copy-link-qr-page" type="button">Party-Link kopieren</button>
+        <button class="ghost-button" id="print-poster" type="button">Poster drucken</button>
+    </div>
+</section>
+
+<section class="qr-grid" id="poster-root">
+    <article class="qr-card">
+        <p class="eyebrow">1. Party-Seite</p>
+        <h2>{{ settings.party_name }}</h2>
+        <img class="qr-image" src="{{ link_qr_data_uri }}" alt="QR-Code fuer die Party-Seite">
+        <p class="qr-text">{{ settings.join_url }}</p>
+        <span class="tag-pill">Code {{ settings.party_code }}</span>
+    </article>
+
+    <article class="qr-card">
+        <p class="eyebrow">2. WLAN</p>
+        <h2>{{ settings.wifi_ssid or "WLAN-Daten eintragen" }}</h2>
+        {% if wifi_qr_data_uri %}
+        <img class="qr-image" src="{{ wifi_qr_data_uri }}" alt="QR-Code fuer das WLAN">
+        <p class="qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
+        {% else %}
+        <div class="qr-placeholder">
+            <p>Kein WLAN-QR konfiguriert.</p>
+            <p class="subtle-note">Trage SSID und Passwort bequem im Host-Bereich ein.</p>
+        </div>
+        {% endif %}
+        <span class="tag-pill">Host {{ settings.display_address }}</span>
+    </article>
+</section>
+
+<section class="panel print-panel">
+    <div class="panel-header compact">
+        <div>
+            <p class="eyebrow">Ablauf fuer Gaeste</p>
+            <h2>Mini-Anleitung</h2>
+        </div>
+    </div>
+    <ol class="steps-list">
+        <li>WLAN scannen und verbinden.</li>
+        <li>Party-Link scannen oder `{{ settings.join_url }}` oeffnen.</li>
+        <li>YouTube-Link einfuegen, optional Namen schreiben, senden.</li>
+        <li>Mit einem Tap auf Lieblingssongs voten.</li>
+    </ol>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/qr.js" defer></script>
+{% endblock %}

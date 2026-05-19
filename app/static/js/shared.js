@@ -1,0 +1,440 @@
+const appConfig = JSON.parse(document.getElementById("app-config")?.textContent || "{}");
+
+const stateStore = {
+  current: null,
+  queue: [],
+  history: [],
+  stats: { activeCount: 0, historyCount: 0 },
+};
+
+const AUDIO_WINDOW_NAME = "partytube-audio-window";
+const AUDIO_HEARTBEAT_KEY = "partytube-audio-window-heartbeat";
+const AUDIO_TITLE_KEY = "partytube-audio-window-title";
+const AUDIO_STATE_KEY = "partytube-audio-window-state";
+const AUDIO_HEARTBEAT_MAX_AGE_MS = 6500;
+const AUDIO_LAUNCH_INTENT_KEY = "partytube-audio-launch-intent";
+const AUDIO_LAUNCH_INTENT_TTL_MS = 12000;
+
+function getDeviceId() {
+  const key = "partytube-device-id";
+  let value = localStorage.getItem(key);
+  if (!value) {
+    value = self.crypto?.randomUUID?.() || `device-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(key, value);
+  }
+  return value;
+}
+
+function getVotedSongs() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem("partytube-votes") || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function rememberVote(songId) {
+  const set = getVotedSongs();
+  set.add(songId);
+  localStorage.setItem("partytube-votes", JSON.stringify(Array.from(set)));
+}
+
+function clearRememberedVotes() {
+  localStorage.removeItem("partytube-votes");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function relativeTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  const diff = Math.max(0, Date.now() - date.getTime());
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "gerade eben";
+  if (minutes < 60) return `vor ${minutes} Min.`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `vor ${hours} Std.`;
+  const days = Math.floor(hours / 24);
+  return `vor ${days} Tag${days === 1 ? "" : "en"}`;
+}
+
+function playbackStartSeconds(song) {
+  if (!song?.currentStartedAt) return 0;
+  const startedAt = new Date(song.currentStartedAt).getTime();
+  if (!Number.isFinite(startedAt)) return 0;
+  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+  return Math.max(0, seconds - 1);
+}
+
+function toast(message, kind = "info") {
+  const stack = document.getElementById("toast-stack");
+  if (!stack) return;
+  const item = document.createElement("div");
+  item.className = `toast ${kind}`;
+  item.textContent = message;
+  stack.appendChild(item);
+  setTimeout(() => item.classList.add("visible"), 10);
+  setTimeout(() => {
+    item.classList.remove("visible");
+    setTimeout(() => item.remove(), 250);
+  }, 3400);
+}
+
+async function apiFetch(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const body = contentType.includes("application/json") ? await response.json() : await response.text();
+  if (!response.ok) {
+    const detail = typeof body === "string" ? body : body.detail || "Aktion fehlgeschlagen.";
+    const error = new Error(detail);
+    error.status = response.status;
+    error.payload = body;
+    throw error;
+  }
+  return body;
+}
+
+function songCard(song, options = {}) {
+  const votedSongs = getVotedSongs();
+  const voted = votedSongs.has(song.id);
+  const adminMode = options.adminMode || false;
+  const playerMode = options.playerMode || false;
+
+  return `
+    <article class="song-card ${options.highlight ? "highlight" : ""}" data-song-id="${song.id}">
+      <img class="song-thumb" src="${escapeHtml(song.thumbnailUrl)}" alt="Thumbnail von ${escapeHtml(song.title)}" loading="lazy">
+      <div class="song-meta">
+        <div class="song-line">
+          <h3>${escapeHtml(song.title)}</h3>
+          <span class="vote-chip">${song.votes} Vote${song.votes === 1 ? "" : "s"}</span>
+        </div>
+        <p class="song-subline">
+          ${song.guestName ? `von <strong>${escapeHtml(song.guestName)}</strong>` : "von einem Gast"}
+          <span class="dot-sep"></span>
+          ${relativeTime(song.addedAt)}
+        </p>
+        ${song.playedAt ? `<p class="song-subline">gespielt ${relativeTime(song.playedAt)}</p>` : ""}
+        <div class="song-actions">
+          ${
+            !adminMode && !playerMode
+              ? `<button class="chip-button vote-button" ${voted ? "disabled" : ""} data-action="vote">
+                  ${voted ? "Schon gevotet" : "Vote +1"}
+                </button>`
+              : ""
+          }
+          ${
+            adminMode
+              ? `<button class="chip-button danger" data-action="remove">Entfernen</button>`
+              : ""
+          }
+          <a class="chip-button link-chip" href="${escapeHtml(song.canonicalUrl)}" target="_blank" rel="noreferrer">YouTube</a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function emptyState(message) {
+  return `<div class="song-slot empty-state"><p>${escapeHtml(message)}</p></div>`;
+}
+
+function buildAutoplayPool(history = []) {
+  const unique = new Set();
+  return [...history]
+    .sort((left, right) => {
+      if ((right.votes || 0) !== (left.votes || 0)) {
+        return (right.votes || 0) - (left.votes || 0);
+      }
+      return new Date(right.playedAt || 0).getTime() - new Date(left.playedAt || 0).getTime();
+    })
+    .filter((song) => {
+      if (!song?.videoId || unique.has(song.videoId)) {
+        return false;
+      }
+      unique.add(song.videoId);
+      return true;
+    });
+}
+
+function autoplayCard(song) {
+  const syntheticSong = {
+    ...song,
+    id: `autoplay-${song.videoId}`,
+    guestName: "Autoplay aus Verlauf",
+    addedAt: song.playedAt || song.addedAt,
+  };
+  return `
+    <div class="mode-banner">
+      <span class="tag-pill">Autoplay</span>
+      <p>Die Queue ist leer. PartyTube spielt jetzt automatisch einen Track aus dem bisherigen Abend und springt sofort zurueck, sobald neue Songs reinkommen.</p>
+    </div>
+    ${songCard(syntheticSong, { playerMode: true, highlight: true })}
+  `;
+}
+
+function updateConnectionPill(connected) {
+  const pill =
+    document.getElementById("connection-pill") ||
+    document.getElementById("player-status-pill") ||
+    document.getElementById("audio-status-pill");
+  if (!pill) return;
+  pill.textContent = connected ? "Live verbunden" : "Reconnecting...";
+  pill.classList.toggle("live-ok", connected);
+}
+
+function connectLive(onState) {
+  const protocol = location.protocol === "https:" ? "wss" : "ws";
+  const socket = new WebSocket(`${protocol}://${location.host}/ws`);
+
+  socket.addEventListener("open", () => updateConnectionPill(true));
+  socket.addEventListener("close", () => {
+    updateConnectionPill(false);
+    setTimeout(() => connectLive(onState), 1500);
+  });
+  socket.addEventListener("message", (event) => {
+    const payload = JSON.parse(event.data);
+    if (payload.type === "state") {
+      onState(payload);
+    }
+  });
+  return socket;
+}
+
+function copyText(value, successMessage = "Kopiert.") {
+  navigator.clipboard.writeText(value).then(
+    () => toast(successMessage, "success"),
+    () => toast("Konnte nicht in die Zwischenablage kopieren.", "error"),
+  );
+}
+
+function registerPwaShell() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").catch(() => null);
+  }
+}
+
+function loadYouTubeApi() {
+  if (window.YT?.Player) {
+    return Promise.resolve(window.YT);
+  }
+  if (window.__partyTubeYouTubeLoader) {
+    return window.__partyTubeYouTubeLoader;
+  }
+
+  window.__partyTubeYouTubeLoader = new Promise((resolve, reject) => {
+    const previousReady = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (typeof previousReady === "function") {
+        previousReady();
+      }
+      resolve(window.YT);
+    };
+
+    let script = document.querySelector("script[data-youtube-api='partytube']");
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.defer = true;
+      script.dataset.youtubeApi = "partytube";
+      script.addEventListener("error", () => reject(new Error("YouTube API konnte nicht geladen werden.")), {
+        once: true,
+      });
+      document.head.appendChild(script);
+    }
+  });
+
+  return window.__partyTubeYouTubeLoader;
+}
+
+function readAudioWindowStatus() {
+  const lastHeartbeat = Number(localStorage.getItem(AUDIO_HEARTBEAT_KEY) || "0");
+  const state = localStorage.getItem(AUDIO_STATE_KEY) || "idle";
+  const title = localStorage.getItem(AUDIO_TITLE_KEY) || "";
+  return {
+    active: Date.now() - lastHeartbeat < AUDIO_HEARTBEAT_MAX_AGE_MS,
+    state,
+    title,
+  };
+}
+
+function markAudioLaunchIntent() {
+  localStorage.setItem(AUDIO_LAUNCH_INTENT_KEY, String(Date.now()));
+}
+
+function isAudioLaunchIntentActive() {
+  const createdAt = Number(localStorage.getItem(AUDIO_LAUNCH_INTENT_KEY) || "0");
+  return Date.now() - createdAt < AUDIO_LAUNCH_INTENT_TTL_MS;
+}
+
+function dispatchAudioWindowStatus() {
+  const detail = readAudioWindowStatus();
+  window.dispatchEvent(new CustomEvent("partytube:audio-window-status", { detail }));
+  return detail;
+}
+
+function openAudioWindow() {
+  const popup = window.open("/audio", AUDIO_WINDOW_NAME, "popup,width=460,height=820");
+  if (!popup) {
+    toast("Popup wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
+    return null;
+  }
+  popup.focus?.();
+  return popup;
+}
+
+function openPlayerWindow() {
+  const playerWindow = window.open("/player", "partytube-tv-window");
+  if (!playerWindow) {
+    toast("TV-Tab wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
+    return null;
+  }
+  playerWindow.focus?.();
+  return playerWindow;
+}
+
+function launchPartyStack() {
+  markAudioLaunchIntent();
+  const audioWindow = openAudioWindow();
+  const playerWindow = openPlayerWindow();
+  return { audioWindow, playerWindow };
+}
+
+function buildAmbientAudioController() {
+  const root = document.getElementById("ambient-audio-dock");
+  const title = document.getElementById("ambient-song-title");
+  const status = document.getElementById("ambient-audio-status");
+  const toggle = document.getElementById("ambient-audio-toggle");
+
+  if (!root || ["player", "audio"].includes(appConfig.page)) {
+    return {
+      sync() {},
+      isWindowActive() {
+        return readAudioWindowStatus().active;
+      },
+    openWindow: openAudioWindow,
+    getStatus: readAudioWindowStatus,
+    hasLaunchIntent: isAudioLaunchIntentActive,
+  };
+}
+
+  let currentSong = null;
+
+  function updateUi() {
+    const audioStatus = dispatchAudioWindowStatus();
+    root.classList.remove("hidden");
+
+    if (!currentSong) {
+      title.textContent = "Audio-Fenster bereit";
+      status.textContent = audioStatus.active
+        ? "Das Audio-Fenster ist offen und wartet auf den naechsten Song."
+        : "Einmal oeffnen, dann bleibt der Ton beim Wechsel zwischen Queue, Host und QR stabil weiterlaufen.";
+      toggle.textContent = audioStatus.active ? "Audio-Fenster fokussieren" : "Audio-Fenster oeffnen";
+      return;
+    }
+
+    title.textContent = currentSong.title;
+    if (audioStatus.active && audioStatus.state === "playing") {
+      status.textContent = "Der Ton laeuft im separaten Audio-Fenster weiter. Dieses Hauptfenster kannst du frei wechseln.";
+      toggle.textContent = "Audio-Fenster fokussieren";
+      return;
+    }
+
+    if (audioStatus.active) {
+      status.textContent = "Das Audio-Fenster ist offen. Falls der Browser blockt, dort einmal auf Start tippen.";
+      toggle.textContent = "Audio-Fenster fokussieren";
+      return;
+    }
+
+    status.textContent = "Oeffne das Audio-Fenster einmal, dann bleibt die Musik auch ueber Seitenwechsel hinweg stabil.";
+    toggle.textContent = "Audio-Fenster oeffnen";
+  }
+
+  toggle?.addEventListener("click", () => {
+    const popup = openAudioWindow();
+    if (popup) {
+      toast("Audio-Fenster ist bereit.", "success");
+      setTimeout(updateUi, 250);
+    }
+  });
+
+  window.addEventListener("storage", (event) => {
+    if ([AUDIO_HEARTBEAT_KEY, AUDIO_TITLE_KEY, AUDIO_STATE_KEY].includes(event.key || "")) {
+      updateUi();
+    }
+  });
+
+  setInterval(updateUi, 1500);
+  updateUi();
+
+  return {
+    sync(song) {
+      currentSong = song || null;
+      updateUi();
+    },
+    isWindowActive() {
+      return readAudioWindowStatus().active;
+    },
+    openWindow: openAudioWindow,
+    getStatus: readAudioWindowStatus,
+    launchPartyStack,
+    hasLaunchIntent: isAudioLaunchIntentActive,
+  };
+}
+
+window.addEventListener("storage", (event) => {
+  if ([AUDIO_HEARTBEAT_KEY, AUDIO_TITLE_KEY, AUDIO_STATE_KEY].includes(event.key || "")) {
+    dispatchAudioWindowStatus();
+  }
+});
+
+setInterval(dispatchAudioWindowStatus, 1500);
+
+const ambientAudio = buildAmbientAudioController();
+
+window.PartyTube = {
+  appConfig,
+  stateStore,
+  getDeviceId,
+  getVotedSongs,
+  rememberVote,
+  clearRememberedVotes,
+  songCard,
+  emptyState,
+  connectLive,
+  apiFetch,
+  toast,
+  copyText,
+  registerPwaShell,
+  loadYouTubeApi,
+  playbackStartSeconds,
+  buildAutoplayPool,
+  autoplayCard,
+  ambientAudio,
+  launchPartyStack,
+  markAudioLaunchIntent,
+  isAudioLaunchIntentActive,
+  openPlayerWindow,
+  audioWindowKeys: {
+    heartbeat: AUDIO_HEARTBEAT_KEY,
+    title: AUDIO_TITLE_KEY,
+    state: AUDIO_STATE_KEY,
+  },
+};
+
+registerPwaShell();

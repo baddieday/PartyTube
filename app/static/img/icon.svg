@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>PartyTube Icon</title>
+  <rect width="512" height="512" rx="120" fill="#02040a"/>
+  <g transform="translate(256 256)">
+    <ellipse cx="0" cy="0" rx="154" ry="142" fill="#05070f" stroke="#ffffff" stroke-width="16"/>
+    <circle cx="0" cy="0" r="96" fill="#05070f" stroke="#ff1f92" stroke-width="26"/>
+    <path d="M-28 -42 L48 0 L-28 42 Z" fill="#ffffff"/>
+  </g>
+  <g stroke-linecap="round">
+    <path d="M87 179 L129 195" stroke="#17b8ff" stroke-width="26"/>
+    <path d="M128 118 L186 190" stroke="#ff1f92" stroke-width="30"/>
+    <path d="M214 130 L230 213" stroke="#ffd91e" stroke-width="24"/>
+    <path d="M343 96 L309 190" stroke="#17b8ff" stroke-width="28"/>
+    <path d="M409 122 L373 158" stroke="#ff1f92" stroke-width="26"/>
+    <circle cx="88" cy="244" r="16" fill="#ff1f92"/>
+    <circle cx="204" cy="92" r="16" fill="#ff1f92"/>
+    <path d="M256 68 L273 103 L312 109 L284 136 L290 175 L256 156 L222 175 L228 136 L200 109 L239 103 Z" fill="#ffd91e"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+*.pyc
+node_modules
+artifacts
+test-results
+playwright-report
+.tmp
+data
+tests
+partytube-deploy.tgz
+

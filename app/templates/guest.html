@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card">
+    <div class="hero-copy">
+        <p class="eyebrow">Gaeste-Queue</p>
+        <h1>Songs reinwerfen und direkt gemeinsam nach oben voten.</h1>
+        <div class="hero-actions">
+            <a class="primary-button" href="#add-song-form">Song hinzufuegen</a>
+            <button class="ghost-button" id="copy-join-link" type="button">Party-Link kopieren</button>
+            <a class="ghost-button" href="/qr">QR-Poster</a>
+            <a class="ghost-button" href="/start">Startseite</a>
+        </div>
+    </div>
+    <div class="hero-badge">
+        <span>Session</span>
+        <strong>{{ settings.party_code }}</strong>
+        <small>{{ settings.display_address }}</small>
+    </div>
+</section>
+
+<section class="layout-grid">
+    <div class="panel panel-glow">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Jetzt adden</p>
+                <h2>Song zur Party schicken</h2>
+            </div>
+            <span class="live-pill" id="connection-pill">Verbinde live...</span>
+        </div>
+        <form class="add-form" id="add-song-form">
+            <label>
+                <span>YouTube-Link</span>
+                <input id="song-url" name="url" type="url" inputmode="url" placeholder="https://youtu.be/..." maxlength="500" required>
+            </label>
+            <label>
+                <span>Dein Name (optional)</span>
+                <input id="guest-name" name="guestName" type="text" maxlength="32" placeholder="z. B. Alex">
+            </label>
+            <button class="primary-button" id="submit-song" type="submit">Song in die Queue</button>
+            <p class="subtle-note">Unterstuetzt: `watch`, `youtu.be`, `shorts`, `embed` und direkte Video-IDs.</p>
+        </form>
+        <div class="current-wrapper">
+            <div class="panel-header compact">
+                <div>
+                    <p class="eyebrow">Gerade dran</p>
+                    <h2>Aktueller Song</h2>
+                </div>
+            </div>
+            <div id="current-song" class="song-slot empty-state">
+                <p>Die Queue ist gerade leer. Zeit fuer den ersten Song.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <p class="eyebrow">Live Queue</p>
+                <h2>Naechste Songs</h2>
+            </div>
+            <span class="counter-pill" id="queue-count">0 offen</span>
+        </div>
+        <div id="queue-list" class="queue-list"></div>
+    </div>
+</section>
+
+<section class="layout-grid lower-grid">
+    <div class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Zuletzt gespielt</p>
+                <h2>Verlauf</h2>
+            </div>
+        </div>
+        <div id="history-list" class="history-list"></div>
+    </div>
+
+    <div class="panel compact-qr-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Schnell teilen</p>
+                <h2>Kleine QR-Codes</h2>
+            </div>
+        </div>
+        <div class="compact-qr-grid compact-qr-grid-tight">
+            <article class="compact-qr-card">
+                <span class="tag-pill">Party Join</span>
+                <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+                <p class="compact-qr-text">{{ settings.join_url }}</p>
+            </article>
+            <article class="compact-qr-card">
+                <span class="tag-pill">WLAN</span>
+                {% if wifi_qr_data_uri %}
+                <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+                <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
+                {% else %}
+                <div class="compact-qr-placeholder">
+                    <p>WLAN-Daten folgen im Host-Bereich.</p>
+                </div>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+
+    <div class="panel accent-panel guest-help-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Nur wenn noetig</p>
+                <h2>Kurze Hilfe</h2>
+            </div>
+        </div>
+        <ul class="check-list">
+            <li>Ein eingefuegter Song zaehlt direkt als erste Stimme.</li>
+            <li>Jedes Geraet kann pro Song genau einmal voten.</li>
+            <li>Doppelte aktive Songs werden automatisch abgefangen.</li>
+            <li>Alles aktualisiert sich live ohne Reload.</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/guest.js" defer></script>
+{% endblock %}

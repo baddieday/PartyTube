@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card start-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Party Start</p>
+        <h1>Audio stabil halten, TV starten und dann entspannt Songs sammeln.</h1>
+        <p class="hero-text">Erst das Audio-Deck, dann den TV-Tab. So gibt es kein Echo und keine Tonabbrueche beim Wechsel zwischen Queue, Host und QR.</p>
+        <div class="hero-actions">
+            <button class="primary-button" id="launch-party-stack" type="button">Audio + TV starten</button>
+            <button class="ghost-button" id="launch-audio-only" type="button">Nur Audio oeffnen</button>
+            <a class="ghost-button" href="/player" target="_blank" rel="noreferrer">Nur TV oeffnen</a>
+        </div>
+    </div>
+    <div class="hero-badge">
+        <span>Heute live</span>
+        <strong>{{ settings.party_code }}</strong>
+        <small>{{ settings.display_address }}</small>
+    </div>
+</section>
+
+<section class="start-grid">
+    <article class="panel panel-glow start-priority">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Wichtige Aktionen</p>
+                <h2>Sofort griffbereit</h2>
+            </div>
+        </div>
+        <div class="start-actions-grid">
+            <button class="primary-button" id="copy-start-join-link" type="button">Party-Link kopieren</button>
+            <a class="ghost-button" href="/qr" target="_blank" rel="noreferrer">QR-Poster</a>
+            <a class="ghost-button" href="/admin">Host-Konsole</a>
+            <a class="ghost-button" href="/">Gaeste-Queue</a>
+        </div>
+    </article>
+
+    <article class="panel start-status-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Live Status</p>
+                <h2>Audio zuerst, TV danach</h2>
+            </div>
+        </div>
+        <div class="status-stack">
+            <div class="status-row">
+                <span class="counter-pill" id="start-audio-state">Audio-Fenster aus</span>
+                <span class="subtle-note">Der Ton darf nur dort laufen, damit kein Echo entsteht.</span>
+            </div>
+            <div class="status-row">
+                <span class="counter-pill">TV zeigt Video</span>
+                <span class="subtle-note">Sobald das Audio-Fenster aktiv ist, bleibt der TV-Tab stumm.</span>
+            </div>
+            <div class="status-row">
+                <span class="counter-pill">Gaeste auf /</span>
+                <span class="subtle-note">Queue und Voting laufen weiter im Haupt-Tab.</span>
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="panel lower-grid compact-qr-panel">
+    <div class="panel-header compact">
+        <div>
+            <p class="eyebrow">Schnell beitreten</p>
+            <h2>Kleine QR-Codes fuer Party und WLAN</h2>
+        </div>
+    </div>
+    <div class="compact-qr-grid">
+        <article class="compact-qr-card">
+            <span class="tag-pill">Party Join</span>
+            <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+            <p class="compact-qr-text">{{ settings.join_url }}</p>
+        </article>
+        <article class="compact-qr-card">
+            <span class="tag-pill">WLAN</span>
+            {% if wifi_qr_data_uri %}
+            <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+            <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
+            {% else %}
+            <div class="compact-qr-placeholder">
+                <p>WLAN folgt im Host-Bereich.</p>
+            </div>
+            {% endif %}
+        </article>
+    </div>
+</section>
+
+<section class="layout-grid lower-grid">
+    <article class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Aktuell</p>
+                <h2>Was gerade laeuft</h2>
+            </div>
+        </div>
+        <div id="start-current-song" class="song-slot empty-state">
+            <p>Kein Song aktiv. Oeffne Audio + TV und lass die ersten Tracks reinfliegen.</p>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Queue Vorschau</p>
+                <h2>Naechste Songs</h2>
+            </div>
+            <span class="counter-pill" id="start-queue-count">0 offen</span>
+        </div>
+        <div id="start-queue-list" class="queue-list"></div>
+    </article>
+</section>
+
+<section class="panel lower-grid intro-panel">
+    <div class="panel-header compact">
+        <div>
+            <p class="eyebrow">Kurz erklaert</p>
+            <h2>So funktioniert der Abend</h2>
+        </div>
+    </div>
+    <ol class="steps-list">
+        <li>Tippe auf `Audio + TV starten` und lasse das Audio-Deck offen.</li>
+        <li>Stelle den TV-Tab auf den Fernseher, das Audio-Fenster bleibt auf deinem Steuergeraet.</li>
+        <li>Schicke Gaeste auf `/` oder auf das QR-Poster, damit sie Songs einwerfen und voten koennen.</li>
+        <li>Nutze spaeter `/admin` fuer Skip, Reset, QR-Updates und WLAN-Daten.</li>
+    </ol>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/start.js" defer></script>
+{% endblock %}

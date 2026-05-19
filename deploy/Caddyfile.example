@@ -1,0 +1,14 @@
+{
+    auto_https off
+}
+
+party.home.arpa:80 {
+    reverse_proxy app:8088
+    encode zstd gzip
+
+    header {
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+    }
+}
+

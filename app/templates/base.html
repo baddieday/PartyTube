@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1020">
+    <meta name="description" content="Lokale Party-Jukebox fuer gemeinsames YouTube-Queueing im Heimnetz.">
+    <title>{{ settings.app_name }} | {{ settings.party_name }}</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/static/img/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body data-page="{{ page }}">
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+    <header class="shell-header">
+        <a class="brand" href="/">
+            <img class="brand-logo" src="/static/img/logo.svg" alt="PartyTube">
+            <div class="brand-copy">
+                <strong>{{ settings.party_name }}</strong>
+                <span>lokale YouTube Party-Jukebox</span>
+            </div>
+        </a>
+        <nav class="top-nav">
+            <a href="/start">Start</a>
+            <a href="/">Queue</a>
+            <a href="/player">TV</a>
+            <a href="/audio" target="_blank" rel="noreferrer">Audio</a>
+            <a href="/qr">QR</a>
+            <a href="/admin">Host</a>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+
+    <aside class="ambient-dock hidden" id="ambient-audio-dock" aria-live="polite">
+        <div class="ambient-copy">
+            <p class="eyebrow">Audio-Fenster</p>
+            <strong id="ambient-song-title">Audio-Fenster bereit</strong>
+            <p id="ambient-audio-status">Einmal oeffnen, dann bleibt der Ton beim Wechsel zwischen Queue, Host und QR stabil weiterlaufen.</p>
+        </div>
+        <div class="ambient-actions">
+            <button class="primary-button" id="ambient-audio-toggle" type="button">Audio-Fenster oeffnen</button>
+            <a class="ghost-button" href="/player" target="_blank" rel="noreferrer">TV mit Video</a>
+        </div>
+    </aside>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+    <script id="app-config" type="application/json">{{ app_config | tojson }}</script>
+    <script src="/static/js/shared.js" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

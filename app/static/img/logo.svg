@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" role="img" aria-labelledby="title">
+  <title>PartyTube Logo</title>
+  <rect width="960" height="380" fill="none"/>
+
+  <g stroke-linecap="round">
+    <path d="M78 204 L136 220" stroke="#17b8ff" stroke-width="30"/>
+    <path d="M148 126 L224 214" stroke="#ff1f92" stroke-width="34"/>
+    <circle cx="112" cy="266" r="19" fill="#ff1f92"/>
+    <circle cx="308" cy="88" r="19" fill="#ff1f92"/>
+    <path d="M330 132 L350 222" stroke="#ffd91e" stroke-width="26"/>
+    <path d="M544 76 L496 200" stroke="#17b8ff" stroke-width="30"/>
+    <path d="M666 116 L610 172" stroke="#ff1f92" stroke-width="28"/>
+    <path d="M438 56 L461 103 L512 111 L476 148 L484 200 L438 174 L392 200 L400 148 L364 111 L415 103 Z" fill="#ffd91e"/>
+  </g>
+
+  <g transform="translate(188 128)">
+    <path
+      d="M94 26 H470 C516 26 556 62 575 120 C595 181 592 238 567 274 C548 301 520 316 478 316 H94 C39 316 0 277 0 222 V120 C0 65 39 26 94 26 Z"
+      fill="#03050a"
+      stroke="#ffffff"
+      stroke-width="12"
+      transform="skewY(-7)"
+    />
+    <ellipse
+      cx="560"
+      cy="170"
+      rx="116"
+      ry="143"
+      fill="#03050a"
+      stroke="#ffffff"
+      stroke-width="12"
+      transform="skewY(-7)"
+    />
+    <ellipse
+      cx="560"
+      cy="170"
+      rx="66"
+      ry="84"
+      fill="#03050a"
+      stroke="#ff1f92"
+      stroke-width="22"
+      transform="skewY(-7)"
+    />
+    <path
+      d="M537 126 L591 170 L537 214 Z"
+      fill="#ffffff"
+      transform="skewY(-7)"
+    />
+
+    <g font-family="Arial, Helvetica, sans-serif" font-weight="900" letter-spacing="2">
+      <text x="48" y="142" font-size="120" fill="#ffffff" transform="skewY(-7)">PARTY</text>
+      <text x="52" y="262" font-size="132" fill="#ff1f92" transform="skewY(-7)">TUBE</text>
+    </g>
+  </g>
+</svg>

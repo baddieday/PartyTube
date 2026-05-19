@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="player-layout">
+    <div class="panel player-stage">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">TV-Modus</p>
+                <h1>Party Player</h1>
+            </div>
+            <span class="live-pill" id="player-status-pill">Bereit</span>
+        </div>
+        <p class="subtle-note" id="player-mode-note">Wenn das Audio-Fenster aktiv ist, bleibt der Ton dort. Dieser TV-Tab zeigt dann nur noch das Video.</p>
+        <div class="player-frame-wrap">
+            <div id="youtube-player" class="player-frame"></div>
+            <div id="player-overlay" class="player-overlay">
+                <div>
+                    <strong>Wiedergabe andocken</strong>
+                    <p>Nach Reload oder Browser-Blocker hier einmal tippen. Der Song startet moeglichst an der aktuellen Position.</p>
+                    <button class="primary-button" id="resume-playback" type="button">Playback starten</button>
+                </div>
+            </div>
+        </div>
+        <div id="player-current-card" class="song-slot empty-state">
+            <p>Keine aktive Wiedergabe. Die Queue wartet auf den naechsten Song.</p>
+        </div>
+    </div>
+
+    <div class="panel player-sidebar">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Als naechstes</p>
+                <h2>Queue Vorschau</h2>
+            </div>
+        </div>
+        <div id="player-queue-preview" class="queue-list"></div>
+
+        <div class="player-sidebar-section compact-qr-panel">
+            <div class="panel-header compact">
+                <div>
+                    <p class="eyebrow">Direkt beitreten</p>
+                    <h2>Kleine QR-Codes</h2>
+                </div>
+            </div>
+            <div class="compact-qr-grid compact-qr-grid-tight">
+                <article class="compact-qr-card">
+                    <span class="tag-pill">Party Join</span>
+                    <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+                    <p class="compact-qr-text">{{ settings.join_url }}</p>
+                </article>
+                <article class="compact-qr-card">
+                    <span class="tag-pill">WLAN</span>
+                    {% if wifi_qr_data_uri %}
+                    <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+                    <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
+                    {% else %}
+                    <div class="compact-qr-placeholder">
+                        <p>WLAN-Daten im Host-Bereich.</p>
+                    </div>
+                    {% endif %}
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/player.js" defer></script>
+{% endblock %}

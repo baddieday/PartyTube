@@ -1,0 +1,42 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: partytube
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-8088}:8088"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8088/health', timeout=5).read()"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    depends_on:
+      app:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      BASE_URL: "http://app:8088"
+      PYTHON_BIN: "python3"
+      SKIP_WEBSERVER: "1"
+    profiles:
+      - tests
+

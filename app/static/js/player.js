@@ -18,6 +18,9 @@
   const currentCard = document.getElementById("player-current-card");
   const overlay = document.getElementById("player-overlay");
   const resumeButton = document.getElementById("resume-playback");
+  const pauseButton = document.getElementById("pause-playback");
+  const stopButton = document.getElementById("stop-playback");
+  const controlHint = document.getElementById("player-control-hint");
   const modeNote = document.getElementById("player-mode-note");
   const activationKey = "partytube-tv-activated";
 
@@ -30,6 +33,7 @@
   let autoplayPool = [];
   let autoplayPoolSignature = "";
   let autoplayIndex = 0;
+  let playbackStopped = false;
 
   function rememberActivation() {
     sessionStorage.setItem(activationKey, "1");
@@ -39,15 +43,18 @@
     return sessionStorage.getItem(activationKey) === "1";
   }
 
-  function needsManualPlaybackStart() {
-    return !shouldUseVideoOnlyMode() && !hasActivation();
+  function setControlHint(text) {
+    if (controlHint) {
+      controlHint.textContent = text;
+    }
   }
 
-  function showPlaybackOverlay() {
-    if (needsManualPlaybackStart()) {
-      overlay.classList.add("visible");
-      return;
-    }
+  function showPlaybackControls(text = "Bereit") {
+    setControlHint(text);
+    overlay.classList.add("visible");
+  }
+
+  function hidePlaybackControls() {
     overlay.classList.remove("visible");
   }
 
@@ -67,7 +74,6 @@
     if (!player) return;
     if (shouldUseVideoOnlyMode()) {
       player.mute?.();
-      overlay.classList.remove("visible");
       if (modeNote) {
         modeNote.textContent = ambientAudio.isWindowActive()
           ? "Audio-Fenster aktiv: Dieses TV-Bild laeuft stumm und zeigt nur noch das Video."
@@ -121,7 +127,7 @@
 
   function startAutoplayFallback(options = {}) {
     const { advance = false, forcePlayback = false } = options;
-    if (!autoplayEnabled) {
+    if (!autoplayEnabled || playbackStopped) {
       return false;
     }
 
@@ -157,12 +163,12 @@
         rememberActivation();
       }
       player.loadVideoById({ videoId: song.videoId, startSeconds });
-      overlay.classList.remove("visible");
+      hidePlaybackControls();
       return true;
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackOverlay();
+    showPlaybackControls("Zum Start einmal Play druecken");
     return true;
   }
 
@@ -170,6 +176,7 @@
     if (!player || !song) return;
     autoplayActive = false;
     autoplayVideoId = null;
+    playbackStopped = false;
     currentVideoId = song.videoId;
     const startSeconds = playbackStartSeconds(song);
     applyPlaybackMode();
@@ -179,15 +186,16 @@
         rememberActivation();
       }
       player.loadVideoById({ videoId: song.videoId, startSeconds });
-      overlay.classList.remove("visible");
+      hidePlaybackControls();
       return;
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackOverlay();
+    showPlaybackControls("Zum Start einmal Play druecken");
   }
 
   function renderState(payload) {
+    const previousVideoId = stateStore.current?.videoId;
     stateStore.current = payload.current;
     stateStore.queue = payload.queue;
     stateStore.history = payload.history;
@@ -199,6 +207,10 @@
       ? payload.queue.slice(0, 6).map((song) => songCard(song, { playerMode: true })).join("")
       : emptyState("Queue ist leer.");
 
+    if (payload.current?.videoId && payload.current.videoId !== previousVideoId) {
+      playbackStopped = false;
+    }
+
     if (!payload.current) {
       pendingSong = null;
       if (startAutoplayFallback()) {
@@ -207,13 +219,18 @@
       autoplayActive = false;
       autoplayVideoId = null;
       currentVideoId = null;
-      overlay.classList.remove("visible");
+      hidePlaybackControls();
       if (player?.stopVideo) player.stopVideo();
       return;
     }
 
     pendingSong = payload.current;
     if (!player) {
+      return;
+    }
+
+    if (playbackStopped && currentVideoId === payload.current.videoId) {
+      showPlaybackControls("Gestoppt");
       return;
     }
 
@@ -263,16 +280,18 @@
               toast(error.message, "error");
             }
           }
-          if (
-            event.data === window.YT.PlayerState.PAUSED ||
-            event.data === window.YT.PlayerState.CUED ||
-            event.data === window.YT.PlayerState.UNSTARTED
-          ) {
-            showPlaybackOverlay();
+          if (event.data === window.YT.PlayerState.PAUSED) {
+            showPlaybackControls("Pausiert");
+          }
+          if (event.data === window.YT.PlayerState.CUED || event.data === window.YT.PlayerState.UNSTARTED) {
+            if (!hasActivation()) {
+              showPlaybackControls("Zum Start einmal Play druecken");
+            }
           }
           if (event.data === window.YT.PlayerState.PLAYING) {
+            playbackStopped = false;
             rememberActivation();
-            overlay.classList.remove("visible");
+            hidePlaybackControls();
           }
         },
         onError: () => {
@@ -284,15 +303,42 @@
 
   resumeButton?.addEventListener("click", () => {
     try {
+      playbackStopped = false;
       rememberActivation();
       if (stateStore.current?.videoId) {
         syncPlayerToSong(stateStore.current, true);
+      } else if (autoplayActive && autoplayVideoId) {
+        player?.loadVideoById?.({ videoId: autoplayVideoId, startSeconds: 0 });
       } else {
         player?.playVideo?.();
       }
-      overlay.classList.remove("visible");
+      hidePlaybackControls();
     } catch {
       toast("Playback konnte nicht gestartet werden.", "error");
+    }
+  });
+
+  pauseButton?.addEventListener("click", () => {
+    try {
+      playbackStopped = false;
+      rememberActivation();
+      player?.pauseVideo?.();
+      showPlaybackControls("Pausiert");
+    } catch {
+      toast("Playback konnte nicht pausiert werden.", "error");
+    }
+  });
+
+  stopButton?.addEventListener("click", () => {
+    try {
+      playbackStopped = true;
+      rememberActivation();
+      autoplayActive = false;
+      autoplayVideoId = null;
+      player?.stopVideo?.();
+      showPlaybackControls("Gestoppt");
+    } catch {
+      toast("Playback konnte nicht gestoppt werden.", "error");
     }
   });
 

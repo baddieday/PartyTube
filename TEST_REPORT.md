@@ -8,6 +8,9 @@
 - HMAC-basierter Player-Token fuer `/api/player/ended`
 - Invite-only Join-Gate optional ueber Runtime-Settings
 - Chat, Moderation und Queue-Metadaten direkt im selben Prozess
+- demokratisches Skip-Voting mit aktiven Guest-Geraeten und konfigurierbarer Schwelle
+- Party-Verlauf mit Re-Add, Export und Best-of-Abend
+- QR-Party-Screen fuer TV/Beamer
 - optionaler `/metrics`-Endpoint fuer Prometheus-kompatible Kennzahlen
 
 ## Testergebnisse
@@ -17,7 +20,7 @@
 Ausgefuehrt mit Playwright:
 
 ```text
-16 passed (21.2s)
+22 passed (26.9s)
 ```
 
 Abgedeckt:
@@ -29,6 +32,9 @@ Abgedeckt:
 - Invite-only-Join
 - Security fuer Session, CSRF und Player-Token
 - QR-Poster
+- demokratisches Skip-Voting inkl. Schwelle, Duplicate-Schutz und Admin-Reset
+- History, Re-Add, JSON/CSV-Export und Best-of
+- QR-Party-Screen mit Live-Update und WLAN-Passwort-Schutz
 - Multiuser-Synchronisation
 - Persistenz ueber Neustart
 - Load-/Fehlerfaelle
@@ -79,6 +85,9 @@ Manuell und automatisiert verifiziert:
 5. Accessibility-Testinjektion wurde von der CSP blockiert.
    Fix: `axe-core` wird lokal als statisches Asset ausgeliefert und aus derselben Origin geladen.
 
+6. Neues Party-Screen-Passwort-Label kollidierte mit dem bestehenden WLAN-Passwort-Feld.
+   Fix: Toggle-Label auf `Passwort auf TV/Beamer anzeigen` umbenannt, damit Screenreader- und Playwright-Labels eindeutig bleiben.
+
 ## Performance
 
 Pragmatischer Lastcheck bestanden:
@@ -104,12 +113,14 @@ Hinweis:
 - Admin-Konsole: [admin-console.png](/C:/Users/USER/Documents/YT_Site/artifacts/screenshots/admin-console.png)
 - QR-Poster: [qr-poster.png](/C:/Users/USER/Documents/YT_Site/artifacts/screenshots/qr-poster.png)
 - Player: [player-live.png](/C:/Users/USER/Documents/YT_Site/artifacts/screenshots/player-live.png)
+- Party-Screen: [party-screen-tv.png](/C:/Users/USER/Documents/YT_Site/artifacts/screenshots/party-screen-tv.png)
 
 ## Bekannte Grenzen
 
 - Invite-only ist kein Ersatz fuer echte Internet-Authentisierung.
 - YouTube-Autoplay bleibt browserabhaengig.
 - Metadaten und Dauer ohne API-Key sind best effort.
+- Device-IDs schuetzen im LAN pragmatisch gegen Mehrfachvotes, sind aber keine starke Identitaet gegen absichtliche Manipulation.
 - `party.local` kann mit mDNS kollidieren; `party.home.arpa` ist meist robuster.
 - Vollstaendig nahtloser Ton ueber harte Browser-Reloads ist mit YouTube nicht garantiert, wird aber durch Audio-Deck + Resume-Offset deutlich verbessert.
 

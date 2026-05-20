@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="party-screen-shell">
+    <div class="screen-join-card">
+        <p class="eyebrow">PartyTube beitreten</p>
+        <img class="screen-qr" src="{{ link_qr_data_uri }}" alt="QR-Code zum Party-Link">
+        <strong class="screen-code">{{ settings.party_code }}</strong>
+        <p class="screen-link">{{ settings.join_url }}</p>
+        {% if settings.wifi_ssid %}
+        <div class="screen-wifi">
+            <span>WLAN</span>
+            <strong>{{ settings.wifi_ssid }}</strong>
+            {% if settings.show_wifi_password_on_screen and settings.wifi_password %}
+            <p>Passwort: {{ settings.wifi_password }}</p>
+            {% else %}
+            <p>Passwort beim Host. Wird standardmaessig nicht am TV angezeigt.</p>
+            {% endif %}
+            {% if screen_wifi_qr_data_uri %}
+            <img class="screen-wifi-qr" src="{{ screen_wifi_qr_data_uri }}" alt="WLAN-QR-Code">
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="screen-now-card">
+        <div class="screen-header-row">
+            <div>
+                <p class="eyebrow">Laeuft gerade</p>
+                <h1 id="screen-current-title">Wartet auf den ersten Song</h1>
+            </div>
+            <span class="live-pill" id="screen-connection-pill">Verbinde live...</span>
+        </div>
+        <div id="screen-current" class="screen-current empty-state">
+            <p>Scanne den QR-Code und wirf den ersten Track rein.</p>
+        </div>
+        <div class="screen-stats" id="screen-stats"></div>
+    </div>
+
+    <div class="screen-next-card">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Als naechstes</p>
+                <h2>Top 3 Queue</h2>
+            </div>
+        </div>
+        <div id="screen-next-list" class="screen-next-list"></div>
+    </div>
+
+    <div class="screen-steps-card">
+        <div class="screen-step"><strong>1</strong><span>QR scannen</span></div>
+        <div class="screen-step"><strong>2</strong><span>Song einreichen</span></div>
+        <div class="screen-step"><strong>3</strong><span>Voten</span></div>
+        <div class="screen-step screen-skip-step"><strong>4</strong><span>Schlechte Songs gemeinsam skippen</span></div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/party_screen.js" defer></script>
+{% endblock %}

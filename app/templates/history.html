@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card">
+    <div class="hero-copy">
+        <p class="eyebrow">Party-Verlauf</p>
+        <h1>Alles, was heute schon lief, bleibt wiederholbar.</h1>
+        <p class="hero-text">Gespielte, uebersprungene und entfernte Songs bleiben nachvollziehbar. Wenn Re-Add aktiv ist, kann jeder Track erneut in die Queue.</p>
+        <div class="hero-actions">
+            <a class="primary-button" href="/">Zur Queue</a>
+            <a class="ghost-button" href="/party-screen" target="_blank" rel="noreferrer">Party-Screen</a>
+        </div>
+    </div>
+    <div class="hero-badge">
+        <span>Session</span>
+        <strong>{{ settings.party_code }}</strong>
+        <small>{{ settings.join_url }}</small>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <p class="eyebrow">Suchen & Filtern</p>
+            <h2>Verlauf durchsuchen</h2>
+        </div>
+        <span class="counter-pill" id="history-count">0 Songs</span>
+    </div>
+    <form class="history-toolbar" id="history-filter-form">
+        <label>
+            <span>Status</span>
+            <select id="history-status-filter">
+                <option value="all">Alle</option>
+                <option value="played">Gespielt</option>
+                <option value="skipped">Uebersprungen</option>
+                <option value="removed">Entfernt</option>
+            </select>
+        </label>
+        <label>
+            <span>Suche</span>
+            <input id="history-search" type="search" maxlength="80" placeholder="Titel oder Gastname">
+        </label>
+        <button class="ghost-button" type="submit">Aktualisieren</button>
+    </form>
+    <div id="history-page-list" class="history-list"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/history.js" defer></script>
+{% endblock %}

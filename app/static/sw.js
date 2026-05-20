@@ -1,4 +1,4 @@
-const CACHE_NAME = "partytube-assets-v7";
+const CACHE_NAME = "partytube-assets-v8";
 const STATIC_URLS = [
   "/static/css/styles.css",
   "/static/js/shared.js",
@@ -8,6 +8,9 @@ const STATIC_URLS = [
   "/static/js/player.js",
   "/static/js/start.js",
   "/static/js/qr.js",
+  "/static/js/history.js",
+  "/static/js/best_of.js",
+  "/static/js/party_screen.js",
   "/static/img/logo.svg",
   "/static/img/icon.svg",
   "/static/img/icon-128.png",

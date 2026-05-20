@@ -509,6 +509,69 @@ def _ensure_device_not_muted(device_id: str) -> None:
     raise HTTPException(status_code=403, detail=detail)
 
 
+def _record_activity_from_payload(request: Request, payload: dict[str, Any], role: str = "guest") -> str:
+    device_id = _device_id(request, payload)
+    guest_name = _sanitize_guest_name(payload.get("guestName"))
+    store.record_guest_activity(device_id, guest_name, role=role)
+    return device_id
+
+
+def _history_export_payload(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": row["id"],
+            "videoId": row["videoId"],
+            "title": row["title"],
+            "guestName": row.get("guestName") or "",
+            "votes": row.get("votes") or 0,
+            "status": row.get("status"),
+            "statusLabel": row.get("statusLabel"),
+            "addedAt": row.get("addedAt"),
+            "completedAt": row.get("completedAt"),
+            "completedReason": row.get("completedReason"),
+            "canonicalUrl": row.get("canonicalUrl"),
+            "readdCount": row.get("readdCount") or 0,
+            "bestScore": row.get("bestScore"),
+        }
+        for row in rows
+    ]
+
+
+def _csv_response(filename: str, rows: list[dict[str, Any]]) -> PlainTextResponse:
+    output = io.StringIO()
+    fieldnames = list(rows[0].keys()) if rows else [
+        "id",
+        "videoId",
+        "title",
+        "guestName",
+        "votes",
+        "status",
+        "statusLabel",
+        "addedAt",
+        "completedAt",
+        "completedReason",
+        "canonicalUrl",
+        "readdCount",
+    ]
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(rows)
+    return PlainTextResponse(
+        output.getvalue(),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+def _txt_response(filename: str, rows: list[dict[str, Any]]) -> PlainTextResponse:
+    lines = [f"{row.get('title', '')} - {row.get('canonicalUrl', '')}" for row in rows]
+    return PlainTextResponse(
+        "\n".join(lines) + ("\n" if lines else ""),
+        media_type="text/plain; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 app = FastAPI(title=settings.app_name)
 
 if settings.trusted_hosts:
@@ -585,6 +648,13 @@ async def metrics_endpoint() -> PlainTextResponse:
     metrics.set_gauge("songs_active", state["stats"]["activeCount"])
     metrics.set_gauge("messages_visible", state["stats"]["messageCount"])
     metrics.set_gauge("muted_devices", state["stats"]["mutedDeviceCount"])
+    skip_status = store.get_skip_status(
+        active_window_seconds=settings.active_guest_window_seconds,
+        threshold_percent=_runtime_public_state()["skipThresholdPercent"],
+        enabled=_runtime_public_state()["skipVotingEnabled"],
+    )
+    metrics.set_gauge("active_guests", skip_status["activeGuestCount"])
+    metrics.set_gauge("current_skip_votes", skip_status["currentSkipVoteCount"])
     return PlainTextResponse(metrics.render_prometheus(), media_type="text/plain; version=0.0.4")
 
 
@@ -657,6 +727,34 @@ async def qr_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("qr.html", _template_context(request, "qr"))
 
 
+@app.get("/history", response_class=HTMLResponse)
+async def history_page(request: Request) -> HTMLResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["history_public"] and not is_admin_request(request, store):
+        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur fuer den Host sichtbar.")
+    return templates.TemplateResponse("history.html", _template_context(request, "history"))
+
+
+@app.get("/admin/best-of", response_class=HTMLResponse)
+async def best_of_page(request: Request) -> HTMLResponse:
+    require_admin(request, store)
+    return templates.TemplateResponse("best_of.html", _template_context(request, "best-of"))
+
+
+@app.get("/party-screen", response_class=HTMLResponse)
+async def party_screen_page(request: Request) -> HTMLResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["party_screen_enabled"]:
+        raise HTTPException(status_code=404, detail="Party-Screen ist aktuell deaktiviert.")
+    return templates.TemplateResponse("party_screen.html", _template_context(request, "party-screen"))
+
+
+@app.get("/screen", response_class=HTMLResponse)
+@app.get("/tv", response_class=HTMLResponse)
+async def party_screen_alias(request: Request) -> HTMLResponse:
+    return await party_screen_page(request)
+
+
 @app.get("/manifest.webmanifest")
 async def manifest(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
@@ -704,7 +802,11 @@ async def service_worker() -> FileResponse:
 
 @app.get("/api/state")
 async def api_state(request: Request) -> JSONResponse:
-    return JSONResponse(_state_payload(request))
+    device_id = request.query_params.get("deviceId", "").strip()[:80] or None
+    role = request.query_params.get("role", "guest").strip()
+    if device_id and role == "guest":
+        store.record_guest_activity(device_id, request.query_params.get("guestName", "").strip()[:80], role="guest")
+    return JSONResponse(_state_payload(request, device_id=device_id))
 
 
 @app.get("/api/admin/status")
@@ -734,6 +836,16 @@ async def api_admin_settings(request: Request) -> JSONResponse:
             "chatEnabled": resolved_settings["chat_enabled"],
             "votingEnabled": resolved_settings["voting_enabled"],
             "inviteOnlyMode": resolved_settings["invite_only_mode"],
+            "skipVotingEnabled": resolved_settings["skip_voting_enabled"],
+            "skipVoteThresholdPercent": resolved_settings["skip_vote_threshold_percent"],
+            "activeGuestWindowSeconds": resolved_settings["active_guest_window_seconds"],
+            "historyPublic": resolved_settings["history_public"],
+            "readdEnabled": resolved_settings["readd_enabled"],
+            "partyScreenEnabled": resolved_settings["party_screen_enabled"],
+            "wifiQrEnabled": resolved_settings["wifi_qr_enabled"],
+            "showWifiPasswordOnScreen": resolved_settings["show_wifi_password_on_screen"],
+            "partyScreenShowActiveGuests": resolved_settings["party_screen_show_active_guests"],
+            "partyScreenShowSkipStatus": resolved_settings["party_screen_show_skip_status"],
             "maxSongsPerDevice": resolved_settings["max_songs_per_device"],
             "maxQueueItems": resolved_settings["max_queue_items"],
             "warnings": resolved_settings["warnings"],
@@ -761,6 +873,22 @@ async def api_admin_update_settings(request: Request) -> JSONResponse:
     chat_enabled = bool(payload.get("chatEnabled", settings.chat_enabled))
     voting_enabled = bool(payload.get("votingEnabled", settings.voting_enabled))
     invite_only_mode = bool(payload.get("inviteOnlyMode", settings.invite_only_mode))
+    skip_voting_enabled = bool(payload.get("skipVotingEnabled", settings.skip_voting_enabled))
+    skip_vote_threshold_percent = min(
+        100,
+        max(10, _runtime_int(payload.get("skipVoteThresholdPercent"), settings.skip_vote_threshold_percent, minimum=10)),
+    )
+    history_public = bool(payload.get("historyPublic", settings.history_public))
+    readd_enabled = bool(payload.get("readdEnabled", settings.readd_enabled))
+    party_screen_enabled = bool(payload.get("partyScreenEnabled", settings.party_screen_enabled))
+    wifi_qr_enabled = bool(payload.get("wifiQrEnabled", settings.wifi_qr_enabled))
+    show_wifi_password_on_screen = bool(payload.get("showWifiPasswordOnScreen", settings.show_wifi_password_on_screen))
+    party_screen_show_active_guests = bool(
+        payload.get("partyScreenShowActiveGuests", settings.party_screen_show_active_guests)
+    )
+    party_screen_show_skip_status = bool(
+        payload.get("partyScreenShowSkipStatus", settings.party_screen_show_skip_status)
+    )
     max_songs_per_device = _runtime_int(payload.get("maxSongsPerDevice"), settings.max_songs_per_device, minimum=1)
     max_queue_items = _runtime_int(payload.get("maxQueueItems"), settings.max_queue_items, minimum=1)
 
@@ -784,11 +912,35 @@ async def api_admin_update_settings(request: Request) -> JSONResponse:
         "chatEnabled": chat_enabled,
         "votingEnabled": voting_enabled,
         "inviteOnlyMode": invite_only_mode,
+        "skipVotingEnabled": skip_voting_enabled,
+        "skipVoteThresholdPercent": skip_vote_threshold_percent,
+        "historyPublic": history_public,
+        "readdEnabled": readd_enabled,
+        "partyScreenEnabled": party_screen_enabled,
+        "wifiQrEnabled": wifi_qr_enabled,
+        "showWifiPasswordOnScreen": show_wifi_password_on_screen,
+        "partyScreenShowActiveGuests": party_screen_show_active_guests,
+        "partyScreenShowSkipStatus": party_screen_show_skip_status,
         "maxSongsPerDevice": max_songs_per_device,
         "maxQueueItems": max_queue_items,
     }
     store.set_runtime_settings(update_payload)
     _apply_runtime_limits(store.get_runtime_settings())
+    await _broadcast_state()
+    return await api_admin_settings(request)
+
+
+@app.post("/api/admin/settings/skip-voting")
+async def api_admin_update_skip_voting(request: Request) -> JSONResponse:
+    require_admin_csrf(request, store)
+    payload = await request.json()
+    threshold = min(100, max(10, _runtime_int(payload.get("skipVoteThresholdPercent"), settings.skip_vote_threshold_percent, minimum=10)))
+    store.set_runtime_settings(
+        {
+            "skipVotingEnabled": bool(payload.get("skipVotingEnabled", settings.skip_voting_enabled)),
+            "skipVoteThresholdPercent": threshold,
+        }
+    )
     await _broadcast_state()
     return await api_admin_settings(request)
 
@@ -823,7 +975,8 @@ async def add_song(request: Request) -> JSONResponse:
     if len(url) > settings.max_url_length:
         raise HTTPException(status_code=400, detail="Der Link ist zu lang.")
 
-    device_id = _device_id(request, payload)
+    guest_name = _sanitize_guest_name(payload.get("guestName"))
+    device_id = _record_activity_from_payload(request, payload, role="guest")
     _ensure_device_not_muted(device_id)
     if store.count_active_songs_for_device(device_id) >= resolved_settings["max_songs_per_device"]:
         raise HTTPException(
@@ -850,7 +1003,7 @@ async def add_song(request: Request) -> JSONResponse:
                 source_url=url,
                 title=parsed_video.title,
                 thumbnail_url=parsed_video.thumbnail_url,
-                guest_name=_sanitize_guest_name(payload.get("guestName")),
+                guest_name=guest_name,
                 added_by_device=device_id,
                 metadata_source=parsed_video.metadata_source,
                 duration_seconds=parsed_video.duration_seconds,
@@ -878,7 +1031,7 @@ async def vote_song(song_id: int, request: Request) -> JSONResponse:
         raise HTTPException(status_code=403, detail="Voting ist fuer diese Party aktuell deaktiviert.")
 
     payload = await request.json()
-    device_id = _device_id(request, payload)
+    device_id = _record_activity_from_payload(request, payload, role="guest")
     _ensure_device_not_muted(device_id)
     await rate_limiter.check(
         f"vote:{_client_ip(request)}:{device_id}",
@@ -898,6 +1051,61 @@ async def vote_song(song_id: int, request: Request) -> JSONResponse:
     return JSONResponse({"ok": True, "song": song})
 
 
+@app.post("/api/songs/current/skip-vote")
+async def skip_vote_current(request: Request) -> JSONResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["skip_voting_enabled"]:
+        raise HTTPException(status_code=403, detail="Skip-Voting ist fuer diese Party aktuell deaktiviert.")
+
+    payload = await request.json()
+    guest_name = _sanitize_guest_name(payload.get("guestName"))
+    device_id = _record_activity_from_payload(request, payload, role="guest")
+    if not device_id or len(device_id) < 8:
+        raise HTTPException(status_code=400, detail="Ungueltiges Geraet. Bitte lade die Seite neu.")
+    _ensure_device_not_muted(device_id)
+    await rate_limiter.check(
+        f"skip:{_client_ip(request)}:{device_id}",
+        settings.max_votes_per_window,
+        settings.rate_limit_window_seconds,
+    )
+
+    try:
+        result = store.add_skip_vote_current(
+            device_id,
+            guest_name,
+            active_window_seconds=resolved_settings["active_guest_window_seconds"],
+            threshold_percent=resolved_settings["skip_vote_threshold_percent"],
+        )
+    except AlreadySkipVotedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    if result["triggered"]:
+        metrics.increment("skip_vote_skips")
+    await _broadcast_state()
+    return JSONResponse({"ok": True, **result})
+
+
+@app.delete("/api/songs/current/skip-vote")
+async def delete_skip_vote_current(request: Request) -> JSONResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["skip_voting_enabled"]:
+        raise HTTPException(status_code=403, detail="Skip-Voting ist fuer diese Party aktuell deaktiviert.")
+    payload = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    device_id = _record_activity_from_payload(request, payload, role="guest")
+    try:
+        skip_status = store.remove_skip_vote_current(
+            device_id,
+            active_window_seconds=resolved_settings["active_guest_window_seconds"],
+            threshold_percent=resolved_settings["skip_vote_threshold_percent"],
+        )
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    await _broadcast_state()
+    return JSONResponse({"ok": True, "skipStatus": skip_status})
+
+
 @app.post("/api/messages")
 async def add_message(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
@@ -905,7 +1113,7 @@ async def add_message(request: Request) -> JSONResponse:
         raise HTTPException(status_code=403, detail="Der Chat ist fuer diese Party aktuell deaktiviert.")
 
     payload = await request.json()
-    device_id = _device_id(request, payload)
+    device_id = _record_activity_from_payload(request, payload, role="guest")
     _ensure_device_not_muted(device_id)
     await rate_limiter.check(
         f"chat:{_client_ip(request)}:{device_id}",
@@ -1023,6 +1231,14 @@ async def admin_skip(request: Request) -> JSONResponse:
     return JSONResponse({"ok": True})
 
 
+@app.post("/api/admin/current/reset-skip-votes")
+async def admin_reset_current_skip_votes(request: Request) -> JSONResponse:
+    require_admin_csrf(request, store)
+    store.reset_current_skip_votes()
+    await _broadcast_state()
+    return JSONResponse({"ok": True})
+
+
 @app.post("/api/admin/mark-played")
 async def admin_mark_played(request: Request) -> JSONResponse:
     require_admin_csrf(request, store)
@@ -1051,6 +1267,89 @@ async def admin_reset_party(request: Request) -> JSONResponse:
 async def admin_export(request: Request) -> JSONResponse:
     require_admin(request, store)
     return JSONResponse(store.export_snapshot())
+
+
+@app.get("/api/history")
+async def api_history(request: Request, status: str = "all", q: str = "") -> JSONResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["history_public"] and not is_admin_request(request, store):
+        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur fuer den Host sichtbar.")
+    return JSONResponse({"ok": True, "history": store.get_history(status_filter=status, search=q)})
+
+
+@app.post("/api/history/{song_id}/readd")
+async def api_readd_history_song(song_id: int, request: Request) -> JSONResponse:
+    resolved_settings = _resolved_settings(request)
+    if not resolved_settings["readd_enabled"] and not is_admin_request(request, store):
+        raise HTTPException(status_code=403, detail="Re-Add ist fuer diese Party aktuell deaktiviert.")
+    payload = await request.json()
+    guest_name = _sanitize_guest_name(payload.get("guestName"))
+    device_id = _record_activity_from_payload(request, payload, role="guest")
+    _ensure_device_not_muted(device_id)
+    if store.count_active_songs_for_device(device_id) >= resolved_settings["max_songs_per_device"]:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Dieses Geraet hat bereits {resolved_settings['max_songs_per_device']} aktive Songs in der Queue.",
+        )
+    await rate_limiter.check(
+        f"readd:{_client_ip(request)}:{device_id}",
+        settings.max_adds_per_window,
+        settings.rate_limit_window_seconds,
+    )
+    try:
+        song = store.readd_from_history(song_id, device_id, guest_name)
+    except DuplicateSongError as exc:
+        return JSONResponse(
+            {"ok": False, "detail": "Song ist bereits in der Warteschlange.", "duplicate": exc.existing_song},
+            status_code=409,
+        )
+    except (NotFoundError, QueueLimitError) as exc:
+        raise HTTPException(status_code=404 if isinstance(exc, NotFoundError) else 409, detail=str(exc)) from exc
+    await _broadcast_state()
+    return JSONResponse({"ok": True, "song": song})
+
+
+@app.get("/api/admin/history/export.json")
+async def admin_history_export_json(request: Request) -> JSONResponse:
+    require_admin(request, store)
+    rows = _history_export_payload(store.get_history(limit=1000))
+    return JSONResponse({"history": rows})
+
+
+@app.get("/api/admin/history/export.csv")
+async def admin_history_export_csv(request: Request) -> PlainTextResponse:
+    require_admin(request, store)
+    return _csv_response("partytube-history.csv", _history_export_payload(store.get_history(limit=1000)))
+
+
+@app.get("/api/admin/history/export.txt")
+async def admin_history_export_txt(request: Request) -> PlainTextResponse:
+    require_admin(request, store)
+    return _txt_response("partytube-history.txt", _history_export_payload(store.get_history(limit=1000)))
+
+
+@app.get("/api/admin/best-of")
+async def admin_best_of(request: Request) -> JSONResponse:
+    require_admin(request, store)
+    return JSONResponse({"bestOf": store.get_best_of()})
+
+
+@app.get("/api/admin/best-of/export.json")
+async def admin_best_of_export_json(request: Request) -> JSONResponse:
+    require_admin(request, store)
+    return JSONResponse({"bestOf": _history_export_payload(store.get_best_of())})
+
+
+@app.get("/api/admin/best-of/export.csv")
+async def admin_best_of_export_csv(request: Request) -> PlainTextResponse:
+    require_admin(request, store)
+    return _csv_response("partytube-best-of.csv", _history_export_payload(store.get_best_of()))
+
+
+@app.get("/api/admin/best-of/export.txt")
+async def admin_best_of_export_txt(request: Request) -> PlainTextResponse:
+    require_admin(request, store)
+    return _txt_response("partytube-best-of.txt", _history_export_payload(store.get_best_of()))
 
 
 @app.post("/api/player/ended")
@@ -1083,12 +1382,19 @@ async def test_reset(request: Request) -> JSONResponse:
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
-    await hub.connect(websocket)
-    await websocket.send_text(json.dumps({"type": "state", **store.get_state(), "runtime": _runtime_public_state()}))
+    device_id = websocket.query_params.get("device_id", "").strip()[:80]
+    role = websocket.query_params.get("role", "guest").strip()
+    guest_name = websocket.query_params.get("guest_name", "").strip()[:80]
+    if device_id:
+        store.record_guest_activity(device_id, guest_name, role=role)
+    await hub.connect(websocket, {"deviceId": device_id, "role": role, "guestName": guest_name})
+    await websocket.send_text(json.dumps(_state_payload_without_request(device_id)))
     try:
         while True:
             with suppress(asyncio.TimeoutError):
                 await asyncio.wait_for(websocket.receive_text(), timeout=30)
+            if device_id:
+                store.record_guest_activity(device_id, guest_name, role=role)
             await websocket.send_text(json.dumps({"type": "ping"}))
     except (WebSocketDisconnect, RuntimeError):
         await hub.disconnect(websocket)

@@ -3,6 +3,7 @@
     appConfig,
     stateStore,
     updateAppConfig,
+    getDeviceId,
     songCard,
     messageCard,
     emptyState,
@@ -11,6 +12,7 @@
     toast,
     clearRememberedVotes,
     formatDuration,
+    escapeHtml,
   } = window.PartyTube;
 
   const loginPanel = document.getElementById("admin-login-panel");
@@ -35,6 +37,9 @@
   const audioUrlLink = document.getElementById("admin-audio-url");
   const openPlayerLink = document.getElementById("admin-open-player");
   const openAudioLink = document.getElementById("admin-open-audio");
+  const openPartyScreenLink = document.getElementById("admin-open-party-screen");
+  const skipStatus = document.getElementById("admin-skip-status");
+  const bestOfList = document.getElementById("admin-best-of-list");
 
   let adminAuthenticated = Boolean(appConfig.adminAuthenticated);
 
@@ -77,6 +82,9 @@
     audioUrlLink.href = payload.audioUrl || "/audio";
     openPlayerLink.href = payload.playerUrl || "/player";
     openAudioLink.href = payload.audioUrl || "/audio";
+    if (openPartyScreenLink) {
+      openPartyScreenLink.href = "/party-screen";
+    }
     renderWarnings(payload.warnings || []);
     setAuthState(Boolean(payload.authenticated));
   }
@@ -138,6 +146,15 @@
     document.getElementById("settings-chat-enabled").checked = Boolean(payload.chatEnabled);
     document.getElementById("settings-voting-enabled").checked = Boolean(payload.votingEnabled);
     document.getElementById("settings-invite-only").checked = Boolean(payload.inviteOnlyMode);
+    document.getElementById("settings-skip-voting-enabled").checked = Boolean(payload.skipVotingEnabled);
+    document.getElementById("settings-skip-threshold").value = payload.skipVoteThresholdPercent || 40;
+    document.getElementById("settings-history-public").checked = Boolean(payload.historyPublic);
+    document.getElementById("settings-readd-enabled").checked = Boolean(payload.readdEnabled);
+    document.getElementById("settings-party-screen-enabled").checked = Boolean(payload.partyScreenEnabled);
+    document.getElementById("settings-wifi-qr-enabled").checked = Boolean(payload.wifiQrEnabled);
+    document.getElementById("settings-show-wifi-password").checked = Boolean(payload.showWifiPasswordOnScreen);
+    document.getElementById("settings-screen-active-guests").checked = Boolean(payload.partyScreenShowActiveGuests);
+    document.getElementById("settings-screen-skip-status").checked = Boolean(payload.partyScreenShowSkipStatus);
     document.getElementById("settings-max-songs-per-device").value = payload.maxSongsPerDevice || 1;
     document.getElementById("settings-max-queue-items").value = payload.maxQueueItems || 1;
     joinPreview.textContent = payload.resolvedJoinUrl || "-";
@@ -155,6 +172,59 @@
       : emptyState("Noch keine Chat-Nachrichten.");
   }
 
+  function renderSkipStatus(skip) {
+    if (!skipStatus) return;
+    if (!skip?.currentSongId) {
+      skipStatus.innerHTML = emptyState("Kein aktueller Song fuer Skip-Voting.");
+      return;
+    }
+    skipStatus.innerHTML = `
+      <div class="skip-admin-grid">
+        <div class="meta-card">
+          <span class="eyebrow">Skip-Votes</span>
+          <strong>${skip.currentSkipVoteCount || 0}/${skip.skipVotesNeeded || "-"}</strong>
+        </div>
+        <div class="meta-card">
+          <span class="eyebrow">Aktive Gaeste</span>
+          <strong>${skip.activeGuestCount || 0}</strong>
+        </div>
+        <div class="meta-card">
+          <span class="eyebrow">Aktuell</span>
+          <strong>${skip.currentSkipVotePercent || 0}% / ${skip.skipThresholdPercent || 40}%</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBestOfPreview(history) {
+    if (!bestOfList) return;
+    const ranked = [...history]
+      .map((song) => ({
+        ...song,
+        bestScore:
+          (song.votes || 0) +
+          (song.status === "played" ? 2 : 0) +
+          (song.readdCount || 0) -
+          (["skipped", "skipped_by_vote"].includes(song.status) ? 2 : 0) -
+          (song.status === "removed" ? 5 : 0),
+      }))
+      .sort((left, right) => (right.bestScore || 0) - (left.bestScore || 0))
+      .slice(0, 5);
+    bestOfList.innerHTML = ranked.length
+      ? ranked
+          .map(
+            (song, index) => `
+              <article class="best-mini-card">
+                <span class="rank-pill">#${index + 1}</span>
+                <strong>${escapeHtml(song.title)}</strong>
+                <span>${song.bestScore} Punkte · ${song.votes || 0} Votes</span>
+              </article>
+            `,
+          )
+          .join("")
+      : emptyState("Noch keine abgeschlossenen Songs fuer Best-of.");
+  }
+
   function renderState(payload) {
     stateStore.current = payload.current;
     stateStore.queue = payload.queue;
@@ -162,6 +232,9 @@
     stateStore.messages = payload.messages || [];
     stateStore.queueMeta = payload.queueMeta || {};
     stateStore.stats = payload.stats || stateStore.stats;
+    if (payload.skipVoting) {
+      Object.assign(stateStore.skipVoting, payload.skipVoting);
+    }
     if (payload.runtime) {
       updateAppConfig({ runtime: payload.runtime });
     }
@@ -175,10 +248,12 @@
       ? payload.queue.map((song) => songCard(song, { adminMode: true })).join("")
       : emptyState("Die Warteschlange ist leer.");
     historyList.innerHTML = payload.history.length
-      ? payload.history.map((song) => songCard(song, { playerMode: true })).join("")
+      ? payload.history.map((song) => songCard(song, { historyMode: true })).join("")
       : emptyState("Noch kein Verlauf.");
     renderQueueMeta(payload.queueMeta || {});
     renderMessages(payload.messages || []);
+    renderSkipStatus(payload.skipVoting || stateStore.skipVoting);
+    renderBestOfPreview(payload.history || []);
   }
 
   async function loadAdminSettings() {
@@ -316,6 +391,24 @@
   bindSongActions(queueList);
   bindSongActions(currentCard);
 
+  historyList?.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-action='readd-history']");
+    if (!button) return;
+    const card = button.closest("[data-song-id]");
+    if (!card) return;
+    button.disabled = true;
+    try {
+      const response = await apiFetch(`/api/history/${Number(card.dataset.songId)}/readd`, {
+        method: "POST",
+        body: JSON.stringify({ deviceId: getDeviceId(), guestName: "Host" }),
+      });
+      toast(`Wieder in der Queue: ${response.song?.title || "Song"}`, "success");
+    } catch (error) {
+      button.disabled = false;
+      toast(error.message, "error");
+    }
+  });
+
   document.getElementById("skip-current")?.addEventListener("click", async () => {
     try {
       await apiFetch("/api/admin/skip", { method: "POST", body: JSON.stringify({}) });
@@ -339,6 +432,15 @@
       await apiFetch("/api/admin/clear", { method: "POST", body: JSON.stringify({}) });
       clearRememberedVotes();
       toast("Aktive Queue geleert.", "success");
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  });
+
+  document.getElementById("reset-skip-votes")?.addEventListener("click", async () => {
+    try {
+      await apiFetch("/api/admin/current/reset-skip-votes", { method: "POST", body: JSON.stringify({}) });
+      toast("Skip-Votes fuer den aktuellen Song zurueckgesetzt.", "success");
     } catch (error) {
       toast(error.message, "error");
     }
@@ -374,6 +476,15 @@
           chatEnabled: document.getElementById("settings-chat-enabled").checked,
           votingEnabled: document.getElementById("settings-voting-enabled").checked,
           inviteOnlyMode: document.getElementById("settings-invite-only").checked,
+          skipVotingEnabled: document.getElementById("settings-skip-voting-enabled").checked,
+          skipVoteThresholdPercent: Number(document.getElementById("settings-skip-threshold").value || 40),
+          historyPublic: document.getElementById("settings-history-public").checked,
+          readdEnabled: document.getElementById("settings-readd-enabled").checked,
+          partyScreenEnabled: document.getElementById("settings-party-screen-enabled").checked,
+          wifiQrEnabled: document.getElementById("settings-wifi-qr-enabled").checked,
+          showWifiPasswordOnScreen: document.getElementById("settings-show-wifi-password").checked,
+          partyScreenShowActiveGuests: document.getElementById("settings-screen-active-guests").checked,
+          partyScreenShowSkipStatus: document.getElementById("settings-screen-skip-status").checked,
           maxSongsPerDevice: Number(document.getElementById("settings-max-songs-per-device").value || 1),
           maxQueueItems: Number(document.getElementById("settings-max-queue-items").value || 1),
         }),

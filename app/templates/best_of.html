@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-card best-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Best of Abend</p>
+        <h1>Die Tracks, die den Raum getragen haben.</h1>
+        <p class="hero-text">Ranking: Votes plus Bonus fuer gespielt und Re-Adds, Penalty fuer Skip oder Entfernen. Einfach genug, um fair zu bleiben.</p>
+        <div class="hero-actions">
+            <a class="primary-button" href="/api/admin/best-of/export.csv" target="_blank" rel="noreferrer">CSV exportieren</a>
+            <a class="ghost-button" href="/api/admin/best-of/export.json" target="_blank" rel="noreferrer">JSON</a>
+            <a class="ghost-button" href="/api/admin/best-of/export.txt" target="_blank" rel="noreferrer">Textliste</a>
+        </div>
+    </div>
+    <div class="hero-badge">
+        <span>Session</span>
+        <strong>{{ settings.party_code }}</strong>
+        <small>{{ settings.party_name }}</small>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <p class="eyebrow">Ranking</p>
+            <h2>Topliste</h2>
+        </div>
+    </div>
+    <div id="best-of-list" class="best-of-list"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/best_of.js" defer></script>
+{% endblock %}

@@ -11,8 +11,27 @@ const stateStore = {
     chatEnabled: Boolean(appConfig.chatEnabled),
     votingEnabled: Boolean(appConfig.votingEnabled),
     inviteOnlyMode: Boolean(appConfig.inviteOnlyMode),
+    skipVotingEnabled: Boolean(appConfig.skipVotingEnabled),
+    skipThresholdPercent: Number(appConfig.skipThresholdPercent || 40),
+    activeGuestWindowSeconds: Number(appConfig.activeGuestWindowSeconds || 300),
+    historyPublic: appConfig.historyPublic !== false,
+    readdEnabled: appConfig.readdEnabled !== false,
+    partyScreenEnabled: appConfig.partyScreenEnabled !== false,
+    wifiQrEnabled: Boolean(appConfig.wifiQrEnabled),
+    showWifiPasswordOnScreen: Boolean(appConfig.showWifiPasswordOnScreen),
+    partyScreenShowActiveGuests: appConfig.partyScreenShowActiveGuests !== false,
+    partyScreenShowSkipStatus: appConfig.partyScreenShowSkipStatus !== false,
     maxSongsPerDevice: Number(appConfig.maxSongsPerDevice || 0),
     maxQueueItems: Number(appConfig.maxQueueItems || 0),
+  },
+  skipVoting: {
+    skipVotingEnabled: Boolean(appConfig.skipVotingEnabled),
+    skipThresholdPercent: Number(appConfig.skipThresholdPercent || 40),
+    activeGuestCount: 0,
+    currentSkipVoteCount: 0,
+    currentSkipVotePercent: 0,
+    skipVotesNeeded: null,
+    hasCurrentDeviceSkipVoted: false,
   },
   stats: { activeCount: 0, historyCount: 0, messageCount: 0 },
 };
@@ -178,8 +197,14 @@ async function apiFetch(url, options = {}) {
 
 function songMetaChips(song) {
   const chips = [];
+  if (song.statusLabel && !["queued", "current"].includes(song.status)) {
+    chips.push(`<span class="tag-pill status-${escapeHtml(song.status)}">${escapeHtml(song.statusLabel)}</span>`);
+  }
   if (song.pinned) {
     chips.push('<span class="tag-pill">Priorisiert</span>');
+  }
+  if (Number.isFinite(song.readdCount) && song.readdCount > 0) {
+    chips.push(`<span class="tag-pill">${song.readdCount}x erneut gewuenscht</span>`);
   }
   if (Number.isFinite(song.durationSeconds)) {
     chips.push(`<span class="tag-pill">${formatDuration(song.durationSeconds)}</span>`);
@@ -198,6 +223,9 @@ function songCard(song, options = {}) {
   const voted = votedSongs.has(song.id);
   const adminMode = options.adminMode || false;
   const playerMode = options.playerMode || false;
+  const historyMode = options.historyMode || false;
+  const canReadd = historyMode && stateStore.runtime.readdEnabled;
+  const completedAt = song.completedAt || song.playedAt || song.skippedAt || song.removedAt;
 
   return `
     <article class="song-card ${options.highlight ? "highlight" : ""}" data-song-id="${song.id}">
@@ -216,7 +244,12 @@ function songCard(song, options = {}) {
           ${relativeTime(song.addedAt)}
           ${song.submitterLabel ? `<span class="dot-sep"></span>Geraet ${escapeHtml(song.submitterLabel)}` : ""}
         </p>
-        ${song.playedAt ? `<p class="song-subline">gespielt ${relativeTime(song.playedAt)}</p>` : ""}
+        ${completedAt ? `<p class="song-subline">${escapeHtml(song.statusLabel || "Abgeschlossen")} ${relativeTime(completedAt)}</p>` : ""}
+        ${
+          song.readdedFromSongId
+            ? `<p class="song-subline">erneut hinzugefuegt aus Verlauf #${escapeHtml(song.readdedFromSongId)}</p>`
+            : ""
+        }
         <div class="song-actions">
           ${
             !adminMode && !playerMode && stateStore.runtime.votingEnabled
@@ -228,11 +261,16 @@ function songCard(song, options = {}) {
           ${
             adminMode
               ? `
-                <button class="chip-button" data-action="pin">${song.pinned ? "Entpinnen" : "Priorisieren"}</button>
-                <button class="chip-button danger" data-action="clear-device">Geraet-Songs loeschen</button>
-                <button class="chip-button danger" data-action="mute-device">Geraet sperren</button>
-                <button class="chip-button danger" data-action="remove">Entfernen</button>
+                ${["queued", "current"].includes(song.status) ? `<button class="chip-button" data-action="pin">${song.pinned ? "Entpinnen" : "Priorisieren"}</button>` : ""}
+                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="clear-device">Geraet-Songs loeschen</button>' : ""}
+                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="mute-device">Geraet sperren</button>' : ""}
+                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="remove">Entfernen</button>' : ""}
               `
+              : ""
+          }
+          ${
+            canReadd
+              ? `<button class="chip-button" data-action="readd-history">Erneut hinzufuegen</button>`
               : ""
           }
           <a class="chip-button link-chip" href="${escapeHtml(song.canonicalUrl)}" target="_blank" rel="noreferrer">YouTube</a>
@@ -272,6 +310,7 @@ function emptyState(message) {
 function buildAutoplayPool(history = []) {
   const unique = new Set();
   return [...history]
+    .filter((song) => song.status === "played")
     .sort((left, right) => {
       if ((right.votes || 0) !== (left.votes || 0)) {
         return (right.votes || 0) - (left.votes || 0);
@@ -307,7 +346,8 @@ function updateConnectionPill(connected) {
   const pill =
     document.getElementById("connection-pill") ||
     document.getElementById("player-status-pill") ||
-    document.getElementById("audio-status-pill");
+    document.getElementById("audio-status-pill") ||
+    document.getElementById("screen-connection-pill");
   if (!pill) return;
   pill.textContent = connected ? "Live verbunden" : "Verbindung verloren - reconnecting...";
   pill.classList.toggle("live-ok", connected);
@@ -315,7 +355,15 @@ function updateConnectionPill(connected) {
 
 function connectLive(onState) {
   const protocol = location.protocol === "https:" ? "wss" : "ws";
-  const socket = new WebSocket(`${protocol}://${location.host}/ws`);
+  const params = new URLSearchParams({
+    device_id: getDeviceId(),
+    role: appConfig.clientRole || "guest",
+  });
+  const guestName = document.getElementById("guest-name")?.value?.trim();
+  if (guestName) {
+    params.set("guest_name", guestName.slice(0, 80));
+  }
+  const socket = new WebSocket(`${protocol}://${location.host}/ws?${params.toString()}`);
 
   socket.addEventListener("open", () => updateConnectionPill(true));
   socket.addEventListener("close", () => {
@@ -327,6 +375,9 @@ function connectLive(onState) {
     if (payload.type === "state") {
       if (payload.runtime) {
         Object.assign(stateStore.runtime, payload.runtime);
+      }
+      if (payload.skipVoting) {
+        Object.assign(stateStore.skipVoting, payload.skipVoting);
       }
       onState(payload);
     }
@@ -535,6 +586,7 @@ window.PartyTube = {
   getVotedSongs,
   rememberVote,
   clearRememberedVotes,
+  escapeHtml,
   songCard,
   messageCard,
   emptyState,
@@ -545,6 +597,7 @@ window.PartyTube = {
   registerPwaShell,
   loadYouTubeApi,
   playbackStartSeconds,
+  relativeTime,
   formatDuration,
   buildAutoplayPool,
   autoplayCard,

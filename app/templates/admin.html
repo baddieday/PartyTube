@@ -10,6 +10,7 @@
         <a class="primary-button" href="/start">Party starten</a>
         <a class="ghost-button" id="admin-open-audio" href="/audio" target="_blank" rel="noreferrer">Audio oeffnen</a>
         <a class="ghost-button" id="admin-open-player" href="/player" target="_blank" rel="noreferrer">Player oeffnen</a>
+        <a class="ghost-button" id="admin-open-party-screen" href="/party-screen" target="_blank" rel="noreferrer">Party-Screen</a>
         <a class="ghost-button" href="/qr" target="_blank" rel="noreferrer">QR-Poster</a>
     </div>
 </section>
@@ -53,6 +54,16 @@
         <div id="admin-current-song" class="song-slot empty-state">
             <p>Noch kein aktiver Song.</p>
         </div>
+        <div class="skip-admin-panel">
+            <div class="panel-header compact">
+                <div>
+                    <p class="eyebrow">Demokratischer Skip</p>
+                    <h2>Song-Veto live</h2>
+                </div>
+                <button class="ghost-button" id="reset-skip-votes" type="button">Skip-Votes resetten</button>
+            </div>
+            <div id="admin-skip-status"></div>
+        </div>
     </div>
 </section>
 
@@ -84,6 +95,10 @@
             <div class="access-row">
                 <span>Audio-Link</span>
                 <a id="admin-audio-url" href="/audio" target="_blank" rel="noreferrer">Wird nach Login abgesichert</a>
+            </div>
+            <div class="access-row">
+                <span>Party-Screen</span>
+                <a href="/party-screen" target="_blank" rel="noreferrer">/party-screen</a>
             </div>
             <div class="access-row">
                 <span>Party-Code</span>
@@ -149,7 +164,27 @@
             </div>
         </div>
         <div id="admin-history-list" class="history-list"></div>
+        <div class="admin-actions">
+            <a class="ghost-button" href="/history" target="_blank" rel="noreferrer">Verlauf ansehen</a>
+            <a class="ghost-button" href="/api/admin/history/export.json" target="_blank" rel="noreferrer">JSON</a>
+            <a class="ghost-button" href="/api/admin/history/export.csv" target="_blank" rel="noreferrer">CSV</a>
+            <a class="ghost-button" href="/api/admin/history/export.txt" target="_blank" rel="noreferrer">Text</a>
+        </div>
     </div>
+</section>
+
+<section class="panel lower-grid">
+    <div class="panel-header compact">
+        <div>
+            <p class="eyebrow">Best of Abend</p>
+            <h2>Top Tracks nach Votes, Re-Adds und Status</h2>
+        </div>
+        <div class="hero-actions">
+            <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Grossansicht</a>
+            <a class="ghost-button" href="/api/admin/best-of/export.csv" target="_blank" rel="noreferrer">CSV Export</a>
+        </div>
+    </div>
+    <div id="admin-best-of-list" class="best-mini-list"></div>
 </section>
 
 <section class="layout-grid lower-grid">
@@ -228,9 +263,45 @@
                 <input id="settings-voting-enabled" name="votingEnabled" type="checkbox">
                 <span>Voting aktivieren</span>
             </label>
+            <label class="checkbox-label">
+                <input id="settings-skip-voting-enabled" name="skipVotingEnabled" type="checkbox">
+                <span>Demokratisches Skip-Voting aktivieren</span>
+            </label>
+            <label>
+                <span>Skip-Schwelle in Prozent</span>
+                <input id="settings-skip-threshold" name="skipVoteThresholdPercent" type="number" min="10" max="100" inputmode="numeric">
+            </label>
             <label class="checkbox-label settings-span-2">
                 <input id="settings-invite-only" name="inviteOnlyMode" type="checkbox">
                 <span>Invite-only Mode aktivieren. Root `/` zeigt dann nur noch den Join-Code-Einstieg.</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-history-public" name="historyPublic" type="checkbox">
+                <span>Verlauf fuer Gaeste sichtbar</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-readd-enabled" name="readdEnabled" type="checkbox">
+                <span>Re-Add aus Verlauf erlauben</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-party-screen-enabled" name="partyScreenEnabled" type="checkbox">
+                <span>Party-Screen aktivieren</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-wifi-qr-enabled" name="wifiQrEnabled" type="checkbox">
+                <span>WLAN-QR auf Party-Screen zeigen</span>
+            </label>
+            <label class="checkbox-label settings-span-2">
+                <input id="settings-show-wifi-password" name="showWifiPasswordOnScreen" type="checkbox">
+                <span>Passwort auf TV/Beamer anzeigen. Nur bewusst aktivieren.</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-screen-active-guests" name="partyScreenShowActiveGuests" type="checkbox">
+                <span>Aktive Gaeste auf Party-Screen zeigen</span>
+            </label>
+            <label class="checkbox-label">
+                <input id="settings-screen-skip-status" name="partyScreenShowSkipStatus" type="checkbox">
+                <span>Skip-Status auf Party-Screen zeigen</span>
             </label>
             <label>
                 <span>Max Songs pro Geraet</span>

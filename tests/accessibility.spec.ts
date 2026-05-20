@@ -36,7 +36,7 @@ test.beforeEach(async ({ request }) => {
   await resetTestState(request);
 });
 
-test("Accessibility: Guest-, Admin-, Start- und Player-Seiten haben keine kritischen Axe-Verstoesse", async ({ page }) => {
+test("Accessibility: Guest-, Admin-, Start-, Player-, History- und Screen-Seiten haben keine kritischen Axe-Verstoesse", async ({ page }) => {
   await page.goto("/");
   await injectAxe(page);
   await expectNoSeriousViolations(page, "guest");
@@ -54,4 +54,12 @@ test("Accessibility: Guest-, Admin-, Start- und Player-Seiten haben keine kritis
   await page.goto(securePlayerUrl);
   await injectAxe(page);
   await expectNoSeriousViolations(page, "player");
+
+  await page.goto("/history");
+  await injectAxe(page);
+  await expectNoSeriousViolations(page, "history");
+
+  await page.goto("/party-screen");
+  await injectAxe(page);
+  await expectNoSeriousViolations(page, "party-screen");
 });

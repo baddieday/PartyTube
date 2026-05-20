@@ -8,6 +8,9 @@ PartyTube ist eine lokale Party-Jukebox fuer YouTube im Heimnetz. Gaeste oeffnen
 - Live-Queue und Chat per WebSocket
 - robuste YouTube-Linkerkennung fuer `watch`, `youtu.be`, `shorts`, `embed` und direkte IDs
 - Duplicate-Erkennung, Vote-Limits, Rate-Limits und Moderationsfunktionen
+- demokratisches Song-Veto mit konfigurierbarer Skip-Schwelle
+- Party-Verlauf mit Re-Add, JSON/CSV/Text-Export und Best-of-Abend
+- QR-Party-Screen fuer TV/Beamer mit Join-Link, aktuellem Song und Queue-Vorschau
 - Invite-only-Modus mit `/join/{party_code}`
 - echte Admin-Session statt statischem Cookie
 - CSRF-Schutz fuer Admin-Schreibaktionen
@@ -64,12 +67,15 @@ Warum diese Architektur:
 │  ├─ autoplay.spec.ts
 │  ├─ chat.spec.ts
 │  ├─ guest.spec.ts
+│  ├─ history.spec.ts
 │  ├─ load.spec.ts
 │  ├─ multiuser.spec.ts
+│  ├─ party-screen.spec.ts
 │  ├─ persistence.spec.ts
 │  ├─ player.spec.ts
 │  ├─ qr.spec.ts
 │  ├─ security.spec.ts
+│  ├─ skip-voting.spec.ts
 │  ├─ start.spec.ts
 │  └─ voting.spec.ts
 ├─ .github/
@@ -100,6 +106,8 @@ Danach:
 - Admin: `http://192.168.178.77:8088/admin`
 - TV: `http://192.168.178.77:8088/player`
 - Audio-Deck: `http://192.168.178.77:8088/audio`
+- Party-Screen: `http://192.168.178.77:8088/party-screen`
+- Verlauf: `http://192.168.178.77:8088/history`
 - QR-Poster: `http://192.168.178.77:8088/qr`
 - Health: `http://192.168.178.77:8088/health`
 
@@ -179,6 +187,10 @@ Siehe [\.env.example](/C:/Users/USER/Documents/YT_Site/.env.example). Die wichti
 - `WIFI_SSID`, `WIFI_PASSWORD`, `WIFI_SECURITY`, `WIFI_HIDDEN`
 - `AUTOPLAY_ENABLED`
 - `CHAT_ENABLED`, `VOTING_ENABLED`
+- `SKIP_VOTING_ENABLED`, `SKIP_VOTE_THRESHOLD_PERCENT`, `ACTIVE_GUEST_WINDOW_SECONDS`
+- `HISTORY_PUBLIC`, `READD_ENABLED`
+- `PARTY_SCREEN_ENABLED`, `WIFI_QR_ENABLED`, `SHOW_WIFI_PASSWORD_ON_SCREEN`
+- `PARTY_SCREEN_SHOW_ACTIVE_GUESTS`, `PARTY_SCREEN_SHOW_SKIP_STATUS`
 - `MAX_QUEUE_ITEMS`, `MAX_SONGS_PER_DEVICE`
 - `MAX_MESSAGE_LENGTH`, `CHAT_HISTORY_LIMIT`
 - `MAX_ADDS_PER_WINDOW`, `MAX_VOTES_PER_WINDOW`, `MAX_MESSAGES_PER_WINDOW`
@@ -224,6 +236,62 @@ Browser und YouTube koennen Autoplay blockieren. In diesem Fall zeigt PartyTube 
 - Admin kann Geraete ueber Song- oder Chat-Aktionen temporaer muten
 - pro Geraet gelten Rate-Limits
 - XSS wird durch serverseitige Bereinigung plus HTML-Escaping abgefangen
+
+## Demokratisches Skip-Voting
+
+Gaeste sehen beim aktuellen Song den Button `Song ueberspringen`. Jedes Geraet darf pro aktuellem Song einmal voten. PartyTube zaehlt nur aktive Guest-Geraete aus dem konfigurierten Zeitfenster, standardmaessig `ACTIVE_GUEST_WINDOW_SECONDS=300`.
+
+Defaults:
+
+- `SKIP_VOTING_ENABLED=true`
+- `SKIP_VOTE_THRESHOLD_PERCENT=40`
+- Admin kann Skip-Voting in `/admin` deaktivieren oder die Schwelle zwischen 10 und 100 Prozent setzen.
+- Admin-Skip bleibt immer sofort moeglich und unabhaengig vom demokratischen Voting.
+
+Wenn die Schwelle erreicht ist, wird der Song als `skipped_by_vote` historisiert und der naechste Song startet. Der Live-State enthaelt Skip-Votes, aktive Gaeste, Prozentwert und benoetigte Stimmen.
+
+## Verlauf, Re-Add und Best of Abend
+
+`/history` zeigt abgeschlossene Songs mit Status:
+
+- `played`
+- `skipped`
+- `skipped_by_vote`
+- `removed`
+
+Wenn `READD_ENABLED=true`, koennen Gaeste Songs aus dem Verlauf erneut in die Queue setzen. Der Duplicate-Schutz bleibt aktiv: Songs, die bereits `queued` oder `current` sind, werden nicht doppelt eingetragen.
+
+Admin-Exports:
+
+- `/api/admin/history/export.json`
+- `/api/admin/history/export.csv`
+- `/api/admin/history/export.txt`
+
+`/admin/best-of` berechnet eine einfache, nachvollziehbare Liste:
+
+```text
+best_score = votes + played_bonus + readd_bonus - skipped_penalty - removed_penalty
+```
+
+Aktuelle Defaults: `+2` fuer gespielt, `+1` pro Re-Add, `-2` fuer Skip, `-5` fuer entfernt.
+
+## QR-Party-Screen
+
+`/party-screen` ist fuer TV oder Beamer gedacht und zeigt:
+
+- grossen QR-Code zum Join-Link `BASE_URL + /join/{PARTY_CODE}`
+- Party-Code und Join-Link als Text-Fallback
+- WLAN-SSID, falls konfiguriert
+- WLAN-Passwort niemals standardmaessig
+- aktuellen Song, Votes und Skip-Status
+- naechste 3 Songs
+- einfache Schritte fuer Gaeste
+
+Sicherheitsrelevant:
+
+- `SHOW_WIFI_PASSWORD_ON_SCREEN=false` bleibt der sichere Default.
+- `WIFI_QR_ENABLED=false` bleibt der sichere Default.
+- Beides kann bewusst im Admin-Bereich oder per ENV aktiviert werden.
 
 ## QR-Code und WLAN
 
@@ -309,9 +377,12 @@ Abgedeckt sind:
 
 - Guest-Flow
 - Voting
+- demokratisches Skip-Voting
 - Admin-Flow
 - Invite-only
 - Chat
+- History/Re-Add/Best-of
+- Party-Screen
 - Security fuer Session/CSRF/Player-Token
 - Audio/TV/Start
 - Persistenz

@@ -62,6 +62,14 @@
         detail: "Der Chat ist aktuell ausgeschaltet. Queue und Live-Updates laufen weiter.",
       });
     }
+    if (stateStore.skipVoting?.lastTriggered) {
+      alerts.push({
+        level: "info",
+        title: "Demokratisch uebersprungen",
+        detail: "Der aktuelle Song wurde per Skip-Voting beendet. Der naechste Track laeuft an.",
+      });
+      stateStore.skipVoting.lastTriggered = false;
+    }
 
     runtimeAlerts.innerHTML = alerts.length
       ? alerts
@@ -82,7 +90,25 @@
       currentSong.innerHTML = emptyState("Noch nichts aktiv. Der naechste Song startet automatisch.");
       return;
     }
-    currentSong.innerHTML = songCard(song, { highlight: true, playerMode: true });
+    const skip = stateStore.skipVoting || {};
+    const neededText = skip.skipVotesNeeded
+      ? `${skip.currentSkipVoteCount || 0}/${skip.skipVotesNeeded} Stimmen`
+      : `${skip.currentSkipVoteCount || 0} Stimmen`;
+    const skipPanel =
+      stateStore.runtime.skipVotingEnabled
+        ? `
+          <div class="skip-vote-panel" aria-live="polite">
+            <div>
+              <strong>Song-Veto</strong>
+              <p>${neededText} · ${skip.activeGuestCount || 0} aktive Gaeste · Schwelle ${skip.skipThresholdPercent || stateStore.runtime.skipThresholdPercent}%</p>
+            </div>
+            <button class="primary-button" id="skip-vote-button" type="button" ${skip.hasCurrentDeviceSkipVoted ? "disabled" : ""}>
+              ${skip.hasCurrentDeviceSkipVoted ? "Skip-Vote abgegeben" : "Song ueberspringen"}
+            </button>
+          </div>
+        `
+        : `<div class="skip-vote-panel muted"><p>Skip-Voting ist vom Host deaktiviert.</p></div>`;
+    currentSong.innerHTML = `${songCard(song, { highlight: true, playerMode: true })}${skipPanel}`;
   }
 
   function renderQueue(queue) {
@@ -104,7 +130,7 @@
 
   function renderHistory(history) {
     historyList.innerHTML = history.length
-      ? history.map((song) => songCard(song, { playerMode: true })).join("")
+      ? history.map((song) => songCard(song, { historyMode: true })).join("")
       : emptyState("Noch kein Verlauf fuer diesen Abend.");
   }
 
@@ -131,6 +157,14 @@
     stateStore.messages = payload.messages || [];
     stateStore.queueMeta = payload.queueMeta || {};
     stateStore.stats = payload.stats || stateStore.stats;
+    if (payload.skipVoting) {
+      const previousSongId = stateStore.skipVoting?.currentSongId;
+      const previousVotes = stateStore.skipVoting?.currentSkipVoteCount || 0;
+      Object.assign(stateStore.skipVoting, payload.skipVoting);
+      if (previousSongId && payload.current?.id !== previousSongId && previousVotes > 0) {
+        stateStore.skipVoting.lastTriggered = true;
+      }
+    }
     if (payload.runtime) {
       updateAppConfig({ runtime: payload.runtime });
     }
@@ -204,6 +238,54 @@
     }
   });
 
+  currentSong?.addEventListener("click", async (event) => {
+    const button = event.target.closest("#skip-vote-button");
+    if (!button) return;
+    button.disabled = true;
+    try {
+      const response = await apiFetch("/api/songs/current/skip-vote", {
+        method: "POST",
+        body: JSON.stringify({ deviceId: getDeviceId(), guestName: nameInput?.value || "" }),
+      });
+      if (response.triggered) {
+        toast("Song wurde demokratisch uebersprungen.", "success");
+      } else {
+        toast("Skip-Vote registriert.", "success");
+      }
+    } catch (error) {
+      button.disabled = false;
+      if (error.status === 429) {
+        toast(`${error.message}${retryHint(error)}`, "error");
+      } else {
+        toast(error.message, "error");
+      }
+    }
+  });
+
+  historyList?.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-action='readd-history']");
+    if (!button) return;
+    const card = button.closest("[data-song-id]");
+    if (!card) return;
+    button.disabled = true;
+    try {
+      const response = await apiFetch(`/api/history/${Number(card.dataset.songId)}/readd`, {
+        method: "POST",
+        body: JSON.stringify({ deviceId: getDeviceId(), guestName: nameInput?.value || "" }),
+      });
+      toast(`Wieder in der Queue: ${response.song?.title || "Song"}`, "success");
+    } catch (error) {
+      button.disabled = false;
+      if (error.status === 409 && error.payload?.duplicate) {
+        toast(`Song ist bereits in der Warteschlange: ${error.payload.duplicate.title || ""}`, "error");
+      } else if (error.status === 429) {
+        toast(`${error.message}${retryHint(error)}`, "error");
+      } else {
+        toast(error.message, "error");
+      }
+    }
+  });
+
   messageForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!stateStore.runtime.chatEnabled) {
@@ -241,5 +323,7 @@
   });
 
   connectLive(renderState);
-  apiFetch("/api/state").then(renderState).catch((error) => toast(error.message, "error"));
+  apiFetch(`/api/state?deviceId=${encodeURIComponent(getDeviceId())}&role=guest`)
+    .then(renderState)
+    .catch((error) => toast(error.message, "error"));
 })();

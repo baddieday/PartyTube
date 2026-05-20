@@ -39,6 +39,18 @@
     return sessionStorage.getItem(activationKey) === "1";
   }
 
+  function needsManualPlaybackStart() {
+    return !shouldUseVideoOnlyMode() && !hasActivation();
+  }
+
+  function showPlaybackOverlay() {
+    if (needsManualPlaybackStart()) {
+      overlay.classList.add("visible");
+      return;
+    }
+    overlay.classList.remove("visible");
+  }
+
   function safePlayerState() {
     try {
       return player?.getPlayerState?.() ?? -1;
@@ -55,6 +67,7 @@
     if (!player) return;
     if (shouldUseVideoOnlyMode()) {
       player.mute?.();
+      overlay.classList.remove("visible");
       if (modeNote) {
         modeNote.textContent = ambientAudio.isWindowActive()
           ? "Audio-Fenster aktiv: Dieses TV-Bild laeuft stumm und zeigt nur noch das Video."
@@ -149,7 +162,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    overlay.classList.add("visible");
+    showPlaybackOverlay();
     return true;
   }
 
@@ -171,7 +184,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    overlay.classList.add("visible");
+    showPlaybackOverlay();
   }
 
   function renderState(payload) {
@@ -255,9 +268,10 @@
             event.data === window.YT.PlayerState.CUED ||
             event.data === window.YT.PlayerState.UNSTARTED
           ) {
-            overlay.classList.add("visible");
+            showPlaybackOverlay();
           }
           if (event.data === window.YT.PlayerState.PLAYING) {
+            rememberActivation();
             overlay.classList.remove("visible");
           }
         },
@@ -270,6 +284,7 @@
 
   resumeButton?.addEventListener("click", () => {
     try {
+      rememberActivation();
       if (stateStore.current?.videoId) {
         syncPlayerToSong(stateStore.current, true);
       } else {

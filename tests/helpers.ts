@@ -2,6 +2,9 @@ import { expect, Page, APIRequestContext } from "playwright/test";
 import fs from "node:fs";
 
 export const ADMIN_PIN = process.env.ADMIN_PIN || "2468";
+export const TEST_BASE_URL = process.env.BASE_URL || "http://127.0.0.1:8090";
+export const PARTY_CODE = process.env.PARTY_CODE || "test-rave";
+export const EXPECTED_JOIN_URL = `${TEST_BASE_URL}/join/${PARTY_CODE}`;
 
 export const SAMPLE_URLS = {
   watch: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",

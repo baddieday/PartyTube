@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    body[data-page="player"] .player-overlay.compact-controls {
+    body[data-page="player"] .player-control-overlay {
+        position: absolute;
         inset: auto 1rem 1rem 1rem;
-        display: flex;
+        display: none;
         justify-content: center;
         align-items: flex-end;
         padding: 0;
@@ -12,7 +13,7 @@
         z-index: 5;
     }
 
-    body[data-page="player"] .player-overlay.compact-controls.visible {
+    body[data-page="player"] .player-control-overlay.visible {
         display: flex;
     }
 
@@ -54,7 +55,7 @@
     }
 
     @media (max-width: 720px) {
-        body[data-page="player"] .player-overlay.compact-controls {
+        body[data-page="player"] .player-control-overlay {
             inset: auto 0.55rem 0.55rem 0.55rem;
         }
 
@@ -86,7 +87,7 @@
         <p class="subtle-note" id="player-mode-note">Video am TV. Ton kommt aus dem Audio-Fenster.</p>
         <div class="player-frame-wrap">
             <div id="youtube-player" class="player-frame"></div>
-            <div id="player-overlay" class="player-overlay compact-controls" aria-live="polite">
+            <div id="player-overlay" class="player-control-overlay" aria-live="polite">
                 <div class="player-control-dock">
                     <span id="player-control-hint">Bereit</span>
                     <button class="primary-button" id="resume-playback" type="button">Play</button>

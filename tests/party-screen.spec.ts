@@ -36,7 +36,7 @@ test("Party-Screen: QR, Join-Link, WLAN-Schutz, aktueller Song, Top 3 und Live-U
 
 test("Party-Screen: WLAN-Passwort erscheint nur nach bewusster Host-Aktivierung", async ({ page }) => {
   await loginAsAdmin(page);
-  await page.getByLabel("Passwort auf TV/Beamer anzeigen. Nur bewusst aktivieren.").check();
+  await page.getByLabel("Passwort am TV zeigen").check();
   await page.getByLabel("WLAN-QR auf Party-Screen zeigen").check();
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");

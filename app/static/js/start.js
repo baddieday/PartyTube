@@ -69,7 +69,7 @@
   function renderCurrent(song) {
     currentSong.innerHTML = song
       ? songCard(song, { playerMode: true, highlight: true })
-      : emptyState("Kein Song aktiv. Oeffne Audio + TV und lass die ersten Tracks reinfliegen.");
+      : emptyState("Noch kein Song aktiv.");
   }
 
   function renderQueue(queue) {
@@ -80,7 +80,7 @@
   }
 
   function renderQueueMeta(queueMeta) {
-    nextSong.textContent = queueMeta?.nextSong?.title || "Noch kein naechster Song";
+    nextSong.textContent = queueMeta?.nextSong?.title || "Kein Song";
     queueDuration.textContent = Number.isFinite(queueMeta?.totalDurationSeconds)
       ? formatDuration(queueMeta.totalDurationSeconds)
       : "Teilweise unbekannt";
@@ -119,11 +119,11 @@
     if (hostReady) {
       hostAuth.textContent = "Host-Login aktiv";
       hostAuth.classList.add("live-ok");
-      hostAuthNote.textContent = "Audio + TV verwenden jetzt den signierten Player-Link. Gaeste kennen den Token nicht.";
+      hostAuthNote.textContent = "Audio + TV gesichert.";
     } else {
       hostAuth.textContent = "Host-Login fehlt";
       hostAuth.classList.remove("live-ok");
-      hostAuthNote.textContent = "Bitte einmal in /admin einloggen. Danach startet Audio + TV mit sicherer Queue-Steuerung.";
+      hostAuthNote.textContent = "Einmal in /admin einloggen.";
     }
 
     renderWarnings(payload.warnings || appConfig.warnings || []);
@@ -131,7 +131,7 @@
 
   launchPartyButton?.addEventListener("click", () => {
     if (!hostReady) {
-      toast("Bitte zuerst im Host-Bereich einloggen, damit Audio + TV sicher gekoppelt starten.", "error");
+      toast("Bitte zuerst im Host-Bereich einloggen.", "error");
       window.location.href = "/admin";
       return;
     }
@@ -144,7 +144,7 @@
 
   launchAudioButton?.addEventListener("click", () => {
     if (!hostReady) {
-      toast("Bitte zuerst im Host-Bereich einloggen, damit das Audio-Deck die Queue sicher steuern darf.", "error");
+      toast("Bitte zuerst im Host-Bereich einloggen.", "error");
       window.location.href = "/admin";
       return;
     }

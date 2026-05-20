@@ -2,9 +2,9 @@
 {% block content %}
 <section class="hero-card start-hero">
     <div class="hero-copy">
-        <p class="eyebrow">PartyTube Launch Control</p>
-        <h1>Audio stabil halten, TV starten. QR scannen, Song einreichen, gemeinsam voten.</h1>
-        <p class="hero-text">Der Host startet Audio und TV einmal sauber, Gaeste joinen per QR und die Queue laeuft live wie eine kleine Club-Plattform im Heimnetz.</p>
+        <p class="eyebrow">Start</p>
+        <h1>Party starten.</h1>
+        <p class="hero-text">Audio + TV starten, QR zeigen, Musik sammeln.</p>
         <div class="hero-actions">
             <button class="primary-button" id="launch-party-stack" type="button">Audio + TV starten</button>
             <button class="ghost-button" id="launch-audio-only" type="button">Nur Audio oeffnen</button>
@@ -20,14 +20,12 @@
     </div>
 </section>
 
-<section class="alert-stack" id="start-warning-list" aria-live="polite"></section>
-
 <section class="start-grid">
     <article class="panel panel-glow start-priority">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Command Center</p>
-                <h2>Wichtige Aktionen oben</h2>
+                <p class="eyebrow">Aktionen</p>
+                <h2>Direkt loslegen</h2>
             </div>
         </div>
         <div class="start-actions-grid">
@@ -37,43 +35,45 @@
             <a class="ghost-button" href="/admin">Host-Konsole</a>
             <a class="ghost-button" href="/">Gaeste-Queue</a>
         </div>
-        <p class="subtle-note">Fuer sichere Queue-Steuerung bitte einmal im Host-Bereich einloggen. Danach startet `Audio + TV` mit geschuetzten Player-Links.</p>
+        <p class="subtle-note">Host-Login schuetzt Audio + TV.</p>
     </article>
 
     <article class="panel start-status-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Live Setup</p>
-                <h2>Einmal starten, dann laeuft es</h2>
+                <p class="eyebrow">Status</p>
+                <h2>Bereit?</h2>
             </div>
         </div>
         <div class="status-stack">
             <div class="status-row">
                 <span class="counter-pill" id="start-host-auth">Host-Login prueft...</span>
-                <span class="subtle-note" id="start-host-auth-note">Ohne Host-Session oeffnen Audio und TV nur die oeffentlichen Seiten.</span>
+                <span class="subtle-note" id="start-host-auth-note">Login pruefen.</span>
             </div>
             <div class="status-row">
                 <span class="counter-pill" id="start-audio-state">Audio-Fenster aus</span>
-                <span class="subtle-note">Der Ton darf nur dort laufen, damit kein Echo entsteht.</span>
+                <span class="subtle-note">Echo-Schutz.</span>
             </div>
             <div class="status-row">
                 <span class="counter-pill">TV zeigt Video</span>
-                <span class="subtle-note">Sobald das Audio-Fenster aktiv ist, bleibt der TV-Tab stumm.</span>
+                <span class="subtle-note">Video stumm.</span>
             </div>
             <div class="status-row">
                 <span class="counter-pill">Gaeste auf /</span>
-                <span class="subtle-note">Queue und Voting laufen weiter im Haupt-Tab.</span>
+                <span class="subtle-note">Queue live.</span>
             </div>
         </div>
     </article>
 </section>
 
+<section class="alert-stack" id="start-warning-list" aria-live="polite"></section>
+
 <section class="layout-grid lower-grid">
     <article class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Host-Setup</p>
-                <h2>Alle Links fuer den Abend</h2>
+                <p class="eyebrow">Links</p>
+                <h2>Adressen</h2>
             </div>
         </div>
         <div class="access-list">
@@ -115,8 +115,8 @@
     <article class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Queue Ueberblick</p>
-                <h2>Was als naechstes passiert</h2>
+                <p class="eyebrow">Queue</p>
+                <h2>Ueberblick</h2>
             </div>
         </div>
         <div class="meta-grid queue-meta-grid">
@@ -129,15 +129,15 @@
                 <strong id="start-queue-duration">Wird berechnet</strong>
             </div>
         </div>
-        <p class="subtle-note">Wenn die Queue leer wird und Autoplay aktiv ist, springt PartyTube automatisch in den Verlauf-Fallback.</p>
+        <p class="subtle-note">Autoplay-Fallback aktiv.</p>
     </article>
 </section>
 
 <section class="panel lower-grid compact-qr-panel">
     <div class="panel-header compact">
         <div>
-            <p class="eyebrow">Schnell beitreten</p>
-            <h2>Kleine QR-Codes fuer Party und WLAN</h2>
+            <p class="eyebrow">QR</p>
+            <h2>Party und WLAN</h2>
         </div>
     </div>
     <div class="compact-qr-grid">
@@ -164,20 +164,20 @@
     <article class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Now Playing</p>
-                <h2>Was gerade laeuft</h2>
+                <p class="eyebrow">Aktuell</p>
+                <h2>Jetzt</h2>
             </div>
         </div>
         <div id="start-current-song" class="song-slot empty-state">
-            <p>Kein Song aktiv. Oeffne Audio + TV und lass die ersten Tracks reinfliegen.</p>
+            <p>Noch kein Song aktiv.</p>
         </div>
     </article>
 
     <article class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Queue Vorschau</p>
-                <h2>Naechste Tracks</h2>
+                <p class="eyebrow">Naechstes</p>
+                <h2>Queue</h2>
             </div>
             <span class="counter-pill" id="start-queue-count">0 offen</span>
         </div>
@@ -185,20 +185,6 @@
     </article>
 </section>
 
-<section class="panel lower-grid intro-panel">
-    <div class="panel-header compact">
-        <div>
-            <p class="eyebrow">Kurz erklaert</p>
-            <h2>So funktioniert der Abend</h2>
-        </div>
-    </div>
-    <ol class="steps-list">
-        <li>Tippe auf `Audio + TV starten` und lasse das Audio-Deck offen.</li>
-        <li>Stelle den TV-Tab auf den Fernseher, das Audio-Fenster bleibt auf deinem Steuergeraet.</li>
-        <li>Schicke Gaeste auf `/` oder auf das QR-Poster, damit sie Songs einwerfen und voten koennen.</li>
-        <li>Nutze spaeter `/admin` fuer Skip, Reset, QR-Updates und WLAN-Daten.</li>
-    </ol>
-</section>
 {% endblock %}
 {% block scripts %}
 <script src="/static/js/start.js" defer></script>

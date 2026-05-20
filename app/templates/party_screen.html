@@ -2,8 +2,8 @@
 {% block content %}
 <section class="party-screen-shell">
     <div class="screen-join-card">
-        <p class="eyebrow">PartyTube beitreten</p>
-        <strong class="screen-link">Scan to join the room</strong>
+        <p class="eyebrow">Beitreten</p>
+        <strong class="screen-link">Party beitreten</strong>
         <img class="screen-qr" src="{{ link_qr_data_uri }}" alt="QR-Code zum Party-Link">
         <strong class="screen-code">{{ settings.party_code }}</strong>
         <p class="screen-link">{{ settings.join_url }}</p>
@@ -26,7 +26,7 @@
     <div class="screen-now-card">
         <div class="screen-header-row">
             <div>
-                <p class="eyebrow">Now Playing</p>
+                <p class="eyebrow">Jetzt</p>
                 <h1 id="screen-current-title">Wartet auf den ersten Song</h1>
             </div>
             <span class="live-pill" id="screen-connection-pill">Verbinde live...</span>
@@ -40,8 +40,8 @@
     <div class="screen-next-card">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Als naechstes</p>
-                <h2>Top 3 Queue</h2>
+                <p class="eyebrow">Naechstes</p>
+                <h2>Queue</h2>
             </div>
         </div>
         <div id="screen-next-list" class="screen-next-list"></div>

@@ -20,7 +20,7 @@ test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", 
   await expectToast(page, "Song entfernt.");
 
   await page.goto("/history");
-  await expect(page.getByRole("heading", { name: "Verlauf durchsuchen" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verlauf" })).toBeVisible();
   await expect(page.locator("#history-page-list")).toContainText("Gespielt");
   await expect(page.locator("#history-page-list")).toContainText("Uebersprungen");
   await expect(page.locator("#history-page-list")).toContainText("Entfernt");
@@ -67,5 +67,5 @@ test("History: HISTORY_PUBLIC=false sperrt Gaeste, Admin bleibt erlaubt", async 
   expect(guestHistory.status()).toBe(403);
 
   await page.goto("/history");
-  await expect(page.getByRole("heading", { name: "Verlauf durchsuchen" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verlauf" })).toBeVisible();
 });

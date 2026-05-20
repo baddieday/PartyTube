@@ -2,9 +2,9 @@
 {% block content %}
 <section class="hero-card admin-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Host Control Room</p>
-        <h1>Ein ruhiges Premium-Dashboard fuer alles, was live wichtig ist.</h1>
-        <p class="hero-text">Sichere Player-Links, Queue-Moderation, Skip-Voting, QR-Daten und Party-Settings sind oben gebuendelt. Erklaerungen bleiben weiter unten.</p>
+        <p class="eyebrow">Host</p>
+        <h1>Party steuern.</h1>
+        <p class="hero-text">Player, Queue, QR und Einstellungen.</p>
     </div>
     <div class="hero-actions stacked">
         <a class="primary-button" href="/start">Party starten</a>
@@ -33,14 +33,13 @@
             </label>
             <button class="primary-button" type="submit">Einloggen</button>
         </form>
-        <p class="subtle-note">Host-Login erzeugt jetzt eine echte Session mit CSRF-Schutz fuer alle Schreibaktionen.</p>
     </div>
 
     <div class="panel hidden" id="admin-console-panel">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Wiedergabe</p>
-                <h2>Aktiver Abend</h2>
+                <p class="eyebrow">Live</p>
+                <h2>Steuerung</h2>
             </div>
             <button class="ghost-button" id="logout-button" type="button">Logout</button>
         </div>
@@ -79,8 +78,8 @@
         <div class="skip-admin-panel">
             <div class="panel-header compact">
                 <div>
-                    <p class="eyebrow">Demokratischer Skip</p>
-                    <h2>Song-Veto live</h2>
+                <p class="eyebrow">Skip-Votes</p>
+                <h2>Song-Veto</h2>
                 </div>
                 <button class="ghost-button" id="reset-skip-votes" type="button">Skip-Votes resetten</button>
             </div>
@@ -93,8 +92,8 @@
     <div class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Host-Setup</p>
-                <h2>Wichtige Links und Daten</h2>
+                <p class="eyebrow">Links</p>
+                <h2>Adressen</h2>
             </div>
         </div>
         <div class="access-list">
@@ -132,8 +131,8 @@
     <div class="panel compact-qr-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Schnellzugriff</p>
-                <h2>Kleine QR-Codes fuer Join und WLAN</h2>
+                <p class="eyebrow">QR</p>
+                <h2>Join und WLAN</h2>
             </div>
         </div>
         <div class="compact-qr-grid">
@@ -161,13 +160,13 @@
     <div class="panel">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Queue-Moderation</p>
+                <p class="eyebrow">Queue</p>
                 <h2>Naechste Songs</h2>
             </div>
         </div>
         <div class="meta-grid queue-meta-grid">
             <div class="meta-card">
-                <span class="eyebrow">Naechster Start</span>
+                <span class="eyebrow">Als naechstes</span>
                 <strong id="admin-next-song">Noch offen</strong>
             </div>
             <div class="meta-card">
@@ -181,8 +180,8 @@
     <div class="panel">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Zuletzt gespielt</p>
-                <h2>History</h2>
+                <p class="eyebrow">Verlauf</p>
+                <h2>Zuletzt</h2>
             </div>
         </div>
         <div id="admin-history-list" class="history-list"></div>
@@ -198,8 +197,8 @@
 <section class="panel lower-grid">
     <div class="panel-header compact">
         <div>
-            <p class="eyebrow">Best of Abend</p>
-            <h2>Top Tracks nach Votes, Re-Adds und Status</h2>
+            <p class="eyebrow">Best of</p>
+            <h2>Top Tracks</h2>
         </div>
         <div class="hero-actions">
             <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Grossansicht</a>
@@ -213,8 +212,8 @@
     <div class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Chat-Moderation</p>
-                <h2>Live-Nachrichten</h2>
+                <p class="eyebrow">Chat</p>
+                <h2>Nachrichten</h2>
             </div>
             <span class="counter-pill" id="admin-chat-count">0 live</span>
         </div>
@@ -224,8 +223,8 @@
     <div class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Gesperrte Geraete</p>
-                <h2>Temporare Mutes</h2>
+                <p class="eyebrow">Sperren</p>
+                <h2>Geraete</h2>
             </div>
         </div>
         <div id="admin-muted-devices" class="muted-list"></div>
@@ -235,8 +234,8 @@
 <section class="panel lower-grid hidden" id="admin-settings-panel">
     <div class="panel-header">
         <div>
-            <p class="eyebrow">Party & Netzwerk</p>
-            <h2>QR-, Sicherheits- und Live-Settings pflegen</h2>
+            <p class="eyebrow">Einstellungen</p>
+            <h2>Party und Netzwerk</h2>
         </div>
     </div>
     <form class="add-form settings-form" id="admin-settings-form">
@@ -275,7 +274,7 @@
             </label>
             <label class="checkbox-label settings-span-2">
                 <input id="settings-autoplay-enabled" name="autoplayEnabled" type="checkbox">
-                <span>Autoplay aus dem Party-Verlauf aktivieren, wenn die Queue leer wird</span>
+                <span>Autoplay aus Verlauf</span>
             </label>
             <label class="checkbox-label">
                 <input id="settings-chat-enabled" name="chatEnabled" type="checkbox">
@@ -295,7 +294,7 @@
             </label>
             <label class="checkbox-label settings-span-2">
                 <input id="settings-invite-only" name="inviteOnlyMode" type="checkbox">
-                <span>Invite-only Mode aktivieren. Root `/` zeigt dann nur noch den Join-Code-Einstieg.</span>
+                <span>Invite-only aktivieren</span>
             </label>
             <label class="checkbox-label">
                 <input id="settings-history-public" name="historyPublic" type="checkbox">
@@ -315,7 +314,7 @@
             </label>
             <label class="checkbox-label settings-span-2">
                 <input id="settings-show-wifi-password" name="showWifiPasswordOnScreen" type="checkbox">
-                <span>Passwort auf TV/Beamer anzeigen. Nur bewusst aktivieren.</span>
+                <span>Passwort am TV zeigen</span>
             </label>
             <label class="checkbox-label">
                 <input id="settings-screen-active-guests" name="partyScreenShowActiveGuests" type="checkbox">
@@ -335,28 +334,10 @@
             </label>
         </div>
         <div class="settings-preview">
-            <p class="subtle-note">Wenn die Basis-URL leer bleibt, nimmt die App automatisch den Host, unter dem du sie gerade oeffnest.</p>
             <p class="subtle-note">Aktuelle Join-URL: <strong id="settings-join-preview">-</strong></p>
-            <p class="subtle-note">Autoplay nutzt bereits gespielte Tracks als lokalen Fallback und stoppt sofort wieder, sobald ein echter Queue-Song reinkommt.</p>
-            <p class="subtle-note">Admin-Schreibaktionen sind nur mit Session + CSRF-Token aktiv. Unsichere Defaults werden oben eingeblendet.</p>
         </div>
         <button class="primary-button" type="submit">Netzwerkdaten speichern</button>
     </form>
-</section>
-
-<section class="panel lower-grid admin-help-panel">
-    <div class="panel-header compact">
-        <div>
-            <p class="eyebrow">Später lesen</p>
-            <h2>Host-Hinweise</h2>
-        </div>
-    </div>
-    <ul class="check-list">
-        <li>Kein Echo: Ton nur im Audio-Fenster, TV bleibt fuer das Bild.</li>
-        <li>Gaeste immer auf `/` oder auf die QR-Seite schicken.</li>
-        <li>WLAN- und Party-Daten kannst du direkt hier speichern, ohne `.env` anzufassen.</li>
-        <li>Mit `Reset` startest du schnell einen neuen Abend.</li>
-    </ul>
 </section>
 {% endblock %}
 {% block scripts %}

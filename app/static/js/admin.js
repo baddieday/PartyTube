@@ -109,7 +109,7 @@
   }
 
   function renderQueueMeta(queueMeta) {
-    nextSongHint.textContent = queueMeta?.nextSong?.title || "Noch kein naechster Song";
+    nextSongHint.textContent = queueMeta?.nextSong?.title || "Kein Song";
     queueDuration.textContent = Number.isFinite(queueMeta?.totalDurationSeconds)
       ? formatDuration(queueMeta.totalDurationSeconds)
       : "Teilweise unbekannt";

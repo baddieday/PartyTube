@@ -9,7 +9,7 @@ test("Startseite: priorisiert Audio + TV, zeigt QR-Codes und sichere Host-Links"
   await loginAsAdmin(page);
   await page.goto("/start");
 
-  await expect(page.getByRole("heading", { name: /Audio stabil halten, TV starten/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Party starten/i })).toBeVisible();
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.getByAltText("Kleiner QR-Code fuer das WLAN")).toBeVisible();
   await expect(page.locator("#start-host-auth")).toContainText("Host-Login aktiv");

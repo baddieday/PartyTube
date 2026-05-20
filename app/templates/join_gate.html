@@ -2,9 +2,9 @@
 {% block content %}
 <section class="hero-card join-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Party Join</p>
-        <h1>{% if invite_gate %}Invite-only aktiv. Erst mit Party-Code rein.{% else %}Mit Party-Code direkt zur Session.{% endif %}</h1>
-        <p class="hero-text">Der Party-Code ist ein Einladungslink fuer diese Session. Gib ihn ein oder scanne den QR-Code vom Host.</p>
+        <p class="eyebrow">Beitreten</p>
+        <h1>{% if invite_gate %}Code eingeben.{% else %}Zur Party.{% endif %}</h1>
+        <p class="hero-text">Code eingeben oder QR scannen.</p>
     </div>
     <div class="hero-badge">
         <span>Status</span>
@@ -26,7 +26,7 @@
     <article class="panel panel-glow">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Beitreten</p>
+                <p class="eyebrow">Code</p>
                 <h2>Party-Code eingeben</h2>
             </div>
         </div>
@@ -45,14 +45,14 @@
                 >
             </label>
             <button class="primary-button" type="submit">Zur Party</button>
-            <p class="subtle-note">Wenn du schon den richtigen Link hast, funktioniert auch direkt `/join/dein-code`.</p>
+            <p class="subtle-note">Der QR-Code bringt dich direkt rein.</p>
         </form>
     </article>
 
     <article class="panel accent-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Hinweise</p>
+                <p class="eyebrow">Hilfe</p>
                 <h2>Wenn es nicht klappt</h2>
             </div>
         </div>

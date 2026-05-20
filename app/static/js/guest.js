@@ -120,7 +120,7 @@
 
   function renderQueueMeta(queueMeta) {
     const nextSong = queueMeta?.nextSong;
-    nextSongHint.textContent = nextSong ? nextSong.title : "Noch kein naechster Song";
+    nextSongHint.textContent = nextSong ? nextSong.title : "Kein Song";
     if (Number.isFinite(queueMeta?.totalDurationSeconds)) {
       queueDuration.textContent = formatDuration(queueMeta.totalDurationSeconds);
       return;
@@ -141,7 +141,7 @@
     }
     if (chatStatusNote) {
       chatStatusNote.textContent = runtime.chatEnabled
-        ? "Kurze Messages laufen live auf allen Geraeten mit."
+        ? "Live fuer alle."
         : "Der Host hat den Chat fuer diese Party aktuell deaktiviert.";
     }
     chatCount.textContent = `${messages.length} live`;

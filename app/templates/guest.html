@@ -2,9 +2,9 @@
 {% block content %}
 <section class="hero-card">
     <div class="hero-copy">
-        <p class="eyebrow">Guest Music Deck</p>
-        <h1>Songs reinwerfen und direkt gemeinsam nach oben voten.</h1>
-        <p class="hero-text">YouTube-Link einfuegen, Namen optional setzen und sofort sehen, wie die gemeinsame Queue auf jedem Handy aktualisiert wird.</p>
+        <p class="eyebrow">Party</p>
+        <h1>Song einreichen.</h1>
+        <p class="hero-text">YouTube-Link rein, abschicken, live voten.</p>
         <div class="hero-actions">
             <a class="primary-button" href="#add-song-form">Song hinzufuegen</a>
             <button class="ghost-button" id="copy-join-link" type="button">Party-Link kopieren</button>
@@ -14,9 +14,9 @@
         </div>
     </div>
     <div class="hero-badge">
-        <span>Session</span>
+        <span>Code</span>
         <strong>{{ settings.party_code }}</strong>
-        <small>QR scannen. Song einreichen. Gemeinsam voten.</small>
+        <small>{{ settings.display_address }}</small>
     </div>
 </section>
 
@@ -26,8 +26,8 @@
     <div class="panel panel-glow">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Quick Add</p>
-                <h2>Song zur Party schicken</h2>
+                <p class="eyebrow">Einreichen</p>
+                <h2>YouTube-Link</h2>
             </div>
             <span class="live-pill" id="connection-pill">Verbinde live...</span>
         </div>
@@ -41,12 +41,12 @@
                 <input id="guest-name" name="guestName" type="text" maxlength="32" placeholder="z. B. Alex">
             </label>
             <button class="primary-button" id="submit-song" type="submit">Song in die Queue</button>
-            <p class="subtle-note">Unterstuetzt `watch`, `youtu.be`, `shorts`, `embed` und direkte Video-IDs. Doppelte aktive Songs blocken wir sauber ab.</p>
+            <p class="subtle-note">YouTube-Link einfuegen. Fertig.</p>
         </form>
         <div class="current-wrapper">
             <div class="panel-header compact">
                 <div>
-                    <p class="eyebrow">Gerade dran</p>
+                    <p class="eyebrow">Jetzt</p>
                     <h2>Aktueller Song</h2>
                 </div>
             </div>
@@ -59,8 +59,8 @@
     <div class="panel">
         <div class="panel-header">
             <div>
-                <p class="eyebrow">Live Queue</p>
-                <h2>Naechste Tracks</h2>
+                <p class="eyebrow">Queue</p>
+                <h2>Naechste Songs</h2>
             </div>
             <span class="counter-pill" id="queue-count">0 offen</span>
         </div>
@@ -82,8 +82,8 @@
     <div class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Music History</p>
-                <h2>Zuletzt gespielt</h2>
+                <p class="eyebrow">Verlauf</p>
+                <h2>Zuletzt</h2>
             </div>
         </div>
         <div id="history-list" class="history-list"></div>
@@ -92,8 +92,8 @@
     <div class="panel" id="chat-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Party Chat</p>
-                <h2>Kurze Nachrichten an alle</h2>
+                <p class="eyebrow">Chat</p>
+                <h2>Nachrichten</h2>
             </div>
             <span class="counter-pill" id="chat-count">0 live</span>
         </div>
@@ -103,7 +103,7 @@
                 <textarea id="chat-message" name="message" rows="3" maxlength="280" placeholder="z. B. Nacher bitte was Schnelles fuer die Kueche"></textarea>
             </label>
             <button class="primary-button" id="submit-message" type="submit">Nachricht senden</button>
-            <p class="subtle-note" id="chat-status-note">Kurze Messages laufen live auf allen Geraeten mit.</p>
+            <p class="subtle-note" id="chat-status-note">Live fuer alle.</p>
         </form>
         <div id="chat-list" class="chat-list" aria-live="polite"></div>
     </div>
@@ -113,8 +113,8 @@
     <div class="panel compact-qr-panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Schnell teilen</p>
-                <h2>Kleine QR-Codes</h2>
+                <p class="eyebrow">QR</p>
+                <h2>Teilen</h2>
             </div>
         </div>
         <div class="compact-qr-grid compact-qr-grid-tight">
@@ -137,22 +137,6 @@
         </div>
     </div>
 
-    <div class="panel accent-panel guest-help-panel">
-        <div class="panel-header compact">
-            <div>
-                <p class="eyebrow">Kurz erklaert</p>
-                <h2>So bleibt es einfach</h2>
-            </div>
-        </div>
-        <ul class="check-list">
-            <li>Ein eingefuegter Song zaehlt direkt als erste Stimme.</li>
-            <li>Jedes Geraet kann pro Song genau einmal voten.</li>
-            <li>Wenn genug aktive Gaeste mitziehen, kann der aktuelle Song demokratisch uebersprungen werden.</li>
-            <li>Doppelte aktive Songs werden automatisch abgefangen.</li>
-            <li>Alles aktualisiert sich live ohne Reload.</li>
-            <li>Wenn Invite-only aktiv ist, ist der Party-Code nur dein Einladungslink und kein Passwort.</li>
-        </ul>
-    </div>
 </section>
 {% endblock %}
 {% block scripts %}

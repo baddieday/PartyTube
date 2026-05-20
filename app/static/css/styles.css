@@ -2277,6 +2277,110 @@ body::before {
   }
 }
 
+/* Tool-first tuning: the daily screens should feel like controls, not landing pages. */
+body[data-page="guest"] .hero-card,
+body[data-page="admin"] .hero-card,
+body[data-page="start"] .hero-card {
+  min-height: auto;
+  padding-block: clamp(1rem, 2.2vw, 1.7rem);
+}
+
+body[data-page="guest"] .hero-copy h1,
+body[data-page="admin"] .hero-copy h1,
+body[data-page="start"] .hero-copy h1 {
+  max-width: 11ch;
+  font-size: clamp(2rem, 3.5vw, 3.45rem);
+}
+
+body[data-page="guest"] .hero-text,
+body[data-page="admin"] .hero-text,
+body[data-page="start"] .hero-text {
+  margin-top: 0.55rem;
+}
+
+body[data-page="guest"] .hero-badge,
+body[data-page="admin"] .hero-badge,
+body[data-page="start"] .hero-badge {
+  box-shadow: none;
+}
+
+body[data-page="guest"] .layout-grid:first-of-type,
+body[data-page="admin"] .layout-grid:first-of-type {
+  margin-top: 0.95rem;
+}
+
+body[data-page="admin"] .settings-preview {
+  padding: 0.85rem;
+}
+
+body[data-page="admin"] .settings-preview .subtle-note {
+  font-size: 0.9rem;
+}
+
+body[data-page="start"] .alert-stack {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.95rem;
+}
+
+body[data-page="start"] .alert-card {
+  padding: 0.82rem 0.95rem;
+}
+
+body[data-page="start"] .alert-card p {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+body[data-page="guest"] .lower-grid:last-of-type {
+  grid-template-columns: minmax(0, 0.72fr);
+}
+
+body[data-page="guest"] .compact-qr-panel {
+  max-width: 44rem;
+}
+
+body[data-page="qr"] .hero-card,
+body[data-page="history"] .hero-card,
+body[data-page="best-of"] .hero-card {
+  min-height: auto;
+}
+
+body[data-page="party-screen"] .screen-link {
+  font-weight: 800;
+}
+
+@media (min-width: 1121px) {
+  body[data-page="guest"] .hero-card,
+  body[data-page="admin"] .hero-card,
+  body[data-page="start"] .hero-card {
+    grid-template-columns: minmax(0, 0.78fr) auto;
+  }
+}
+
+@media (max-width: 720px) {
+  body[data-page="guest"] .hero-card,
+  body[data-page="admin"] .hero-card,
+  body[data-page="start"] .hero-card {
+    gap: 0.75rem;
+  }
+
+  body[data-page="guest"] .hero-copy h1,
+  body[data-page="admin"] .hero-copy h1,
+  body[data-page="start"] .hero-copy h1 {
+    max-width: none;
+    font-size: clamp(1.95rem, 9vw, 2.42rem);
+  }
+
+  body[data-page="guest"] .lower-grid:last-of-type {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="start"] .alert-stack {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

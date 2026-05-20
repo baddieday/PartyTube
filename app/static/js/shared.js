@@ -513,8 +513,8 @@ function buildAmbientAudioController() {
     if (!currentSong) {
       title.textContent = "Audio-Fenster bereit";
       status.textContent = audioStatus.active
-        ? "Das Audio-Fenster ist offen und wartet auf den naechsten Song."
-        : "Einmal oeffnen, dann bleibt der Ton beim Wechsel zwischen Queue, Host und QR stabil weiterlaufen.";
+        ? "Audio offen. Wartet auf den naechsten Song."
+        : "Einmal oeffnen. Ton bleibt stabil.";
       toggle.textContent = audioStatus.active ? "Audio-Fenster fokussieren" : "Audio-Fenster oeffnen";
       return;
     }

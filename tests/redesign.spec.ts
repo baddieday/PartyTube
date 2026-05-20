@@ -10,7 +10,7 @@ test("Redesign: Startseite nutzt das Premium Rot/Schwarz Designsystem", async ({
   await page.goto("/start");
 
   await expect(page.getByAltText("PartyTube")).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Audio stabil halten, TV starten/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Party starten/i })).toBeVisible();
   await expect(page.getByRole("button", { name: "Audio + TV starten" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Party-Screen" }).first()).toBeVisible();
 

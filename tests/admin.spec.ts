@@ -45,15 +45,15 @@ test("Admin: Party-, Invite-only- und Live-Settings lassen sich pflegen", async 
   await page.getByLabel("WLAN-SSID").fill("Party Mesh");
   await page.getByLabel("WLAN-Passwort").fill("NeonBeat2026");
   await page.getByLabel("WLAN-Sicherheit").selectOption("WPA");
-  await page.getByLabel("Autoplay aus dem Party-Verlauf aktivieren, wenn die Queue leer wird").check();
+  await page.getByLabel("Autoplay aus Verlauf").check();
   await page.getByLabel("Chat aktivieren").uncheck();
-  await page.getByLabel("Invite-only Mode aktivieren. Root `/` zeigt dann nur noch den Join-Code-Einstieg.").check();
+  await page.getByLabel("Invite-only aktivieren").check();
   await page.getByLabel("Max Songs pro Geraet").fill("3");
   await page.getByLabel("Max Queue-Laenge").fill("50");
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");
   await expect(page.locator("#settings-join-preview")).toHaveText("http://party.lokal/join/afterwork");
-  await expect(page.getByLabel("Autoplay aus dem Party-Verlauf aktivieren, wenn die Queue leer wird")).toBeChecked();
+  await expect(page.getByLabel("Autoplay aus Verlauf")).toBeChecked();
   await expect(page.locator("#admin-join-url")).toHaveText("http://party.lokal/join/afterwork");
 
   await page.goto("/");

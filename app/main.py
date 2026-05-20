@@ -763,8 +763,8 @@ async def manifest(request: Request) -> JSONResponse:
             "name": resolved_settings["party_name"],
             "short_name": settings.app_name,
             "display": "standalone",
-            "background_color": "#070b17",
-            "theme_color": "#0b1020",
+            "background_color": "#050505",
+            "theme_color": "#050505",
             "start_url": "/",
             "icons": [
                 {

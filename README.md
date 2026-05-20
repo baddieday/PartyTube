@@ -20,6 +20,7 @@ PartyTube ist eine lokale Party-Jukebox fuer YouTube im Heimnetz. Gaeste oeffnen
 - TV-Modus mit Video, Audio-Modus mit Ton
 - optionales Autoplay aus dem lokalen Party-Verlauf
 - PWA-/Homescreen-Basis mit Manifest, Icons und Service Worker
+- Premium Red/Black UI mit Mobile-Guest-Deck, Admin-Dashboard und praesentationsreifem TV-/Party-Screen
 - Playwright-E2E, Accessibility-Checks, Load-/Persistence-Tests
 
 ## Architektur
@@ -36,6 +37,21 @@ Warum diese Architektur:
 - Ein einzelner Service ist fuer LAN-Partys leichter zu starten, zu debuggen und zu sichern.
 - SQLite reicht fuer den lokalen Mehrbenutzerfall aus und ueberlebt Neustarts sauber.
 - Kein Build-heavy Frontend senkt die Ausfallflaeche vor einer Party.
+
+## Premium Red/Black Design
+
+PartyTube nutzt ein zentrales CSS-Designsystem in [styles.css](/C:/Users/USER/Documents/YT_Site/app/static/css/styles.css) mit Tokens fuer dunkle Surfaces, gedämpftes Rot, grosse Radien, Glass-Cards, Fokuszustaende und TV-taugliche Breakpoints. Ziel ist eine hochwertige Mischung aus Event-App, Musik-Plattform und Host-Dashboard, ohne die einfache Vanilla-JS-Architektur zu verlassen.
+
+Wichtige Screens:
+
+- `/start`: Host Launch Control mit Audio+TV-Start, QR-Codes, Links und Setup-Warnungen.
+- `/`: Mobile-first Guest Music Deck mit Song-Eingabe, Queue, Skip-Voting, Chat und kleinen QR-Codes.
+- `/admin`: Control Room mit Status-Kacheln, Wiedergabe, Moderation, Verlauf, Best-of und Settings.
+- `/player`: TV-Buehne fuer Video, optimiert fuer grosses 16:9.
+- `/party-screen`: praesentationsreifer QR-Party-Screen fuer TV/Beamer.
+- `/history` und `/admin/best-of`: Musik-History und Ranking als Song-Cards statt Log-Datei.
+
+Die PWA-Metadaten, SVG-Wortmarke, App-Icons und der Service-Worker-Cache wurden auf das Rot/Schwarz-Branding abgestimmt.
 
 ## Projektstruktur
 
@@ -215,6 +231,7 @@ Wichtig fuer die Kommunikation:
 ### TV
 
 - zeigt das Video gross an
+- nutzt das dunkle Premium-TV-Layout mit grossem Current-Song und QR-Join-Hinweis
 - kann nach Reload wieder an die aktuelle Songposition andocken
 - bleibt stumm, wenn das Audio-Deck aktiv ist
 

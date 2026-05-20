@@ -2,9 +2,9 @@
 {% block content %}
 <section class="hero-card admin-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Host-Konsole</p>
-        <h1>Wichtige Host-Aktionen zuerst, Erklaerungen spaeter.</h1>
-        <p class="hero-text">Login setzen, sichere Player-Links erzeugen, Queue moderieren und Netzwerkdaten live aktualisieren.</p>
+        <p class="eyebrow">Host Control Room</p>
+        <h1>Ein ruhiges Premium-Dashboard fuer alles, was live wichtig ist.</h1>
+        <p class="hero-text">Sichere Player-Links, Queue-Moderation, Skip-Voting, QR-Daten und Party-Settings sind oben gebuendelt. Erklaerungen bleiben weiter unten.</p>
     </div>
     <div class="hero-actions stacked">
         <a class="primary-button" href="/start">Party starten</a>
@@ -43,6 +43,28 @@
                 <h2>Aktiver Abend</h2>
             </div>
             <button class="ghost-button" id="logout-button" type="button">Logout</button>
+        </div>
+        <div class="admin-stat-grid" aria-label="Live Dashboard Werte">
+            <article class="admin-stat-card">
+                <span>Aktive Gaeste</span>
+                <strong id="admin-stat-guests">0</strong>
+                <em>im Live-Fenster</em>
+            </article>
+            <article class="admin-stat-card">
+                <span>Queue</span>
+                <strong id="admin-stat-queue">0</strong>
+                <em>offene Songs</em>
+            </article>
+            <article class="admin-stat-card">
+                <span>Aktueller Song</span>
+                <strong id="admin-stat-votes">0</strong>
+                <em>Votes</em>
+            </article>
+            <article class="admin-stat-card">
+                <span>Skip-Veto</span>
+                <strong id="admin-stat-skip">0%</strong>
+                <em>bis zur Schwelle</em>
+            </article>
         </div>
         <div class="admin-actions">
             <button class="primary-button" id="skip-current" type="button">Song skippen</button>

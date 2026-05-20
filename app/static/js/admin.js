@@ -40,6 +40,10 @@
   const openPartyScreenLink = document.getElementById("admin-open-party-screen");
   const skipStatus = document.getElementById("admin-skip-status");
   const bestOfList = document.getElementById("admin-best-of-list");
+  const statGuests = document.getElementById("admin-stat-guests");
+  const statQueue = document.getElementById("admin-stat-queue");
+  const statVotes = document.getElementById("admin-stat-votes");
+  const statSkip = document.getElementById("admin-stat-skip");
 
   let adminAuthenticated = Boolean(appConfig.adminAuthenticated);
 
@@ -196,6 +200,14 @@
     `;
   }
 
+  function renderDashboardStats(payload) {
+    const skip = payload.skipVoting || stateStore.skipVoting || {};
+    if (statGuests) statGuests.textContent = String(skip.activeGuestCount || stateStore.stats?.activeCount || 0);
+    if (statQueue) statQueue.textContent = String(payload.queue?.length || 0);
+    if (statVotes) statVotes.textContent = String(payload.current?.votes || 0);
+    if (statSkip) statSkip.textContent = `${skip.currentSkipVotePercent || 0}%`;
+  }
+
   function renderBestOfPreview(history) {
     if (!bestOfList) return;
     const ranked = [...history]
@@ -250,6 +262,7 @@
     historyList.innerHTML = payload.history.length
       ? payload.history.map((song) => songCard(song, { historyMode: true })).join("")
       : emptyState("Noch kein Verlauf.");
+    renderDashboardStats(payload);
     renderQueueMeta(payload.queueMeta || {});
     renderMessages(payload.messages || []);
     renderSkipStatus(payload.skipVoting || stateStore.skipVoting);

@@ -1,4 +1,4 @@
-const CACHE_NAME = "partytube-assets-v8";
+const CACHE_NAME = "partytube-assets-v9";
 const STATIC_URLS = [
   "/static/css/styles.css",
   "/static/js/shared.js",

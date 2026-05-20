@@ -24,6 +24,10 @@
 - Kleine QR-Karten wurden auf den wichtigsten Seiten integriert, die grossformatige Poster-Seite bleibt `/qr`.
 - `/party-screen` blendet die normale Navigation aus, damit TV/Beamer keine Admin-Links oder Textwuesten zeigen.
 - `/history` ist standardmaessig oeffentlich, kann aber per `HISTORY_PUBLIC=false` auf Admin-only gesetzt werden.
+- Das Redesign ist ein zentralisiertes CSS-Designsystem statt Seiten-Kosmetik. Bestehende Klassen/IDs bleiben erhalten, damit WebSocket-Rendering und Playwright-Flows stabil bleiben.
+- Hauptfarben: `#050505` fuer den tiefen Hintergrund, `#d71d2a` als gedämpftes Premium-Rot, `#f0444d` fuer aktive Akzente und `#f7f3f4` fuer Text.
+- Start, Guest, Admin, Player, Party-Screen, QR, Verlauf und Best-of nutzen dieselben Tokens fuer Cards, Buttons, Badges, Forms, Fokuszustaende, Empty States und Breakpoints.
+- Das Branding wurde auf eine saubere SVG-Wortmarke und ein reduziertes Play-Icon im Rot/Schwarz-Stil umgestellt; PNG-PWA-Icons werden lokal aus dem SVG generiert.
 
 ## Datenmodell-Aenderungen
 
@@ -48,6 +52,8 @@
   - `tests/skip-voting.spec.ts`
   - `tests/history.spec.ts`
   - `tests/party-screen.spec.ts`
+- Redesign-Schutz:
+  - `tests/redesign.spec.ts` prueft Design-Tokens, Mobile Guest, Admin-Dashboard und TV-/Party-Screen-Screenshots.
 
 ## Offene bewusste Grenzen
 
@@ -56,3 +62,5 @@
 - Keine kryptographisch starke Trennung zwischen Invite-Link und Host-Rechten; Host-Rechte laufen separat ueber Session und Player-Token.
 - Device-IDs sind fuer den LAN-MVP ausreichend, aber kein starker Identitaetsnachweis gegen absichtliche Manipulation.
 - YouTube-Fortschritt auf dem Party-Screen ist nur soweit sichtbar, wie der bestehende Player-State es hergibt; kein globales exaktes Playback-Telemetrie-System.
+- Das Redesign nutzt Systemschriften statt externer Premium-Fonts, damit LAN-/Offline-Betrieb und Performance stabil bleiben.
+- Visual Regression ist bewusst leichtgewichtig ueber Playwright-Screenshots als Artefakte geloest, nicht als pixelgenaue CI-Blockade.

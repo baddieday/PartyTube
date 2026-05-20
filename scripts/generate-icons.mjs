@@ -20,7 +20,7 @@ try {
     await page.setContent(
       `<!doctype html>
       <html>
-        <body style="margin:0;background:#02040a;display:grid;place-items:center;width:100vw;height:100vh;overflow:hidden;">
+        <body style="margin:0;background:#050505;display:grid;place-items:center;width:100vw;height:100vh;overflow:hidden;">
           ${svgContent}
         </body>
       </html>`,

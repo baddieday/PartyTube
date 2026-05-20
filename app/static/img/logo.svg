@@ -1,55 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" role="img" aria-labelledby="title">
-  <title>PartyTube Logo</title>
-  <rect width="960" height="380" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 260" role="img" aria-labelledby="title desc">
+  <title id="title">PartyTube Logo</title>
+  <desc id="desc">Premium rot-schwarze PartyTube Wortmarke mit Play-Symbol</desc>
+  <defs>
+    <linearGradient id="markGradient" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0444d"/>
+      <stop offset="0.48" stop-color="#d71d2a"/>
+      <stop offset="1" stop-color="#820d15"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="62%">
+      <stop offset="0" stop-color="#d71d2a" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#d71d2a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" color-interpolation-filters="sRGB" x="-20%" y="-35%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#000000" flood-opacity="0.48"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#d71d2a" flood-opacity="0.22"/>
+    </filter>
+  </defs>
 
-  <g stroke-linecap="round">
-    <path d="M78 204 L136 220" stroke="#17b8ff" stroke-width="30"/>
-    <path d="M148 126 L224 214" stroke="#ff1f92" stroke-width="34"/>
-    <circle cx="112" cy="266" r="19" fill="#ff1f92"/>
-    <circle cx="308" cy="88" r="19" fill="#ff1f92"/>
-    <path d="M330 132 L350 222" stroke="#ffd91e" stroke-width="26"/>
-    <path d="M544 76 L496 200" stroke="#17b8ff" stroke-width="30"/>
-    <path d="M666 116 L610 172" stroke="#ff1f92" stroke-width="28"/>
-    <path d="M438 56 L461 103 L512 111 L476 148 L484 200 L438 174 L392 200 L400 148 L364 111 L415 103 Z" fill="#ffd91e"/>
+  <rect width="920" height="260" fill="none"/>
+  <ellipse cx="142" cy="130" rx="138" ry="116" fill="url(#glow)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="42" y="48" width="196" height="164" rx="58" fill="#070707" stroke="#ffffff" stroke-opacity="0.18" stroke-width="4"/>
+    <rect x="58" y="64" width="164" height="132" rx="44" fill="url(#markGradient)"/>
+    <path d="M122 94 L178 130 L122 166 Z" fill="#fff"/>
+    <path d="M64 78 C86 54 118 42 154 42" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.78"/>
+    <path d="M210 180 C190 204 159 218 118 217" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.22"/>
   </g>
 
-  <g transform="translate(188 128)">
-    <path
-      d="M94 26 H470 C516 26 556 62 575 120 C595 181 592 238 567 274 C548 301 520 316 478 316 H94 C39 316 0 277 0 222 V120 C0 65 39 26 94 26 Z"
-      fill="#03050a"
-      stroke="#ffffff"
-      stroke-width="12"
-      transform="skewY(-7)"
-    />
-    <ellipse
-      cx="560"
-      cy="170"
-      rx="116"
-      ry="143"
-      fill="#03050a"
-      stroke="#ffffff"
-      stroke-width="12"
-      transform="skewY(-7)"
-    />
-    <ellipse
-      cx="560"
-      cy="170"
-      rx="66"
-      ry="84"
-      fill="#03050a"
-      stroke="#ff1f92"
-      stroke-width="22"
-      transform="skewY(-7)"
-    />
-    <path
-      d="M537 126 L591 170 L537 214 Z"
-      fill="#ffffff"
-      transform="skewY(-7)"
-    />
-
-    <g font-family="Arial, Helvetica, sans-serif" font-weight="900" letter-spacing="2">
-      <text x="48" y="142" font-size="120" fill="#ffffff" transform="skewY(-7)">PARTY</text>
-      <text x="52" y="262" font-size="132" fill="#ff1f92" transform="skewY(-7)">TUBE</text>
-    </g>
+  <g font-family="Aptos Display, Segoe UI, Arial, sans-serif" font-weight="900" letter-spacing="-8">
+    <text x="270" y="128" font-size="94" fill="#ffffff">PARTY</text>
+    <text x="270" y="205" font-size="94" fill="url(#markGradient)">TUBE</text>
   </g>
+  <g font-family="Aptos, Segoe UI, Arial, sans-serif" font-weight="800" letter-spacing="5">
+    <text x="278" y="55" font-size="18" fill="#b6adb1">LAN MUSIC CONTROL</text>
+  </g>
+  <path d="M274 222 H824" stroke="#d71d2a" stroke-width="5" stroke-linecap="round" opacity="0.82"/>
 </svg>

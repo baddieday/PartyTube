@@ -1828,6 +1828,455 @@ textarea {
   }
 }
 
+/* Refinement pass: calmer scale, better rhythm, less visual shouting. */
+:root {
+  --color-surface: rgba(17, 16, 18, 0.9);
+  --color-surface-2: rgba(25, 21, 24, 0.88);
+  --color-card: rgba(255, 255, 255, 0.055);
+  --color-card-strong: rgba(255, 255, 255, 0.085);
+  --color-primary-hot: #e73541;
+  --color-primary-dark: #98121c;
+  --color-primary-soft: rgba(215, 29, 42, 0.14);
+  --color-primary-softer: rgba(215, 29, 42, 0.075);
+  --color-muted: #bdb5b9;
+  --color-subtle: #91888d;
+  --shadow-soft: 0 18px 58px rgba(0, 0, 0, 0.42);
+  --shadow-red: 0 18px 56px rgba(215, 29, 42, 0.13);
+  --shadow-card: 0 16px 48px rgba(0, 0, 0, 0.34);
+}
+
+html {
+  background:
+    radial-gradient(circle at 10% 8%, rgba(215, 29, 42, 0.18), transparent 27rem),
+    radial-gradient(circle at 94% 20%, rgba(92, 10, 17, 0.24), transparent 33rem),
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.04), transparent 34rem),
+    linear-gradient(145deg, #060405 0%, #100709 44%, #050505 100%);
+}
+
+body {
+  background-size: 64px 64px;
+}
+
+body::before {
+  opacity: 0.78;
+}
+
+.bg-orb {
+  opacity: 0.48;
+}
+
+.shell-header {
+  padding-top: 1.1rem;
+}
+
+.brand-logo {
+  width: clamp(8.8rem, 16vw, 11.2rem);
+}
+
+.top-nav a {
+  min-height: 2.35rem;
+  padding: 0.58rem 0.86rem;
+  font-size: 0.86rem;
+}
+
+.page-shell {
+  padding-top: 0.35rem;
+}
+
+.hero-card,
+.panel,
+.qr-card,
+.screen-join-card,
+.screen-now-card,
+.screen-next-card,
+.screen-steps-card {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+    var(--color-surface);
+}
+
+.hero-card::before,
+.panel::before,
+.qr-card::before,
+.screen-join-card::before,
+.screen-now-card::before,
+.screen-next-card::before,
+.screen-steps-card::before {
+  opacity: 0.52;
+}
+
+.hero-card {
+  min-height: 18.5rem;
+  gap: clamp(1rem, 2.2vw, 1.8rem);
+  margin-bottom: 1.05rem;
+  padding: clamp(1.35rem, 3vw, 2.55rem);
+  border-radius: 28px;
+}
+
+.hero-card::after {
+  opacity: 0.52;
+  width: 16rem;
+  height: 16rem;
+  right: -6rem;
+  bottom: -8rem;
+}
+
+.hero-copy h1,
+.panel-header h2,
+.player-layout h1,
+.screen-now-card h1,
+.qr-card h2 {
+  font-weight: 820;
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+
+.hero-copy h1 {
+  max-width: 16.2ch;
+  font-size: clamp(2.15rem, 4.55vw, 4.45rem);
+}
+
+.hero-text {
+  max-width: 58ch;
+  margin-top: 0.9rem;
+  font-size: clamp(0.96rem, 1.35vw, 1.08rem);
+}
+
+.eyebrow {
+  margin-bottom: 0.55rem;
+  color: #ff4854;
+  font-size: 0.68rem;
+  font-weight: 860;
+  letter-spacing: 0.16em;
+}
+
+.hero-actions,
+.admin-actions,
+.chat-actions {
+  gap: 0.62rem;
+  margin-top: 1rem;
+}
+
+.hero-badge {
+  min-width: min(15rem, 100%);
+  padding: 1.08rem;
+  border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(215, 29, 42, 0.12);
+}
+
+.hero-badge strong {
+  font-size: clamp(1.28rem, 2.45vw, 2rem);
+  letter-spacing: -0.035em;
+}
+
+.panel,
+.qr-card {
+  border-radius: 20px;
+  padding: clamp(0.95rem, 1.6vw, 1.28rem);
+}
+
+.panel-glow {
+  box-shadow: var(--shadow-card), 0 0 0 1px rgba(215, 29, 42, 0.05);
+}
+
+.panel-header {
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header h2 {
+  font-size: clamp(1.25rem, 1.75vw, 1.85rem);
+  line-height: 1.1;
+}
+
+.primary-button,
+.ghost-button,
+.chip-button {
+  min-height: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.primary-button {
+  padding: 0.68rem 1.05rem;
+  background: linear-gradient(135deg, #ef3a45, #a7131e);
+  box-shadow: 0 14px 34px rgba(215, 29, 42, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.ghost-button {
+  padding: 0.66rem 0.98rem;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.primary-button:hover {
+  box-shadow: 0 18px 40px rgba(215, 29, 42, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.primary-button:hover,
+.ghost-button:hover,
+.chip-button:hover,
+.song-card:hover {
+  transform: translateY(-1px);
+}
+
+.meta-card,
+.admin-stat-card,
+.best-mini-card,
+.status-row,
+.access-row,
+.compact-qr-card,
+.chat-line,
+.muted-card {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.025);
+}
+
+.meta-card strong,
+.admin-stat-card strong,
+.best-mini-card strong {
+  font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+  line-height: 1.16;
+}
+
+.song-card {
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  padding: 0.76rem;
+  border-radius: 18px;
+}
+
+.song-line h3 {
+  font-size: clamp(0.98rem, 1.55vw, 1.08rem);
+  line-height: 1.22;
+}
+
+.song-subline {
+  font-size: 0.82rem;
+}
+
+.vote-chip,
+.counter-pill,
+.live-pill,
+.tag-pill,
+.rank-pill {
+  min-height: 1.84rem;
+  font-size: 0.74rem;
+  font-weight: 820;
+}
+
+.compact-qr-image {
+  width: min(7.6rem, 26vw);
+  border-radius: 15px;
+  padding: 0.48rem;
+}
+
+.qr-card {
+  min-height: 30rem;
+}
+
+.qr-card h2 {
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+}
+
+.qr-image {
+  width: min(21.5rem, 70vw);
+  border-radius: 26px;
+}
+
+.player-layout h1 {
+  font-size: clamp(2rem, 4vw, 4.2rem);
+}
+
+.player-frame-wrap {
+  border-radius: 22px;
+  box-shadow: 0 26px 74px rgba(0, 0, 0, 0.42), 0 18px 52px rgba(215, 29, 42, 0.1);
+}
+
+.screen-join-card,
+.screen-now-card,
+.screen-next-card,
+.screen-steps-card {
+  border-radius: 28px;
+}
+
+.screen-qr {
+  width: min(29vw, 27rem);
+  min-width: 18rem;
+  border-radius: 28px;
+  box-shadow: 0 26px 74px rgba(0, 0, 0, 0.46), 0 16px 52px rgba(215, 29, 42, 0.13);
+}
+
+.screen-code {
+  font-size: clamp(2rem, 4.6vw, 4.5rem);
+}
+
+.screen-now-card h1 {
+  max-width: 16ch;
+  font-size: clamp(2.45rem, 4.35vw, 5rem);
+}
+
+.screen-current .song-card {
+  min-height: 14rem;
+}
+
+.screen-current .song-line h3 {
+  font-size: clamp(1.35rem, 2.25vw, 2.35rem);
+}
+
+.screen-step span {
+  font-size: clamp(0.96rem, 1.45vw, 1.28rem);
+  font-weight: 820;
+}
+
+.ambient-dock {
+  width: min(820px, calc(100vw - 2rem));
+  padding: 0.78rem;
+  border-radius: 20px;
+}
+
+@media (min-width: 1121px) {
+  .start-hero .hero-copy h1 {
+    max-width: 17.5ch;
+  }
+
+  .admin-hero .hero-copy h1 {
+    max-width: 14.5ch;
+  }
+
+  .layout-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.95fr);
+  }
+}
+
+@media (max-width: 1120px) {
+  .hero-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell-header,
+  .page-shell {
+    width: min(100vw - 1rem, 100%);
+  }
+
+  .brand-logo {
+    width: 7.9rem;
+  }
+
+  .top-nav {
+    padding: 0.28rem;
+    border-radius: 16px;
+  }
+
+  .top-nav a {
+    min-height: 2.16rem;
+    padding: 0.48rem 0.66rem;
+    font-size: 0.78rem;
+  }
+
+  .hero-card {
+    padding: 1rem;
+    border-radius: 22px;
+  }
+
+  .hero-copy h1 {
+    max-width: 14ch;
+    font-size: clamp(2rem, 10vw, 2.72rem);
+    line-height: 1.02;
+  }
+
+  .hero-text {
+    font-size: 0.96rem;
+  }
+
+  .hero-badge {
+    padding: 1rem;
+  }
+
+  .panel,
+  .qr-card {
+    border-radius: 18px;
+    padding: 0.95rem;
+  }
+
+  .panel-header h2 {
+    font-size: clamp(1.18rem, 6vw, 1.48rem);
+  }
+
+  .primary-button,
+  .ghost-button {
+    min-height: 2.72rem;
+    padding: 0.68rem 0.9rem;
+  }
+
+  .song-card {
+    grid-template-columns: 4.35rem minmax(0, 1fr);
+    border-radius: 16px;
+  }
+
+  .meta-card,
+  .admin-stat-card {
+    padding: 0.82rem;
+  }
+
+  .compact-qr-image {
+    width: min(6.9rem, 38vw);
+  }
+
+  .screen-qr {
+    width: min(18rem, 78vw);
+    border-radius: 22px;
+  }
+
+  .screen-now-card h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .ambient-dock {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: calc(100vw - 0.75rem);
+    gap: 0.45rem;
+    margin: 1rem auto 0;
+    padding: 0.58rem;
+    border-radius: 16px;
+  }
+
+  .ambient-copy strong {
+    font-size: 0.86rem;
+  }
+
+  .ambient-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+  }
+
+  .ambient-actions .primary-button,
+  .ambient-actions .ghost-button {
+    min-height: 2.25rem;
+    padding: 0.48rem 0.55rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-copy h1 {
+    max-width: 13.2ch;
+    font-size: clamp(1.86rem, 9.4vw, 2.45rem);
+  }
+
+  .hero-actions {
+    gap: 0.52rem;
+  }
+
+  .top-nav a {
+    padding-inline: 0.58rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

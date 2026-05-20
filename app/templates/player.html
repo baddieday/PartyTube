@@ -18,11 +18,12 @@
         <p class="subtle-note" id="player-mode-note">Video am TV. Ton kommt aus dem Audio-Fenster.</p>
         <div class="player-frame-wrap">
             <div id="youtube-player" class="player-frame"></div>
-            <div id="player-overlay" class="player-overlay">
-                <div>
-                    <strong>Wiedergabe andocken</strong>
-                    <p>Nach Reload oder Browser-Blocker hier einmal tippen. Der Song startet moeglichst an der aktuellen Position.</p>
-                    <button class="primary-button" id="resume-playback" type="button">Playback starten</button>
+            <div id="player-overlay" class="player-overlay compact-controls" aria-live="polite">
+                <div class="player-control-dock">
+                    <span id="player-control-hint">Bereit</span>
+                    <button class="primary-button" id="resume-playback" type="button">Play</button>
+                    <button class="ghost-button" id="pause-playback" type="button">Pause</button>
+                    <button class="ghost-button danger-button" id="stop-playback" type="button">Stop</button>
                 </div>
             </div>
         </div>

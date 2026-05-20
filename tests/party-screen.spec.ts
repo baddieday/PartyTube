@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, expectToast, loginAsAdmin, resetTestState, saveShot } from "./helpers";
+import { EXPECTED_JOIN_URL, SAMPLE_URLS, expectToast, loginAsAdmin, resetTestState, saveShot } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -9,7 +9,7 @@ test("Party-Screen: QR, Join-Link, WLAN-Schutz, aktueller Song, Top 3 und Live-U
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/party-screen");
   await expect(page.locator(".screen-qr")).toBeVisible();
-  await expect(page.getByText("http://127.0.0.1:8090/join/test-rave")).toBeVisible();
+  await expect(page.getByText(EXPECTED_JOIN_URL)).toBeVisible();
   await expect(page.getByText("PartyLAN")).toBeVisible();
   await expect(page.getByText("HouseParty2026!")).toHaveCount(0);
   await expect(page.locator("#screen-current")).toContainText("Scanne den QR-Code");

@@ -1,74 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    body[data-page="player"] .player-control-overlay {
-        position: absolute;
-        inset: auto 1rem 1rem 1rem;
-        display: none;
-        justify-content: center;
-        align-items: flex-end;
-        padding: 0;
-        background: transparent;
-        pointer-events: none;
-        z-index: 5;
-    }
-
-    body[data-page="player"] .player-control-overlay.visible {
-        display: flex;
-    }
-
-    body[data-page="player"] .player-control-dock {
-        display: inline-flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 0.55rem;
-        max-width: min(100%, 44rem);
-        padding: 0.55rem;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: var(--radius-pill);
-        background: rgba(5, 5, 5, 0.72);
-        box-shadow: 0 16px 46px rgba(0, 0, 0, 0.42);
-        backdrop-filter: blur(18px) saturate(1.15);
-        pointer-events: auto;
-    }
-
-    body[data-page="player"] .player-control-dock span {
-        padding: 0 0.45rem 0 0.7rem;
-        color: var(--color-muted);
-        font-size: 0.88rem;
-        font-weight: 780;
-        white-space: nowrap;
-    }
-
-    body[data-page="player"] .player-control-dock .primary-button,
-    body[data-page="player"] .player-control-dock .ghost-button {
-        min-height: 2.35rem;
-        padding: 0.52rem 0.88rem;
-        font-size: 0.9rem;
-    }
-
-    body[data-page="player"] .player-control-dock .danger-button {
-        border-color: rgba(255, 75, 95, 0.42);
-        color: #fff;
-        background: rgba(255, 75, 95, 0.15);
-    }
-
-    @media (max-width: 720px) {
-        body[data-page="player"] .player-control-overlay {
-            inset: auto 0.55rem 0.55rem 0.55rem;
-        }
-
-        body[data-page="player"] .player-control-dock {
-            border-radius: 18px;
-        }
-
-        body[data-page="player"] .player-control-dock span {
-            width: 100%;
-            text-align: center;
-        }
-    }
-</style>
 <section class="player-layout">
     <div class="panel player-stage">
         <div class="panel-header compact">
@@ -80,14 +11,14 @@
         </div>
         {% if not app_config.playerAuthorized %}
         <div class="alert-card alert-warning player-sidebar-section">
-            <strong>Nur Video-Link aktiv</strong>
-            <p>Dieser TV-Tab wurde ohne signierten Host-Link geoeffnet. Bild funktioniert, aber das automatische Weiterschalten der Queue bleibt gesperrt, bis du ihn ueber `/start` oder `/admin` nach Host-Login oeffnest.</p>
+            <strong>Host-Link fehlt</strong>
+            <p>Video laeuft. Auto-Weiter ist gesperrt.</p>
         </div>
         {% endif %}
         <p class="subtle-note" id="player-mode-note">Video am TV. Ton kommt aus dem Audio-Fenster.</p>
         <div class="player-frame-wrap">
             <div id="youtube-player" class="player-frame"></div>
-            <div id="player-overlay" class="player-control-overlay" aria-live="polite">
+            <div id="player-control-overlay" class="player-control-overlay" aria-live="polite">
                 <div class="player-control-dock">
                     <span id="player-control-hint">Bereit</span>
                     <button class="primary-button" id="resume-playback" type="button">Play</button>
@@ -97,7 +28,7 @@
             </div>
         </div>
         <div id="player-current-card" class="song-slot empty-state">
-            <p>Keine aktive Wiedergabe. Die Queue wartet auf den naechsten Song.</p>
+            <p>Noch kein Song aktiv.</p>
         </div>
     </div>
 

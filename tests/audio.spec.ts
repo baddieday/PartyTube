@@ -38,5 +38,5 @@ test("Audio-Fenster: bleibt separat offen und nutzt den sicheren Host-Link", asy
   await expect(audioPage.locator("#audio-current-card")).toContainText("YouTube Video dQw4w9WgXcQ");
 
   await page.goto("/player");
-  await expect(page.locator("#player-mode-note")).toContainText("Audio-Fenster aktiv");
+  await expect(page.locator("#player-mode-note")).toContainText("Audio aktiv");
 });

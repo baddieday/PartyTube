@@ -36,12 +36,12 @@ const stateStore = {
   stats: { activeCount: 0, historyCount: 0, messageCount: 0 },
 };
 
-const AUDIO_WINDOW_NAME = "partytube-audio-window";
-const AUDIO_HEARTBEAT_KEY = "partytube-audio-window-heartbeat";
-const AUDIO_TITLE_KEY = "partytube-audio-window-title";
-const AUDIO_STATE_KEY = "partytube-audio-window-state";
+const AUDIO_WINDOW_NAME = "partytube:audioWindow";
+const AUDIO_HEARTBEAT_KEY = "partytube:audioWindow:heartbeat";
+const AUDIO_TITLE_KEY = "partytube:audioWindow:title";
+const AUDIO_STATE_KEY = "partytube:audioWindow:state";
 const AUDIO_HEARTBEAT_MAX_AGE_MS = 6500;
-const AUDIO_LAUNCH_INTENT_KEY = "partytube-audio-launch-intent";
+const AUDIO_LAUNCH_INTENT_KEY = "partytube:audioWindow:launchIntent";
 const AUDIO_LAUNCH_INTENT_TTL_MS = 12000;
 
 function updateAppConfig(values = {}) {
@@ -336,7 +336,7 @@ function autoplayCard(song) {
   return `
     <div class="mode-banner">
       <span class="tag-pill">Autoplay</span>
-      <p>Die Queue ist leer. PartyTube spielt jetzt automatisch einen Track aus dem bisherigen Abend und springt sofort zurueck, sobald neue Songs reinkommen.</p>
+      <p>Queue leer. Autoplay nutzt den Verlauf.</p>
     </div>
     ${songCard(syntheticSong, { playerMode: true, highlight: true })}
   `;
@@ -388,7 +388,7 @@ function connectLive(onState) {
 function copyText(value, successMessage = "Kopiert.") {
   navigator.clipboard.writeText(value).then(
     () => toast(successMessage, "success"),
-    () => toast("Konnte nicht in die Zwischenablage kopieren.", "error"),
+    () => toast("Kopieren fehlgeschlagen.", "error"),
   );
 }
 
@@ -461,7 +461,7 @@ function dispatchAudioWindowStatus() {
 function openAudioWindow() {
   const popup = window.open(appConfig.audioUrl || "/audio", AUDIO_WINDOW_NAME, "popup,width=460,height=820");
   if (!popup) {
-    toast("Popup wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
+    toast("Popup blockiert. Popups erlauben.", "error");
     return null;
   }
   popup.focus?.();
@@ -471,7 +471,7 @@ function openAudioWindow() {
 function openPlayerWindow() {
   const playerWindow = window.open(appConfig.playerUrl || "/player", "partytube-tv-window");
   if (!playerWindow) {
-    toast("TV-Tab wurde blockiert. Bitte erlaube Popups fuer PartyTube.", "error");
+    toast("TV blockiert. Popups erlauben.", "error");
     return null;
   }
   playerWindow.focus?.();
@@ -521,18 +521,18 @@ function buildAmbientAudioController() {
 
     title.textContent = currentSong.title;
     if (audioStatus.active && audioStatus.state === "playing") {
-      status.textContent = "Der Ton laeuft im separaten Audio-Fenster weiter. Dieses Hauptfenster kannst du frei wechseln.";
+      status.textContent = "Ton laeuft im Audio-Fenster.";
       toggle.textContent = "Audio-Fenster fokussieren";
       return;
     }
 
     if (audioStatus.active) {
-      status.textContent = "Das Audio-Fenster ist offen. Falls der Browser blockt, dort einmal auf Start tippen.";
+      status.textContent = "Audio offen. Bei Blocker dort Start druecken.";
       toggle.textContent = "Audio-Fenster fokussieren";
       return;
     }
 
-    status.textContent = "Oeffne das Audio-Fenster einmal, dann bleibt die Musik auch ueber Seitenwechsel hinweg stabil.";
+    status.textContent = "Audio-Fenster offen lassen.";
     toggle.textContent = "Audio-Fenster oeffnen";
   }
 

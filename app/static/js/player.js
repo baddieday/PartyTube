@@ -16,13 +16,13 @@
 
   const queuePreview = document.getElementById("player-queue-preview");
   const currentCard = document.getElementById("player-current-card");
-  const overlay = document.getElementById("player-overlay");
+  const controlOverlay = document.getElementById("player-control-overlay");
   const resumeButton = document.getElementById("resume-playback");
   const pauseButton = document.getElementById("pause-playback");
   const stopButton = document.getElementById("stop-playback");
   const controlHint = document.getElementById("player-control-hint");
   const modeNote = document.getElementById("player-mode-note");
-  const activationKey = "partytube-tv-activated";
+  const activationKey = "partytube:player:tvActivated:v1";
 
   let player;
   let currentVideoId = null;
@@ -34,6 +34,7 @@
   let autoplayPoolSignature = "";
   let autoplayIndex = 0;
   let playbackStopped = false;
+  let playbackPaused = false;
 
   function rememberActivation() {
     sessionStorage.setItem(activationKey, "1");
@@ -51,11 +52,11 @@
 
   function showPlaybackControls(text = "Bereit") {
     setControlHint(text);
-    overlay.classList.add("visible");
+    controlOverlay?.classList.add("visible");
   }
 
   function hidePlaybackControls() {
-    overlay.classList.remove("visible");
+    controlOverlay?.classList.remove("visible");
   }
 
   function safePlayerState() {
@@ -76,15 +77,15 @@
       player.mute?.();
       if (modeNote) {
         modeNote.textContent = ambientAudio.isWindowActive()
-          ? "Audio-Fenster aktiv: Dieses TV-Bild laeuft stumm und zeigt nur noch das Video."
-          : "Start-Flow aktiv: Der TV-Tab bleibt vorsichtshalber stumm, bis das Audio-Fenster uebernommen hat.";
+          ? "Audio aktiv. TV bleibt stumm."
+          : "Audio startet. TV bleibt stumm.";
       }
       return;
     }
 
     player.unMute?.();
     if (modeNote) {
-      modeNote.textContent = "Solange kein Audio-Fenster aktiv ist, uebernimmt der TV-Tab auch den Ton.";
+      modeNote.textContent = "Kein Audio-Fenster aktiv. TV spielt Ton.";
     }
   }
 
@@ -140,6 +141,7 @@
     autoplayActive = true;
     autoplayVideoId = song.videoId;
     currentVideoId = song.videoId;
+    playbackPaused = false;
     currentCard.innerHTML = autoplayCard(song);
 
     if (!player) {
@@ -168,7 +170,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackControls("Zum Start einmal Play druecken");
+    showPlaybackControls("Browser blockiert? Play druecken.");
     return true;
   }
 
@@ -177,6 +179,7 @@
     autoplayActive = false;
     autoplayVideoId = null;
     playbackStopped = false;
+    playbackPaused = false;
     currentVideoId = song.videoId;
     const startSeconds = playbackStartSeconds(song);
     applyPlaybackMode();
@@ -191,7 +194,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackControls("Zum Start einmal Play druecken");
+    showPlaybackControls("Browser blockiert? Play druecken.");
   }
 
   function renderState(payload) {
@@ -209,6 +212,7 @@
 
     if (payload.current?.videoId && payload.current.videoId !== previousVideoId) {
       playbackStopped = false;
+      playbackPaused = false;
     }
 
     if (!payload.current) {
@@ -231,6 +235,11 @@
 
     if (playbackStopped && currentVideoId === payload.current.videoId) {
       showPlaybackControls("Gestoppt");
+      return;
+    }
+
+    if (playbackPaused && currentVideoId === payload.current.videoId) {
+      showPlaybackControls("Pausiert");
       return;
     }
 
@@ -281,21 +290,23 @@
             }
           }
           if (event.data === window.YT.PlayerState.PAUSED) {
+            playbackPaused = true;
             showPlaybackControls("Pausiert");
           }
           if (event.data === window.YT.PlayerState.CUED || event.data === window.YT.PlayerState.UNSTARTED) {
             if (!hasActivation()) {
-              showPlaybackControls("Zum Start einmal Play druecken");
+              showPlaybackControls("Browser blockiert? Play druecken.");
             }
           }
           if (event.data === window.YT.PlayerState.PLAYING) {
             playbackStopped = false;
+            playbackPaused = false;
             rememberActivation();
             hidePlaybackControls();
           }
         },
         onError: () => {
-          toast("YouTube konnte den Song nicht laden. Nimm den naechsten aus der Queue.", "error");
+          toast("YouTube-Fehler. Naechsten Song starten.", "error");
         },
       },
     });
@@ -304,6 +315,7 @@
   resumeButton?.addEventListener("click", () => {
     try {
       playbackStopped = false;
+      playbackPaused = false;
       rememberActivation();
       if (stateStore.current?.videoId) {
         syncPlayerToSong(stateStore.current, true);
@@ -314,31 +326,33 @@
       }
       hidePlaybackControls();
     } catch {
-      toast("Playback konnte nicht gestartet werden.", "error");
+      toast("Start fehlgeschlagen.", "error");
     }
   });
 
   pauseButton?.addEventListener("click", () => {
     try {
       playbackStopped = false;
+      playbackPaused = true;
       rememberActivation();
       player?.pauseVideo?.();
       showPlaybackControls("Pausiert");
     } catch {
-      toast("Playback konnte nicht pausiert werden.", "error");
+      toast("Pause fehlgeschlagen.", "error");
     }
   });
 
   stopButton?.addEventListener("click", () => {
     try {
       playbackStopped = true;
+      playbackPaused = false;
       rememberActivation();
       autoplayActive = false;
       autoplayVideoId = null;
       player?.stopVideo?.();
       showPlaybackControls("Gestoppt");
     } catch {
-      toast("Playback konnte nicht gestoppt werden.", "error");
+      toast("Stop fehlgeschlagen.", "error");
     }
   });
 

@@ -159,7 +159,7 @@
     autoplayEnabled = payload.runtime?.autoplayEnabled ?? autoplayEnabled;
     currentCard.innerHTML = payload.current
       ? songCard(payload.current, { playerMode: true, highlight: true })
-      : emptyState("Keine aktive Wiedergabe. Sobald ein Song dran ist, uebernimmt dieses Fenster den Ton.");
+      : emptyState("Noch kein Song aktiv.");
     queuePreview.innerHTML = payload.queue.length
       ? payload.queue.slice(0, 6).map((song) => songCard(song, { playerMode: true })).join("")
       : emptyState("Queue ist leer.");
@@ -243,7 +243,7 @@
         },
         onError: () => {
           writeWindowState("error", stateStore.current?.title || "");
-          toast("YouTube konnte das Audio nicht laden. Bitte einmal auf Start tippen.", "error");
+          toast("Audio-Fehler. Start druecken.", "error");
         },
       },
     });
@@ -258,7 +258,7 @@
       }
       overlay.classList.remove("visible");
     } catch {
-      toast("Audio konnte nicht gestartet werden.", "error");
+      toast("Audio-Start fehlgeschlagen.", "error");
     }
   });
 

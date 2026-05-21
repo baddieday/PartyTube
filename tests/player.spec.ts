@@ -8,15 +8,15 @@ test.beforeEach(async ({ request }) => {
 test("Player: oeffentlicher TV-Link zeigt Warnung, sicherer TV-Link schaltet Queue weiter", async ({ page, request }) => {
   await page.goto("/player");
   await expect(page.getByRole("heading", { name: "Party Player" })).toBeVisible();
-  await expect(page.getByText("Nur Video-Link aktiv")).toBeVisible();
-  await expect(page.locator("#player-current-card")).toContainText(/Keine aktive|Keine Wiedergabe aktiv/i);
+  await expect(page.getByText("Host-Link fehlt")).toBeVisible();
+  await expect(page.locator("#player-current-card")).toContainText(/Noch kein Song|Keine Wiedergabe/i);
 
   await loginAsAdmin(page);
   const securePlayerUrl = await getSecurePlayerUrl(page);
   const playerToken = new URL(`http://local${securePlayerUrl}`).searchParams.get("player_key");
   expect(playerToken).toBeTruthy();
   await page.goto(securePlayerUrl);
-  await expect(page.getByText("Nur Video-Link aktiv")).toHaveCount(0);
+  await expect(page.getByText("Host-Link fehlt")).toHaveCount(0);
 
   const addResponse = await request.post("/api/songs", {
     data: {
@@ -44,5 +44,5 @@ test("Player: oeffentlicher TV-Link zeigt Warnung, sicherer TV-Link schaltet Que
     return { ok: response.ok, status: response.status };
   }, playerToken!);
   expect(endedResponse.ok).toBeTruthy();
-  await expect(page.locator("#player-current-card")).toContainText(/Keine aktive|Keine Wiedergabe aktiv/i);
+  await expect(page.locator("#player-current-card")).toContainText(/Noch kein Song|Keine Wiedergabe/i);
 });

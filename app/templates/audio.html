@@ -12,22 +12,22 @@
         {% if not app_config.playerAuthorized %}
         <div class="alert-card alert-warning player-sidebar-section">
             <strong>Host-Link fehlt</strong>
-            <p>Dieses Audio-Deck wurde ohne signierten Host-Link geoeffnet. Musik kann starten, aber das automatische Abschliessen des Songs bleibt gesperrt, bis du es ueber `/start` oder `/admin` nach Host-Login oeffnest.</p>
+            <p>Audio laeuft. Auto-Weiter ist gesperrt.</p>
         </div>
         {% endif %}
         <p class="subtle-note" id="audio-mode-note">Dieses Fenster offen lassen.</p>
         <div class="player-frame-wrap audio-only-wrap">
             <div id="audio-youtube-player" class="player-frame"></div>
-            <div id="audio-overlay" class="player-overlay">
+            <div id="audio-overlay" class="audio-start-overlay">
                 <div>
                     <strong>Audio starten</strong>
-                    <p>Falls der Browser blockt, hier einmal tippen. Danach kann dieses Fenster die Musik dauerhaft halten.</p>
+                    <p>Browser blockiert? Einmal starten.</p>
                     <button class="primary-button" id="resume-audio" type="button">Audio starten</button>
                 </div>
             </div>
         </div>
         <div id="audio-current-card" class="song-slot empty-state">
-            <p>Keine aktive Wiedergabe. Sobald ein Song dran ist, uebernimmt dieses Fenster den Ton.</p>
+            <p>Noch kein Song aktiv.</p>
         </div>
     </div>
 

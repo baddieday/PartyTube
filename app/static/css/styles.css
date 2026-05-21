@@ -1233,7 +1233,7 @@ textarea {
   aspect-ratio: 16 / 6.2;
 }
 
-.player-overlay {
+.audio-start-overlay {
   position: absolute;
   inset: 0;
   display: grid;
@@ -1245,16 +1245,69 @@ textarea {
     rgba(5, 5, 5, 0.78);
 }
 
-.player-overlay strong {
+.audio-start-overlay strong {
   display: block;
   color: #fff;
   font-size: clamp(1.6rem, 3vw, 2.5rem);
   letter-spacing: -0.04em;
 }
 
-.player-overlay p {
+.audio-start-overlay p {
   max-width: 34rem;
   color: var(--color-muted);
+}
+
+body[data-page="player"] .player-control-overlay {
+  position: absolute;
+  inset: auto 1rem 1rem 1rem;
+  z-index: 5;
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+body[data-page="player"] .player-control-overlay.visible {
+  display: flex;
+}
+
+body[data-page="player"] .player-control-dock {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  max-width: min(100%, 44rem);
+  padding: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  background: rgba(5, 5, 5, 0.72);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px) saturate(1.15);
+  pointer-events: auto;
+}
+
+body[data-page="player"] .player-control-dock span {
+  padding: 0 0.45rem 0 0.7rem;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  font-weight: 780;
+  white-space: nowrap;
+}
+
+body[data-page="player"] .player-control-dock .primary-button,
+body[data-page="player"] .player-control-dock .ghost-button {
+  min-height: 2.35rem;
+  padding: 0.52rem 0.88rem;
+  font-size: 0.9rem;
+}
+
+body[data-page="player"] .player-control-dock .danger-button {
+  border-color: rgba(255, 75, 95, 0.42);
+  color: #fff;
+  background: rgba(255, 75, 95, 0.15);
 }
 
 .player-sidebar {
@@ -1710,6 +1763,19 @@ textarea {
 
   .player-frame-wrap {
     border-radius: 20px;
+  }
+
+  body[data-page="player"] .player-control-overlay {
+    inset: auto 0.55rem 0.55rem 0.55rem;
+  }
+
+  body[data-page="player"] .player-control-dock {
+    border-radius: 18px;
+  }
+
+  body[data-page="player"] .player-control-dock span {
+    width: 100%;
+    text-align: center;
   }
 
   .party-screen-shell {

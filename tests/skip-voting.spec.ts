@@ -85,6 +85,6 @@ test("Skip-Voting: deaktivierte Einstellung lehnt Gast-Votes ab, Admin-Skip blei
   expect(blocked.body.detail).toContain("deaktiviert");
 
   await page.goto("/admin");
-  await page.getByRole("button", { name: "Song skippen" }).click();
+  await page.locator("#skip-current").click();
   await expectToast(page, "Song uebersprungen.");
 });

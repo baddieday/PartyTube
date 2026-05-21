@@ -511,29 +511,29 @@ function buildAmbientAudioController() {
     root.classList.remove("hidden");
 
     if (!currentSong) {
-      title.textContent = "Audio-Fenster bereit";
+      title.textContent = "Audio bereit";
       status.textContent = audioStatus.active
-        ? "Audio offen. Wartet auf den naechsten Song."
-        : "Einmal oeffnen. Ton bleibt stabil.";
-      toggle.textContent = audioStatus.active ? "Audio-Fenster fokussieren" : "Audio-Fenster oeffnen";
+        ? "Wartet auf Songs."
+        : "Einmal oeffnen.";
+      toggle.textContent = audioStatus.active ? "Audio zeigen" : "Audio";
       return;
     }
 
     title.textContent = currentSong.title;
     if (audioStatus.active && audioStatus.state === "playing") {
-      status.textContent = "Ton laeuft im Audio-Fenster.";
-      toggle.textContent = "Audio-Fenster fokussieren";
+      status.textContent = "Ton laeuft.";
+      toggle.textContent = "Audio zeigen";
       return;
     }
 
     if (audioStatus.active) {
-      status.textContent = "Audio offen. Bei Blocker dort Start druecken.";
-      toggle.textContent = "Audio-Fenster fokussieren";
+      status.textContent = "Audio offen.";
+      toggle.textContent = "Audio zeigen";
       return;
     }
 
-    status.textContent = "Audio-Fenster offen lassen.";
-    toggle.textContent = "Audio-Fenster oeffnen";
+    status.textContent = "Audio starten.";
+    toggle.textContent = "Audio";
   }
 
   toggle?.addEventListener("click", () => {

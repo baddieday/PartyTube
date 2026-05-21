@@ -10,12 +10,12 @@ test("Redesign: Startseite nutzt das Premium Rot/Schwarz Designsystem", async ({
   await page.goto("/start");
 
   await expect(page.getByAltText("PartyTube")).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Party starten/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Audio + TV starten" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Party-Screen" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Loslegen/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Audio + TV" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Screen" }).first()).toBeVisible();
 
   const primary = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim());
-  expect(primary).toBe("#d71d2a");
+  expect(primary).toBe("#cf1f2d");
 
   await saveShot(page, "redesign-start-desktop");
 });
@@ -41,7 +41,7 @@ test("Redesign: Admin-Dashboard zeigt hochwertige Status-Kacheln", async ({ page
   await expect(page.locator(".admin-stat-grid")).toBeVisible();
   await expect(page.locator("#admin-stat-guests")).toBeVisible();
   await expect(page.locator("#admin-stat-queue")).toHaveText("0");
-  await expect(page.getByRole("button", { name: "Song skippen" })).toBeVisible();
+  await expect(page.locator("#skip-current")).toBeVisible();
 
   await saveShot(page, "redesign-admin-dashboard");
 });

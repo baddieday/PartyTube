@@ -12,9 +12,9 @@ test("Chat: Nachricht senden, live anzeigen, XSS nicht ausfuehren und Admin-Loes
   await openDetailsByHeading(adminPage, "Best-of und Moderation");
 
   await page.goto("/");
-  await openDetailsByHeading(page, "Chat, Verlauf und QR");
+  await openDetailsByHeading(page, "Extras");
   await page.getByLabel("Nachricht").fill("<img src=x onerror=alert(1)> Halloooo");
-  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await page.getByRole("button", { name: "Senden" }).click();
   await expectToast(page, "Nachricht live gesendet.");
   await expect(page.locator("#chat-list")).toContainText("<img src=x onerror=alert(1)> Halloooo");
   await expect(page.locator("#chat-list img")).toHaveCount(0);
@@ -29,8 +29,8 @@ test("Chat: Nachricht senden, live anzeigen, XSS nicht ausfuehren und Admin-Loes
 
 test("Chat: zu lange Nachricht wird abgelehnt", async ({ page }) => {
   await page.goto("/");
-  await openDetailsByHeading(page, "Chat, Verlauf und QR");
+  await openDetailsByHeading(page, "Extras");
   await page.getByLabel("Nachricht").fill("x".repeat(300));
-  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await page.getByRole("button", { name: "Senden" }).click();
   await expectToast(page, "Die Nachricht ist zu lang.");
 });

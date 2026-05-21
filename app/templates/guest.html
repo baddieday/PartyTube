@@ -1,19 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero-card">
+<section class="hero-card guest-room-strip">
     <div class="hero-copy">
         <p class="eyebrow">Party</p>
-        <h1>Song einreichen.</h1>
-        <p class="hero-text">YouTube-Link rein, abschicken, live voten.</p>
-        <div class="hero-actions">
-            <a class="primary-button" href="#add-song-form">Song hinzufuegen</a>
-            <button class="ghost-button" id="copy-join-link" type="button">Party-Link kopieren</button>
-        </div>
+        <h1>{{ settings.party_code }}</h1>
     </div>
-    <div class="hero-badge">
-        <span>Code</span>
-        <strong>{{ settings.party_code }}</strong>
-        <small>{{ settings.display_address }}</small>
+    <div class="hero-actions">
+        <a class="primary-button" href="#add-song-form">Song rein</a>
+        <button class="ghost-button" id="copy-join-link" type="button">Link kopieren</button>
     </div>
 </section>
 
@@ -24,7 +18,7 @@
         <div class="panel-header">
             <div>
                 <p class="eyebrow">Einreichen</p>
-                <h2>YouTube-Link</h2>
+                <h2>Song rein.</h2>
             </div>
             <span class="live-pill" id="connection-pill">Verbinde live...</span>
         </div>
@@ -43,11 +37,11 @@
             <div class="panel-header compact">
                 <div>
                     <p class="eyebrow">Jetzt</p>
-                    <h2>Aktueller Song</h2>
+                    <h2>Jetzt laeuft</h2>
                 </div>
             </div>
             <div id="current-song" class="song-slot empty-state">
-                <p>Die Queue ist gerade leer. Zeit fuer den ersten Song.</p>
+                <p>Noch kein Song. Leg den ersten rein.</p>
             </div>
         </div>
     </div>
@@ -78,7 +72,7 @@
     <summary class="panel-header collapsible-summary">
         <div>
             <p class="eyebrow">Mehr</p>
-            <h2>Chat, Verlauf und QR</h2>
+            <h2>Extras</h2>
         </div>
         <span class="counter-pill collapsible-indicator">Oeffnen</span>
     </summary>
@@ -105,10 +99,10 @@
         <form class="add-form" id="message-form">
             <label>
                 <span>Nachricht</span>
-                <textarea id="chat-message" name="message" rows="3" maxlength="280" placeholder="z. B. Nacher bitte was Schnelles fuer die Kueche"></textarea>
+                <textarea id="chat-message" name="message" rows="3" maxlength="280" placeholder="Kurze Nachricht an alle"></textarea>
             </label>
-            <button class="primary-button" id="submit-message" type="submit">Nachricht senden</button>
-            <p class="subtle-note" id="chat-status-note">Live fuer alle.</p>
+            <button class="primary-button" id="submit-message" type="submit">Senden</button>
+            <p class="subtle-note" id="chat-status-note">Live.</p>
         </form>
         <div id="chat-list" class="chat-list" aria-live="polite"></div>
     </div>

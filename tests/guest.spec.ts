@@ -7,8 +7,8 @@ test.beforeEach(async ({ request }) => {
 
 test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Song einreichen/i })).toBeVisible();
-  await openDetailsByHeading(page, "Chat, Verlauf und QR");
+  await expect(page.getByRole("heading", { name: /Song rein/i })).toBeVisible();
+  await openDetailsByHeading(page, "Extras");
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.locator("#queue-duration")).toBeVisible();
 
@@ -30,7 +30,7 @@ test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async (
   await expectToast(page, "Schon in der Queue");
 
   await page.getByLabel("Nachricht").fill("Hallo PartyTube");
-  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await page.getByRole("button", { name: "Senden" }).click();
   await expectToast(page, "Nachricht live gesendet.");
   await expect(page.locator("#chat-list")).toContainText("Hallo PartyTube");
 

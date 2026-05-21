@@ -9,7 +9,7 @@ test("Startseite: priorisiert Audio + TV, zeigt QR-Codes und sichere Host-Links"
   await loginAsAdmin(page);
   await page.goto("/start");
 
-  await expect(page.getByRole("heading", { name: /Party starten/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Loslegen/i })).toBeVisible();
   await page.locator("details").filter({ hasText: "Links und QR" }).locator("summary").click();
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.getByAltText("Kleiner QR-Code fuer das WLAN")).toBeVisible();
@@ -24,7 +24,7 @@ test("Startseite: priorisiert Audio + TV, zeigt QR-Codes und sichere Host-Links"
       return { focus() {} } as any;
     }) as any;
   });
-  await page.getByRole("button", { name: "Audio + TV starten" }).click();
+  await page.getByRole("button", { name: "Audio + TV" }).click();
   const opened = await page.evaluate(() => (window as any).__partytubeOpened);
   expect(opened).toHaveLength(2);
   expect(opened[0]).toContain("/audio?player_key=");

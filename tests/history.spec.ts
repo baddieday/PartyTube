@@ -12,9 +12,9 @@ test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", 
   await addSong(page, SAMPLE_URLS.shorts, "Gast C");
 
   await loginAsAdmin(page);
-  await page.getByRole("button", { name: "Als gespielt markieren" }).click();
+  await page.getByRole("button", { name: "Gespielt" }).click();
   await expectToast(page, "Als gespielt markiert.");
-  await page.getByRole("button", { name: "Song skippen" }).click();
+  await page.locator("#skip-current").click();
   await expectToast(page, "Song uebersprungen.");
   await page.locator("#admin-current-song [data-action='remove']").click();
   await expectToast(page, "Song entfernt.");

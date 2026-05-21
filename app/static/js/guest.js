@@ -52,7 +52,7 @@
       alerts.push({
         level: "warning",
         title: "Voting pausiert",
-        detail: "Der Host hat Voting aktuell deaktiviert. Songs koennen weiterhin in die Queue gelegt werden.",
+        detail: "Voting ist aus. Songs koennen weiter rein.",
       });
     }
     if (!runtime.chatEnabled) {
@@ -66,7 +66,7 @@
       alerts.push({
         level: "info",
         title: "Demokratisch uebersprungen",
-        detail: "Der aktuelle Song wurde per Skip-Voting beendet. Der naechste Track laeuft an.",
+        detail: "Song per Veto beendet. Naechster Track startet.",
       });
       stateStore.skipVoting.lastTriggered = false;
     }
@@ -87,7 +87,7 @@
 
   function renderCurrent(song) {
     if (!song) {
-      currentSong.innerHTML = emptyState("Noch nichts aktiv. Der naechste Song startet automatisch.");
+      currentSong.innerHTML = emptyState("Noch kein Song. Leg den ersten rein.");
       return;
     }
     const skip = stateStore.skipVoting || {};
@@ -115,7 +115,7 @@
     queueCount.textContent = `${queue.length} offen`;
     queueList.innerHTML = queue.length
       ? queue.map((song) => songCard(song)).join("")
-      : emptyState("Noch keine Songs in der Warteschlange.");
+      : emptyState("Noch keine Songs in der Queue.");
   }
 
   function renderQueueMeta(queueMeta) {
@@ -147,7 +147,7 @@
     chatCount.textContent = `${messages.length} live`;
     messageList.innerHTML = messages.length
       ? messages.map((message) => messageCard(message)).join("")
-      : emptyState(runtime.chatEnabled ? "Noch keine Chat-Nachrichten." : "Chat ist aktuell deaktiviert.");
+      : emptyState(runtime.chatEnabled ? "Noch keine Nachrichten." : "Chat ist aus.");
   }
 
   function renderState(payload) {
@@ -314,7 +314,7 @@
       }
     } finally {
       submit.disabled = false;
-      submit.textContent = "Nachricht senden";
+    submit.textContent = "Senden";
     }
   });
 

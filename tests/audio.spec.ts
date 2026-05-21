@@ -10,7 +10,7 @@ test("Audio-Fenster: bleibt separat offen und nutzt den sicheren Host-Link", asy
 
   const [publicAudioPage] = await Promise.all([
     page.waitForEvent("popup"),
-    page.getByRole("button", { name: "Audio-Fenster oeffnen" }).click(),
+    page.getByRole("button", { name: "Audio", exact: true }).click(),
   ]);
   await expect(publicAudioPage.getByText("Host-Link fehlt")).toBeVisible();
   await publicAudioPage.close();

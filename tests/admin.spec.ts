@@ -19,7 +19,7 @@ test("Admin: PIN-Schutz, Entfernen, Skip, Queue leeren und Logout", async ({ pag
   await addSong(page, SAMPLE_URLS.shorts, "Gast C");
 
   await loginAsAdmin(page);
-  await page.getByRole("button", { name: "Song skippen" }).click();
+  await page.locator("#skip-current").click();
   await expectToast(page, "Song uebersprungen.");
 
   await page.locator("#admin-queue-list [data-action='remove']").first().click();

@@ -3,15 +3,15 @@
 <section class="hero-card admin-hero">
     <div class="hero-copy">
         <p class="eyebrow">Host</p>
-        <h1>Party steuern.</h1>
-        <p class="hero-text">Player, Queue, QR und Einstellungen.</p>
+        <h1>Host.</h1>
+        <p class="hero-text">Playback, Queue, Gaeste.</p>
     </div>
     <div class="hero-actions stacked">
-        <a class="primary-button" href="/start">Party starten</a>
-        <a class="ghost-button" id="admin-open-audio" href="/audio" target="_blank" rel="noreferrer">Audio oeffnen</a>
-        <a class="ghost-button" id="admin-open-player" href="/player" target="_blank" rel="noreferrer">Player oeffnen</a>
-        <a class="ghost-button" id="admin-open-party-screen" href="/party-screen" target="_blank" rel="noreferrer">Party-Screen</a>
-        <a class="ghost-button" href="/qr" target="_blank" rel="noreferrer">QR-Poster</a>
+        <a class="primary-button" href="/start">Start</a>
+        <a class="ghost-button" id="admin-open-audio" href="/audio" target="_blank" rel="noreferrer">Audio</a>
+        <a class="ghost-button" id="admin-open-player" href="/player" target="_blank" rel="noreferrer">TV</a>
+        <a class="ghost-button" id="admin-open-party-screen" href="/party-screen" target="_blank" rel="noreferrer">Screen</a>
+        <a class="ghost-button" href="/qr" target="_blank" rel="noreferrer">QR</a>
     </div>
 </section>
 
@@ -31,7 +31,7 @@
         <div class="panel-header">
             <div>
                 <p class="eyebrow">Login</p>
-                <h2>Host-PIN eingeben</h2>
+                <h2>Host-PIN</h2>
             </div>
             <span class="live-pill" id="admin-auth-pill">Nicht eingeloggt</span>
         </div>
@@ -48,7 +48,7 @@
         <div class="panel-header">
             <div>
                 <p class="eyebrow">Live</p>
-                <h2>Steuerung</h2>
+                <h2>Live</h2>
             </div>
             <button class="ghost-button" id="logout-button" type="button">Logout</button>
         </div>
@@ -75,11 +75,11 @@
             </article>
         </div>
         <div class="admin-actions">
-            <button class="primary-button" id="skip-current" type="button">Song skippen</button>
-            <button class="ghost-button" id="mark-played" type="button">Als gespielt markieren</button>
+            <button class="primary-button" id="skip-current" type="button">Skip</button>
+            <button class="ghost-button" id="mark-played" type="button">Gespielt</button>
             <button class="ghost-button danger" id="clear-queue" type="button">Queue leeren</button>
-            <button class="ghost-button danger" id="reset-party" type="button">Neuen Abend starten</button>
-            <a class="ghost-button" href="/api/admin/export" target="_blank" rel="noreferrer">Queue exportieren</a>
+            <button class="ghost-button danger" id="reset-party" type="button">Reset</button>
+            <a class="ghost-button" href="/api/admin/export" target="_blank" rel="noreferrer">Export</a>
         </div>
         <div id="admin-current-song" class="song-slot empty-state">
             <p>Noch kein aktiver Song.</p>

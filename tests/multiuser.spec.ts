@@ -31,12 +31,12 @@ test("Multiuser: Gast A, Gast B und Host bleiben live synchron", async ({ browse
   if (queuedText?.includes("dQw4w9WgXcQ")) {
     await guestBPage.locator("#queue-list [data-action='vote']").first().click();
     await expect(queuedCard).toContainText("2 Votes");
-    await hostPage.getByRole("button", { name: "Song skippen" }).click();
+    await hostPage.locator("#skip-current").click();
     await expect(guestAPage.locator("#current-song")).toContainText("YouTube Video dQw4w9WgXcQ");
   } else {
     await guestAPage.locator("#queue-list [data-action='vote']").first().click();
     await expect(queuedCard).toContainText("2 Votes");
-    await hostPage.getByRole("button", { name: "Song skippen" }).click();
+    await hostPage.locator("#skip-current").click();
     await expect(guestAPage.locator("#current-song")).toContainText("YouTube Video 3JZ4pnNtyxQ");
   }
 

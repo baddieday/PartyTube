@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, expectToast, getSecureAudioUrl, loginAsAdmin, resetTestState } from "./helpers";
+import { SAMPLE_URLS, expectToast, getSecureAudioUrl, loginAsAdmin, openAdminSettings, resetTestState } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -7,6 +7,7 @@ test.beforeEach(async ({ request }) => {
 
 test("Autoplay-Fallback: wenn die Queue leer wird, laeuft der Party-Verlauf weiter", async ({ page, request }) => {
   await loginAsAdmin(page);
+  await openAdminSettings(page);
   await page.getByLabel("Autoplay aus Verlauf").check();
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");

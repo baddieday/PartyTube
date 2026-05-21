@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, resetTestState } from "./helpers";
+import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, openAdminSettings, resetTestState } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -59,6 +59,7 @@ test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", 
 
 test("History: HISTORY_PUBLIC=false sperrt Gaeste, Admin bleibt erlaubt", async ({ page, request }) => {
   await loginAsAdmin(page);
+  await openAdminSettings(page);
   await page.getByLabel("Verlauf fuer Gaeste sichtbar").uncheck();
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");

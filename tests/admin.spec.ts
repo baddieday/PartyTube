@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, resetTestState, saveShot } from "./helpers";
+import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, openAdminSettings, resetTestState, saveShot } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -38,6 +38,7 @@ test("Admin: PIN-Schutz, Entfernen, Skip, Queue leeren und Logout", async ({ pag
 
 test("Admin: Party-, Invite-only- und Live-Settings lassen sich pflegen", async ({ page }) => {
   await loginAsAdmin(page);
+  await openAdminSettings(page);
 
   await page.getByLabel("Party-Name").fill("Afterwork Mix");
   await page.getByLabel("Party-Code").fill("afterwork");

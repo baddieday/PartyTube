@@ -15,7 +15,16 @@
     </div>
 </section>
 
-<section class="alert-stack" id="admin-warning-list" aria-live="polite"></section>
+<details class="panel collapsible-panel compact-start-more admin-warning-panel">
+    <summary class="panel-header collapsible-summary">
+        <div>
+            <p class="eyebrow">System</p>
+            <h2>Hinweise</h2>
+        </div>
+        <span class="counter-pill collapsible-indicator">Anzeigen</span>
+    </summary>
+    <section class="alert-stack" id="admin-warning-list" aria-live="polite"></section>
+</details>
 
 <section class="layout-grid">
     <div class="panel login-panel" id="admin-login-panel">
@@ -88,8 +97,17 @@
     </div>
 </section>
 
-<section class="layout-grid lower-grid">
-    <div class="panel">
+<details class="panel lower-grid collapsible-panel admin-more-panel">
+    <summary class="panel-header collapsible-summary">
+        <div>
+            <p class="eyebrow">Mehr</p>
+            <h2>Links und QR</h2>
+        </div>
+        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+    </summary>
+
+    <section class="layout-grid embedded-grid">
+    <div class="panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Links</p>
@@ -128,7 +146,7 @@
         </div>
     </div>
 
-    <div class="panel compact-qr-panel">
+    <div class="panel compact-qr-panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">QR</p>
@@ -155,6 +173,7 @@
         </div>
     </div>
 </section>
+</details>
 
 <section class="layout-grid lower-grid">
     <div class="panel">
@@ -177,13 +196,14 @@
         <div id="admin-queue-list" class="queue-list"></div>
     </div>
 
-    <div class="panel">
-        <div class="panel-header">
+    <details class="panel collapsible-panel">
+        <summary class="panel-header collapsible-summary">
             <div>
                 <p class="eyebrow">Verlauf</p>
                 <h2>Zuletzt</h2>
             </div>
-        </div>
+            <span class="counter-pill collapsible-indicator">Oeffnen</span>
+        </summary>
         <div id="admin-history-list" class="history-list"></div>
         <div class="admin-actions">
             <a class="ghost-button" href="/history" target="_blank" rel="noreferrer">Verlauf ansehen</a>
@@ -191,25 +211,34 @@
             <a class="ghost-button" href="/api/admin/history/export.csv" target="_blank" rel="noreferrer">CSV</a>
             <a class="ghost-button" href="/api/admin/history/export.txt" target="_blank" rel="noreferrer">Text</a>
         </div>
-    </div>
+    </details>
 </section>
 
-<section class="panel lower-grid">
-    <div class="panel-header compact">
+<details class="panel lower-grid collapsible-panel admin-more-panel">
+    <summary class="panel-header collapsible-summary">
         <div>
-            <p class="eyebrow">Best of</p>
-            <h2>Top Tracks</h2>
+            <p class="eyebrow">Mehr</p>
+            <h2>Best-of und Moderation</h2>
         </div>
-        <div class="hero-actions">
-            <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Grossansicht</a>
-            <a class="ghost-button" href="/api/admin/best-of/export.csv" target="_blank" rel="noreferrer">CSV Export</a>
-        </div>
-    </div>
-    <div id="admin-best-of-list" class="best-mini-list"></div>
-</section>
+        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+    </summary>
 
-<section class="layout-grid lower-grid">
-    <div class="panel">
+    <section class="panel embedded-panel">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">Best of</p>
+                <h2>Top Tracks</h2>
+            </div>
+            <div class="hero-actions">
+                <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Grossansicht</a>
+                <a class="ghost-button" href="/api/admin/best-of/export.csv" target="_blank" rel="noreferrer">CSV Export</a>
+            </div>
+        </div>
+        <div id="admin-best-of-list" class="best-mini-list"></div>
+    </section>
+
+    <section class="layout-grid embedded-grid">
+    <div class="panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Chat</p>
@@ -220,7 +249,7 @@
         <div id="admin-message-list" class="chat-list"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Sperren</p>
@@ -229,15 +258,17 @@
         </div>
         <div id="admin-muted-devices" class="muted-list"></div>
     </div>
-</section>
+    </section>
+</details>
 
-<section class="panel lower-grid hidden" id="admin-settings-panel">
-    <div class="panel-header">
+<details class="panel lower-grid collapsible-panel hidden" id="admin-settings-panel">
+    <summary class="panel-header collapsible-summary">
         <div>
             <p class="eyebrow">Einstellungen</p>
             <h2>Party und Netzwerk</h2>
         </div>
-    </div>
+        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+    </summary>
     <form class="add-form settings-form" id="admin-settings-form">
         <div class="settings-grid">
             <label>
@@ -338,7 +369,7 @@
         </div>
         <button class="primary-button" type="submit">Netzwerkdaten speichern</button>
     </form>
-</section>
+</details>
 {% endblock %}
 {% block scripts %}
 <script src="/static/js/admin.js" defer></script>

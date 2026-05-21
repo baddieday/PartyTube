@@ -39,6 +39,24 @@ export async function loginAsAdmin(page: Page) {
   await expect(page.locator("#admin-open-player")).toHaveAttribute("href", /player_key=/);
 }
 
+export async function openAdminSettings(page: Page) {
+  const panel = page.locator("#admin-settings-panel");
+  await expect(panel).toBeVisible();
+  const isOpen = await panel.evaluate((element) => (element as HTMLDetailsElement).open);
+  if (!isOpen) {
+    await panel.locator("summary").click();
+  }
+}
+
+export async function openDetailsByHeading(page: Page, heading: string) {
+  const panel = page.locator("details").filter({ hasText: heading }).first();
+  await expect(panel).toBeVisible();
+  const isOpen = await panel.evaluate((element) => (element as HTMLDetailsElement).open);
+  if (!isOpen) {
+    await panel.locator("summary").click();
+  }
+}
+
 export async function expectToast(page: Page, text: string) {
   await expect(page.locator(".toast").filter({ hasText: text }).last()).toBeVisible();
 }

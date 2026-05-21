@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, resetTestState } from "./helpers";
+import { SAMPLE_URLS, addSong, expectToast, loginAsAdmin, openAdminSettings, resetTestState } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -62,6 +62,7 @@ test("Skip-Voting: deaktivierte Einstellung lehnt Gast-Votes ab, Admin-Skip blei
   await addSong(page, SAMPLE_URLS.watch, "Gast A");
 
   await loginAsAdmin(page);
+  await openAdminSettings(page);
   await page.getByLabel("Demokratisches Skip-Voting aktivieren").uncheck();
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");

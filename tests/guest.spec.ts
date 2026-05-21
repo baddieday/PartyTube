@@ -1,5 +1,5 @@
 import { expect, test } from "playwright/test";
-import { SAMPLE_URLS, addSong, expectToast, resetTestState, saveShot } from "./helpers";
+import { SAMPLE_URLS, addSong, expectToast, openDetailsByHeading, resetTestState, saveShot } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -8,6 +8,7 @@ test.beforeEach(async ({ request }) => {
 test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Song einreichen/i })).toBeVisible();
+  await openDetailsByHeading(page, "Chat, Verlauf und QR");
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.locator("#queue-duration")).toBeVisible();
 

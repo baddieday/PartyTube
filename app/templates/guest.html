@@ -8,9 +8,6 @@
         <div class="hero-actions">
             <a class="primary-button" href="#add-song-form">Song hinzufuegen</a>
             <button class="ghost-button" id="copy-join-link" type="button">Party-Link kopieren</button>
-            <a class="ghost-button" href="/history">Verlauf</a>
-            <a class="ghost-button" href="/qr">QR-Poster</a>
-            <a class="ghost-button" href="/start">Startseite</a>
         </div>
     </div>
     <div class="hero-badge">
@@ -41,7 +38,6 @@
                 <input id="guest-name" name="guestName" type="text" maxlength="32" placeholder="z. B. Alex">
             </label>
             <button class="primary-button" id="submit-song" type="submit">Song in die Queue</button>
-            <p class="subtle-note">YouTube-Link einfuegen. Fertig.</p>
         </form>
         <div class="current-wrapper">
             <div class="panel-header compact">
@@ -78,8 +74,17 @@
     </div>
 </section>
 
-<section class="layout-grid lower-grid">
-    <div class="panel">
+<details class="panel lower-grid collapsible-panel guest-more-panel">
+    <summary class="panel-header collapsible-summary">
+        <div>
+            <p class="eyebrow">Mehr</p>
+            <h2>Chat, Verlauf und QR</h2>
+        </div>
+        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+    </summary>
+
+    <section class="layout-grid embedded-grid">
+    <div class="panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Verlauf</p>
@@ -89,7 +94,7 @@
         <div id="history-list" class="history-list"></div>
     </div>
 
-    <div class="panel" id="chat-panel">
+    <div class="panel embedded-panel" id="chat-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Chat</p>
@@ -107,10 +112,10 @@
         </form>
         <div id="chat-list" class="chat-list" aria-live="polite"></div>
     </div>
-</section>
+    </section>
 
-<section class="layout-grid lower-grid">
-    <div class="panel compact-qr-panel">
+    <section class="layout-grid embedded-grid">
+    <div class="panel compact-qr-panel embedded-panel">
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">QR</p>
@@ -137,7 +142,8 @@
         </div>
     </div>
 
-</section>
+    </section>
+</details>
 {% endblock %}
 {% block scripts %}
 <script src="/static/js/guest.js" defer></script>

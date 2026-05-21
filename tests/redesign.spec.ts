@@ -63,3 +63,21 @@ test("Redesign: TV- und Party-Screen bleiben praesentationsreif in 16:9", async 
   await expect(page.getByText("QR scannen")).toBeVisible();
   await saveShot(page, "redesign-party-screen-tv");
 });
+
+test("Redesign: Party-Screen bleibt in 9:16 schlank nutzbar", async ({ page, request }) => {
+  await request.post("/api/songs", {
+    data: { url: SAMPLE_URLS.watch, guestName: "Portrait Gast", deviceId: "design-portrait" },
+  });
+
+  await page.setViewportSize({ width: 1080, height: 1920 });
+  await page.goto("/party-screen");
+
+  await expect(page.locator(".screen-qr")).toBeVisible();
+  await expect(page.locator("#screen-current")).toContainText("YouTube Video dQw4w9WgXcQ");
+  await expect(page.getByText("QR scannen")).toBeVisible();
+
+  const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+  expect(overflows).toBeFalsy();
+
+  await saveShot(page, "redesign-party-screen-portrait");
+});

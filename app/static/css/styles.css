@@ -2416,6 +2416,291 @@ body[data-page="party-screen"] .screen-link {
   font-weight: 800;
 }
 
+/* Slim premium pass: lighter hierarchy, fewer heavy surfaces, faster daily use. */
+.panel,
+.qr-card,
+.hero-card,
+.screen-join-card,
+.screen-now-card,
+.screen-next-card,
+.screen-steps-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+}
+
+.panel::before,
+.hero-card::before,
+.qr-card::before,
+.screen-join-card::before,
+.screen-now-card::before,
+.screen-next-card::before,
+.screen-steps-card::before {
+  opacity: 0.34;
+}
+
+.hero-card {
+  min-height: 0;
+  margin-bottom: 0.85rem;
+  padding: clamp(1rem, 2.3vw, 1.8rem);
+}
+
+.hero-card::after {
+  opacity: 0.32;
+}
+
+.hero-copy h1 {
+  font-size: clamp(1.9rem, 3.7vw, 3.65rem);
+}
+
+.hero-text {
+  margin-top: 0.55rem;
+}
+
+.panel,
+.qr-card {
+  padding: clamp(0.82rem, 1.25vw, 1.05rem);
+}
+
+.panel-header {
+  margin-bottom: 0.78rem;
+}
+
+.panel-header h2 {
+  font-size: clamp(1.16rem, 1.55vw, 1.55rem);
+}
+
+.lower-grid {
+  margin-top: 0.85rem;
+}
+
+.layout-grid,
+.start-grid,
+.join-grid,
+.lower-grid {
+  gap: 0.85rem;
+}
+
+.meta-card,
+.admin-stat-card,
+.best-mini-card,
+.status-row,
+.access-row,
+.compact-qr-card,
+.chat-line,
+.muted-card {
+  border-color: rgba(255, 255, 255, 0.075);
+  background: rgba(255, 255, 255, 0.032);
+}
+
+.meta-card,
+.admin-stat-card,
+.status-row,
+.access-row {
+  padding: 0.74rem;
+}
+
+.song-card {
+  padding: 0.64rem;
+  border-radius: 15px;
+}
+
+.song-thumb {
+  border-radius: 12px;
+}
+
+.eyebrow {
+  margin-bottom: 0.38rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+}
+
+.primary-button,
+.ghost-button,
+.chip-button {
+  min-height: 2.42rem;
+}
+
+.primary-button {
+  box-shadow: 0 10px 26px rgba(215, 29, 42, 0.18);
+}
+
+.compact-qr-card {
+  min-height: 0;
+  padding: 0.72rem;
+}
+
+.compact-qr-image {
+  width: min(6.15rem, 20vw);
+}
+
+.compact-qr-text {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapsible-panel {
+  padding: 0;
+}
+
+.collapsible-summary {
+  cursor: pointer;
+  list-style: none;
+  margin: 0;
+  padding: 0.9rem 1rem;
+}
+
+.collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-summary:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.collapsible-panel[open] > .collapsible-summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.collapsible-panel > :not(summary) {
+  margin: 0.9rem;
+}
+
+.collapsible-panel > form {
+  margin: 0.9rem;
+}
+
+.collapsible-indicator {
+  color: var(--color-muted);
+}
+
+.collapsible-panel[open] .collapsible-indicator {
+  color: #fff;
+  border-color: rgba(215, 29, 42, 0.28);
+}
+
+.embedded-grid {
+  margin: 0;
+}
+
+.embedded-panel {
+  margin-top: 0.85rem;
+}
+
+body[data-page="guest"] .hero-actions {
+  max-width: 34rem;
+}
+
+body[data-page="guest"] .hero-actions .primary-button,
+body[data-page="guest"] .hero-actions .ghost-button {
+  flex: 1 1 12rem;
+}
+
+body[data-page="guest"] .current-wrapper {
+  margin-top: 0.9rem;
+}
+
+body[data-page="admin"] .admin-stat-grid {
+  gap: 0.72rem;
+  margin-bottom: 0.9rem;
+}
+
+body[data-page="admin"] .admin-actions {
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+body[data-page="admin"] #admin-settings-panel {
+  scroll-margin-top: 1rem;
+}
+
+body[data-page="start"] .compact-start-more {
+  margin-top: 0.85rem;
+}
+
+@media (min-width: 1180px) {
+  body[data-page="guest"] .layout-grid:first-of-type {
+    grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.68fr);
+  }
+
+  body[data-page="start"] .start-grid {
+    grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.68fr);
+  }
+}
+
+@media (min-width: 1200px) and (min-aspect-ratio: 16 / 9) {
+  body[data-page="player"] .page-shell {
+    width: min(1680px, calc(100vw - 2rem));
+  }
+
+  body[data-page="player"] .player-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.32fr);
+  }
+
+  body[data-page="player"] .player-stage {
+    min-height: auto;
+  }
+
+  body[data-page="player"] .player-frame-wrap {
+    margin: 0.75rem 0;
+  }
+
+  body[data-page="party-screen"] .party-screen-shell {
+    grid-template-columns: minmax(300px, 0.5fr) minmax(0, 1.5fr);
+    gap: 1rem;
+  }
+
+  body[data-page="party-screen"] .screen-join-card,
+  body[data-page="party-screen"] .screen-now-card,
+  body[data-page="party-screen"] .screen-next-card,
+  body[data-page="party-screen"] .screen-steps-card {
+    padding: 0.95rem;
+  }
+
+  body[data-page="party-screen"] .screen-qr {
+    width: min(21vw, 23rem);
+  }
+
+  body[data-page="party-screen"] .screen-code {
+    font-size: clamp(1.9rem, 3.8vw, 4rem);
+  }
+
+  body[data-page="party-screen"] .screen-now-card h1 {
+    font-size: clamp(2.2rem, 3.8vw, 4.6rem);
+  }
+
+  body[data-page="party-screen"] .screen-current .song-card {
+    min-height: 11.5rem;
+  }
+
+  body[data-page="party-screen"] .screen-step {
+    padding: 0.65rem;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  body[data-page="party-screen"] .party-screen-shell {
+    gap: 0.75rem;
+  }
+
+  body[data-page="party-screen"] .screen-join-card {
+    text-align: center;
+  }
+
+  body[data-page="party-screen"] .screen-qr {
+    width: min(48vw, 20rem);
+  }
+
+  body[data-page="party-screen"] .screen-code {
+    font-size: clamp(1.8rem, 8vw, 3.3rem);
+  }
+
+  body[data-page="party-screen"] .screen-steps-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 1121px) {
   body[data-page="guest"] .hero-card,
   body[data-page="admin"] .hero-card,
@@ -2444,6 +2729,130 @@ body[data-page="party-screen"] .screen-link {
 
   body[data-page="start"] .alert-stack {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-shell {
+    padding-top: 0.2rem;
+  }
+
+  .top-nav {
+    gap: 0.12rem;
+  }
+
+  .top-nav a {
+    min-height: 2rem;
+    padding: 0.42rem 0.58rem;
+  }
+
+  body[data-page="guest"] .hero-card,
+  body[data-page="start"] .hero-card,
+  body[data-page="admin"] .hero-card {
+    padding: 0.82rem;
+    margin-bottom: 0.62rem;
+  }
+
+  body[data-page="guest"] .hero-text,
+  body[data-page="start"] .hero-text,
+  body[data-page="admin"] .hero-text {
+    display: none;
+  }
+
+  body[data-page="guest"] .hero-actions,
+  body[data-page="start"] .hero-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin-top: 0.7rem;
+  }
+
+  body[data-page="guest"] .hero-actions .primary-button,
+  body[data-page="guest"] .hero-actions .ghost-button,
+  body[data-page="start"] .hero-actions .primary-button,
+  body[data-page="start"] .hero-actions .ghost-button {
+    min-height: 2.35rem;
+    padding: 0.52rem 0.6rem;
+  }
+
+  body[data-page="guest"] .hero-badge,
+  body[data-page="start"] .hero-badge {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.35rem 0.65rem;
+    padding: 0.72rem;
+  }
+
+  body[data-page="guest"] .hero-badge span,
+  body[data-page="start"] .hero-badge span {
+    margin: 0;
+  }
+
+  body[data-page="guest"] .hero-badge strong,
+  body[data-page="start"] .hero-badge strong {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  body[data-page="guest"] .hero-badge small,
+  body[data-page="start"] .hero-badge small {
+    grid-column: 1 / -1;
+  }
+
+  .panel,
+  .qr-card {
+    padding: 0.78rem;
+  }
+
+  .panel-header {
+    margin-bottom: 0.62rem;
+  }
+
+  .meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .meta-card,
+  .status-row,
+  .access-row {
+    padding: 0.62rem;
+  }
+
+  .song-slot,
+  .empty-state {
+    min-height: 4rem;
+  }
+
+  .current-wrapper {
+    margin-top: 0.65rem;
+  }
+
+  .compact-qr-grid,
+  .compact-qr-grid.compact-qr-grid-tight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .compact-qr-image {
+    width: min(5.35rem, 31vw);
+  }
+
+  .collapsible-summary {
+    padding: 0.72rem 0.8rem;
+  }
+
+  .collapsible-panel > :not(summary),
+  .collapsible-panel > form {
+    margin: 0.72rem;
+  }
+
+  body[data-page="admin"] .admin-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body[data-page="admin"] .hero-actions.stacked {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

@@ -1,6 +1,8 @@
 import { defineConfig } from "playwright/test";
 
-const baseURL = process.env.BASE_URL || "http://127.0.0.1:8090";
+const testPort = Number(process.env.TEST_PORT || process.env.PORT || "8090");
+const testHost = process.env.TEST_HOST || process.env.HOST_IP || "127.0.0.1";
+const baseURL = process.env.BASE_URL || `http://${testHost}:${testPort}`;
 const nodeBin = JSON.stringify(process.execPath);
 
 export default defineConfig({
@@ -23,7 +25,7 @@ export default defineConfig({
     ? undefined
     : {
         command: `${nodeBin} scripts/start-test-server.mjs`,
-        port: 8090,
+        port: testPort,
         timeout: 120_000,
         reuseExistingServer: true,
       },

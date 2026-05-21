@@ -32,6 +32,15 @@ Logs anzeigen:
 docker compose logs -f app
 ```
 
+Update auf einem Docker-Server:
+
+```bash
+./scripts/deploy-local.sh
+```
+
+Das Skript zieht den aktuellen Git-Stand, baut den Container neu, startet ihn und prueft `/health`.
+Wenn der Serverordner noch kein Git-Repo ist, PartyTube dort einmal sauber klonen. Nach UI-Updates hilft im Browser ggf. `Strg+F5`.
+
 Stoppen:
 
 ```bash

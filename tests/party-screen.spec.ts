@@ -1,5 +1,14 @@
 import { expect, test } from "playwright/test";
-import { EXPECTED_JOIN_URL, SAMPLE_URLS, expectToast, loginAsAdmin, resetTestState, saveShot } from "./helpers";
+import {
+  EXPECTED_JOIN_URL,
+  SAMPLE_URLS,
+  WIFI_PASSWORD,
+  WIFI_SSID,
+  expectToast,
+  loginAsAdmin,
+  resetTestState,
+  saveShot,
+} from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetTestState(request);
@@ -10,8 +19,8 @@ test("Party-Screen: QR, Join-Link, WLAN-Schutz, aktueller Song, Top 3 und Live-U
   await page.goto("/party-screen");
   await expect(page.locator(".screen-qr")).toBeVisible();
   await expect(page.getByText(EXPECTED_JOIN_URL)).toBeVisible();
-  await expect(page.getByText("PartyLAN")).toBeVisible();
-  await expect(page.getByText("HouseParty2026!")).toHaveCount(0);
+  await expect(page.getByText(WIFI_SSID)).toBeVisible();
+  await expect(page.getByText(WIFI_PASSWORD)).toHaveCount(0);
   await expect(page.locator("#screen-current")).toContainText("Scanne den QR-Code");
 
   const addResponse = await request.post("/api/songs", {
@@ -42,6 +51,6 @@ test("Party-Screen: WLAN-Passwort erscheint nur nach bewusster Host-Aktivierung"
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");
 
   await page.goto("/party-screen");
-  await expect(page.getByText("HouseParty2026!")).toBeVisible();
+  await expect(page.getByText(WIFI_PASSWORD)).toBeVisible();
   await expect(page.locator(".screen-wifi-qr")).toBeVisible();
 });

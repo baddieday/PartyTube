@@ -2,29 +2,33 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { expect, test } from "playwright/test";
+import { WIFI_PASSWORD, WIFI_SECURITY, WIFI_SSID } from "./helpers";
 
 const pythonBin = process.env.PYTHON_BIN || "python";
+const persistencePort = Number(process.env.PERSISTENCE_TEST_PORT || "8091");
+const persistenceHost = process.env.PERSISTENCE_TEST_HOST || "127.0.0.1";
 
 function startServer(port: number, dbPath: string) {
   const env = {
     ...process.env,
     PORT: String(port),
-    HOST_IP: "127.0.0.1",
-    BASE_URL: `http://127.0.0.1:${port}`,
+    HOST_IP: persistenceHost,
+    BASE_URL: `http://${persistenceHost}:${port}`,
     DATA_DIR: path.dirname(dbPath),
     DATABASE_PATH: dbPath,
     ADMIN_PIN: process.env.ADMIN_PIN || "2468",
-    PARTY_NAME: "Persistence Party",
-    PARTY_CODE: "persist",
-    WIFI_SSID: "PartyLAN",
-    WIFI_PASSWORD: "HouseParty2026!",
+    PARTY_NAME: process.env.PERSISTENCE_PARTY_NAME || "Persistence Party",
+    PARTY_CODE: process.env.PERSISTENCE_PARTY_CODE || "persist",
+    WIFI_SSID,
+    WIFI_PASSWORD,
+    WIFI_SECURITY,
     TEST_MODE: "1",
     TITLE_LOOKUP_TIMEOUT_SECONDS: "0.1",
     ENABLE_TITLE_LOOKUP: "0",
   };
   return spawn(
     pythonBin,
-    ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", String(port)],
+    ["-m", "uvicorn", "app.main:app", "--host", persistenceHost, "--port", String(port)],
     { cwd: process.cwd(), env, stdio: "ignore" },
   );
 }
@@ -47,8 +51,8 @@ test("Persistenz: Queue ueberlebt Server-Neustart", async ({ browser }) => {
   fs.mkdirSync(tempDir, { recursive: true });
   if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
 
-  const port = 8091;
-  const baseURL = `http://127.0.0.1:${port}`;
+  const port = persistencePort;
+  const baseURL = `http://${persistenceHost}:${port}`;
   let server = startServer(port, dbPath);
   await waitForServer(baseURL);
 

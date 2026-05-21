@@ -11,16 +11,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      TEST_HOST: 127.0.0.1
+      TEST_PORT: 8090
       PORT: 8090
       HOST_IP: 127.0.0.1
-      BASE_URL: http://127.0.0.1:8090
       DATA_DIR: .tmp
       DATABASE_PATH: .tmp/ci-party.db
       ADMIN_PIN: 2468
       PARTY_NAME: CI Party
       PARTY_CODE: ci-rave
-      WIFI_SSID: PartyLAN
-      WIFI_PASSWORD: HouseParty2026!
+      WIFI_SSID: TestPartyLAN
+      WIFI_PASSWORD: TestWifiPass123!
       WIFI_SECURITY: WPA
       TEST_MODE: "1"
       ENABLE_TITLE_LOOKUP: "0"
@@ -55,13 +56,14 @@ jobs:
       - name: Start PartyTube
         run: |
           mkdir -p .tmp
-          python -m uvicorn app.main:app --host 127.0.0.1 --port 8090 > uvicorn.log 2>&1 &
+          python -m uvicorn app.main:app --host "$TEST_HOST" --port "$TEST_PORT" > uvicorn.log 2>&1 &
           echo $! > .tmp/uvicorn.pid
 
       - name: Wait for health
         run: |
+          health_url="${BASE_URL:-http://${TEST_HOST}:${TEST_PORT}}/health"
           for i in $(seq 1 40); do
-            if curl -fsS http://127.0.0.1:8090/health; then
+            if curl -fsS "$health_url"; then
               exit 0
             fi
             sleep 1

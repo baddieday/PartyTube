@@ -867,15 +867,6 @@ async def service_worker() -> FileResponse:
     return FileResponse(ROOT_DIR / "app" / "static" / "sw.js", media_type="application/javascript")
 
 
-@app.get("/pwa-debug", response_class=HTMLResponse)
-async def pwa_debug(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(
-        request,
-        "pwa_debug.html",
-        _template_context(request, "pwa-debug"),
-    )
-
-
 @app.get("/api/state")
 async def api_state(request: Request) -> JSONResponse:
     device_id = request.query_params.get("deviceId", "").strip()[:80] or None

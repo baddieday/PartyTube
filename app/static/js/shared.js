@@ -392,30 +392,6 @@ function copyText(value, successMessage = "Kopiert.") {
   );
 }
 
-function registerPwaShell() {
-  if ("serviceWorker" in navigator) {
-    window.__partyTubePwaRegistrationPromise = navigator.serviceWorker
-      .register("/sw.js", { updateViaCache: "none" })
-      .then((registration) => {
-        window.__partyTubePwaDebug = {
-          status: "registered",
-          scope: registration.scope,
-          error: "",
-        };
-        return registration.update().catch(() => null).then(() => registration);
-      })
-      .catch((error) => {
-        window.__partyTubePwaDebug = {
-          status: "failed",
-          scope: "",
-          error: error?.message || String(error),
-        };
-        console.error("PartyTube service worker registration failed", error);
-        throw error;
-      });
-  }
-}
-
 function loadYouTubeApi() {
   if (window.YT?.Player) {
     return Promise.resolve(window.YT);
@@ -612,7 +588,6 @@ window.PartyTube = {
   apiFetch,
   toast,
   copyText,
-  registerPwaShell,
   loadYouTubeApi,
   playbackStartSeconds,
   relativeTime,
@@ -631,4 +606,3 @@ window.PartyTube = {
   },
 };
 
-registerPwaShell();

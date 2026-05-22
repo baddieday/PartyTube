@@ -19,11 +19,9 @@ Danach ist PartyTube standardmaessig unter Port `8088` erreichbar.
 http://<SERVER-IP>:8088/
 ```
 
-## HTTPS fuer PWA-Share-Target im Heimnetz
+## HTTPS im Heimnetz
 
-Wenn PartyTube im Android-Teilen-Menue erscheinen soll, ist der saubere Weg eine installierte PWA ueber `https://party.lokal`.
-
-Der Stack dafuer ist im Repo enthalten:
+Wenn du PartyTube lokal unter `https://party.lokal` nutzen willst, ist der passende Stack im Repo enthalten:
 
 - `docker-compose.https.yml`
 - `deploy/Caddyfile.local-https`
@@ -73,12 +71,10 @@ Windows PowerShell:
 ```
 
 7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geraeten als vertrauenswuerdige CA installieren.
-8. Alte PartyTube-Installation auf dem Handy loeschen, dann `https://party.lokal` in Chrome oeffnen und neu als App installieren.
-9. Danach erneut aus YouTube an PartyTube teilen.
+8. Danach `https://party.lokal` im Browser neu oeffnen.
 
 ### Warum dieser Weg?
 
-- `share_target` wird vom Betriebssystem erst bei einer installierten PWA registriert.
 - Fuer lokale Hostnamen ist ein echter HTTPS-Kontext noetig.
 - Caddy erzeugt dafuer lokal eine eigene CA und signiert automatisch das Zertifikat fuer `party.lokal`.
 - Damit andere Geraete im WLAN diese Verbindung vertrauen, muessen sie das Root-Zertifikat kennen.
@@ -183,23 +179,6 @@ Hinweise:
 - YouTube-Autoplay kann je nach Browser blockiert werden. Dann einmal manuell `Playback starten` oder `Audio starten` klicken.
 - Der Party-Code ist eine einfache Einladung, kein starkes Passwort.
 
-## Als App installieren
-
-Auf unterstuetzten Browsern kann PartyTube ueber das Browser-Menue als App installiert werden. Danach startet PartyTube im eigenstaendigen PWA-Fenster.
-
-YouTube an PartyTube teilen:
-
-- Auf unterstuetzten Android-/Chrome-Browsern erscheint PartyTube im Teilen-Menue.
-- Fuer das Teilen-Menue ist `https://party.lokal` mit installierter PWA die empfohlene Variante.
-- Einen YouTube-Link an PartyTube teilen.
-- PartyTube prueft den Link und reicht ihn direkt ein.
-- Beim normalen Kopieren und Einfuegen bleibt die manuelle Bestaetigung erhalten.
-
-Fallback:
-
-- Wenn `Teilen an PartyTube` nicht angeboten wird, bleibt normales Kopieren und Einfuegen.
-- Fuer die Fehlersuche auf dem echten Handy hilft `https://party.lokal/pwa-debug`.
-
 ## Funktionen
 
 - YouTube-Queue fuer Partys im lokalen Netzwerk
@@ -298,7 +277,7 @@ Vor einem Restore sollte PartyTube kurz gestoppt werden.
 
 ```text
 app/                 FastAPI-App, Templates, Static Files, Storage
-app/static/          CSS, JavaScript, Bilder, Service Worker
+app/static/          CSS, JavaScript, Bilder
 app/templates/       HTML-Templates
 data/                lokale SQLite-Datenbank
 deploy/              optionale Deployment-Beispiele
@@ -316,7 +295,6 @@ docker-compose.yml   lokaler Docker-Start
 - Titel- und Dauerermittlung ohne API-Key ist best effort.
 - Invite-only ersetzt keine vollstaendige Internet-Absicherung.
 - WLAN-Zugangsdaten sollten nicht unueberlegt auf einem Beamer angezeigt werden.
-- Das Teilen-Menue fuer PartyTube erscheint auf Android/Chrome erst verlaesslich mit installierter PWA und vertrauenswuerdigem HTTPS.
 
 ## Lizenz
 

@@ -49,6 +49,7 @@ test("Accessibility: Guest-, Admin-, Start-, Player-, History- und Screen-Seiten
   await injectAxe(page);
   await expectNoSeriousViolations(page, "start");
 
+  await expect(page.locator("#start-player-url")).toHaveAttribute("href", /player_key=/);
   const securePlayerUrl = await page.locator("#start-player-url").getAttribute("href");
   expect(securePlayerUrl).toContain("player_key=");
   await page.goto(securePlayerUrl);

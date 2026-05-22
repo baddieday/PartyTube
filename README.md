@@ -127,8 +127,8 @@ YouTube an PartyTube teilen:
 
 - Auf unterstuetzten Android-/Chrome-Browsern erscheint PartyTube im Teilen-Menue.
 - Einen YouTube-Link an PartyTube teilen.
-- PartyTube uebernimmt den Link ins Eingabefeld.
-- Der Song wird erst nach Klick auf `Song in die Queue` eingereicht.
+- PartyTube prueft den Link und reicht ihn direkt ein.
+- Beim normalen Kopieren und Einfuegen bleibt die manuelle Bestaetigung erhalten.
 
 Fallback:
 

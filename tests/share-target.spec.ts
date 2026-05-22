@@ -34,14 +34,22 @@ test("Share Target: gueltige YouTube-Links werden serverseitig auf die Gastseite
     maxRedirects: 0,
   });
   expect(viaUrl.status()).toBe(303);
-  expect(viaUrl.headers().location).toBe(`/?shared_url=${encodeURIComponent(SAMPLE_URLS.watch)}`);
+  const viaUrlLocation = new URL(viaUrl.headers().location || "", "http://localhost");
+  expect(viaUrlLocation.pathname).toBe("/");
+  expect(viaUrlLocation.searchParams.get("shared_url")).toBe(SAMPLE_URLS.watch);
+  expect(viaUrlLocation.searchParams.get("shared_submit")).toBe("1");
+  expect(viaUrlLocation.searchParams.get("share_flow_id")).toBeTruthy();
 
   const viaText = await request.get(
     `/share-target?text=${encodeURIComponent(`Hoer dir das an ${SAMPLE_URLS.short}`)}`,
     { maxRedirects: 0 },
   );
   expect(viaText.status()).toBe(303);
-  expect(viaText.headers().location).toBe(`/?shared_url=${encodeURIComponent(SHORT_CANONICAL)}`);
+  const viaTextLocation = new URL(viaText.headers().location || "", "http://localhost");
+  expect(viaTextLocation.pathname).toBe("/");
+  expect(viaTextLocation.searchParams.get("shared_url")).toBe(SHORT_CANONICAL);
+  expect(viaTextLocation.searchParams.get("shared_submit")).toBe("1");
+  expect(viaTextLocation.searchParams.get("share_flow_id")).toBeTruthy();
 
   const invalid = await request.get("/share-target?url=https%3A%2F%2Fexample.com%2Fnot-youtube", {
     maxRedirects: 0,
@@ -56,6 +64,15 @@ test("Share Target: Gastseite uebernimmt geteilte Links nur als Vorbelegung", as
   await expect(page.getByLabel("YouTube-Link")).toHaveValue(SAMPLE_URLS.watch);
   await expect(page.locator(".toast").filter({ hasText: "Geteilter YouTube-Link erkannt." }).last()).toBeVisible();
   await expect(page.locator("[data-song-id]")).toHaveCount(0);
+});
+
+test("Share Target: Teilen-Flow reicht einen gueltigen Link automatisch ein", async ({ page }) => {
+  await page.goto(`/share-target?url=${encodeURIComponent(SAMPLE_URLS.watch)}`);
+
+  await expect(page.locator(".toast").filter({ hasText: "Geteilter Song ist live:" }).last()).toBeVisible();
+  await expect(page.locator("[data-song-id]")).toHaveCount(1);
+  await expect(page.locator("#current-song")).toContainText("YouTube Video dQw4w9WgXcQ");
+  await expect(page.getByLabel("YouTube-Link")).toHaveValue("");
 });
 
 test("Share Target: ungueltige Daten zeigen einen kurzen Fehler", async ({ page }) => {

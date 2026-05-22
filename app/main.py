@@ -693,8 +693,9 @@ async def share_target(request: Request, title: str = "", text: str = "", url: s
     if not shared_url:
         return RedirectResponse(url="/?share_error=invalid", status_code=303)
 
+    share_flow_id = secrets.token_urlsafe(8)
     return RedirectResponse(
-        url=f"/?{urlencode({'shared_url': shared_url})}",
+        url=f"/?{urlencode({'shared_url': shared_url, 'shared_submit': '1', 'share_flow_id': share_flow_id})}",
         status_code=303,
     )
 

@@ -31,6 +31,7 @@
   const chatCount = document.getElementById("chat-count");
   const chatStatusNote = document.getElementById("chat-status-note");
   const chatPanel = document.getElementById("chat-panel");
+  const SHARED_SUBMIT_STORAGE_PREFIX = "partytube.shared-submit.";
 
   function looksLikeSharedYouTubeUrl(value) {
     if (!value || value.length > 500) {
@@ -52,15 +53,60 @@
     }
   }
 
-  function applySharedLinkFromQuery() {
+  async function submitSharedSong(sharedUrl) {
+    const submit = document.getElementById("submit-song");
+    if (!submit) {
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = "Wird hinzugefuegt...";
+    try {
+      const response = await apiFetch("/api/songs", {
+        method: "POST",
+        body: JSON.stringify({
+          url: sharedUrl,
+          guestName: nameInput?.value || "",
+          deviceId: getDeviceId(),
+        }),
+      });
+      rememberVote(response.song.id);
+      urlInput.value = "";
+      toast(`Geteilter Song ist live: ${response.song.title}`, "success");
+    } catch (error) {
+      if (error.status === 409 && error.payload?.duplicate) {
+        const duplicate = error.payload.duplicate;
+        toast(`Schon in der Queue: ${duplicate.title}`, "error");
+      } else if (error.status === 429) {
+        toast(`${error.message}${retryHint(error)}`, "error");
+      } else {
+        toast(error.message, "error");
+      }
+    } finally {
+      submit.disabled = false;
+      submit.textContent = "Song in die Queue";
+    }
+  }
+
+  async function applySharedLinkFromQuery() {
     const params = new URLSearchParams(window.location.search);
     const sharedUrl = (params.get("shared_url") || "").trim();
     const shareError = (params.get("share_error") || "").trim();
+    const sharedSubmit = params.get("shared_submit") === "1";
+    const shareFlowId = (params.get("share_flow_id") || "").trim();
 
     if (sharedUrl && looksLikeSharedYouTubeUrl(sharedUrl)) {
       urlInput.value = sharedUrl;
-      toast("Geteilter YouTube-Link erkannt.", "success");
       window.history.replaceState({}, "", window.location.pathname);
+      if (sharedSubmit && shareFlowId) {
+        const storageKey = `${SHARED_SUBMIT_STORAGE_PREFIX}${shareFlowId}`;
+        if (window.sessionStorage.getItem(storageKey) !== "done") {
+          window.sessionStorage.setItem(storageKey, "done");
+          toast("Geteilter YouTube-Link erkannt.", "success");
+          await submitSharedSong(sharedUrl);
+          return;
+        }
+      }
+      toast("Geteilter YouTube-Link erkannt.", "success");
       return;
     }
 
@@ -360,9 +406,9 @@
     copyText(appConfig.joinUrl, "Party-Link kopiert.");
   });
 
-  applySharedLinkFromQuery();
   connectLive(renderState);
   apiFetch(`/api/state?deviceId=${encodeURIComponent(getDeviceId())}&role=guest`)
     .then(renderState)
     .catch((error) => toast(error.message, "error"));
+  applySharedLinkFromQuery();
 })();

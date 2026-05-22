@@ -3374,3 +3374,460 @@ body[data-page="guest"] .hero-actions .primary-button {
     padding-inline: 0.56rem;
   }
 }
+
+/* Final cleanup pass: restore a compact, premium control surface. */
+html {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(207, 31, 45, 0.14), transparent 22rem),
+    radial-gradient(circle at 90% 18%, rgba(70, 10, 15, 0.16), transparent 24rem),
+    linear-gradient(145deg, #040304 0%, #090507 46%, #030303 100%);
+}
+
+body {
+  background-size: 96px 96px;
+}
+
+body::before {
+  opacity: 0.34;
+}
+
+.bg-orb {
+  opacity: 0.24;
+  filter: blur(132px);
+}
+
+.shell-header,
+.page-shell {
+  width: min(1140px, calc(100vw - 1.6rem));
+}
+
+.shell-header {
+  gap: 0.85rem 1rem;
+  padding: 0.82rem 0 0.62rem;
+}
+
+.brand {
+  gap: 0.72rem;
+}
+
+.brand-logo {
+  width: clamp(7.4rem, 13vw, 10rem);
+  filter: drop-shadow(0 10px 18px rgba(255, 20, 120, 0.12));
+}
+
+.brand-copy strong {
+  font-size: 0.92rem;
+  font-weight: 880;
+}
+
+.brand-copy span {
+  display: block;
+  margin-top: 0.1rem;
+  color: var(--color-subtle);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.top-nav {
+  gap: 0.16rem;
+  padding: 0.22rem;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(8, 8, 9, 0.8);
+}
+
+.top-nav a {
+  min-height: 2.18rem;
+  padding: 0.52rem 0.78rem;
+  font-size: 0.8rem;
+  font-weight: 790;
+}
+
+.top-nav .nav-link-secondary {
+  color: rgba(247, 243, 244, 0.68);
+}
+
+.top-nav .nav-link-secondary:hover {
+  color: var(--color-text);
+}
+
+.page-shell {
+  padding-top: 0.25rem;
+  padding-bottom: 5.75rem;
+}
+
+.hero-card,
+.panel,
+.qr-card,
+.screen-join-card,
+.screen-now-card,
+.screen-next-card,
+.screen-steps-card {
+  border-color: rgba(255, 255, 255, 0.085);
+  border-radius: 22px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.048), rgba(255, 255, 255, 0.016)),
+    rgba(15, 14, 16, 0.94);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26);
+}
+
+.hero-card::before,
+.panel::before,
+.qr-card::before,
+.screen-join-card::before,
+.screen-now-card::before,
+.screen-next-card::before,
+.screen-steps-card::before {
+  opacity: 0.12;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 38%, rgba(255, 20, 120, 0.035)),
+    radial-gradient(circle at top right, rgba(255, 20, 120, 0.06), transparent 16rem);
+}
+
+.hero-card::after {
+  opacity: 0.12;
+  width: 12rem;
+  height: 12rem;
+  right: -4rem;
+  bottom: -6rem;
+}
+
+.hero-card {
+  min-height: auto;
+  gap: 0.9rem 1rem;
+  margin-bottom: 0.8rem;
+  padding: 1rem 1.05rem;
+}
+
+.hero-copy h1 {
+  max-width: 12ch;
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  letter-spacing: -0.055em;
+}
+
+.hero-text {
+  max-width: 44ch;
+  margin-top: 0.38rem;
+  color: #cbc2c6;
+  font-size: 0.95rem;
+}
+
+.hero-actions,
+.admin-actions,
+.chat-actions {
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.hero-badge {
+  min-width: 13rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hero-badge strong {
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+}
+
+.panel,
+.qr-card {
+  padding: 0.88rem;
+}
+
+.panel-header {
+  gap: 0.8rem;
+  margin-bottom: 0.72rem;
+}
+
+.panel-header h2 {
+  font-size: clamp(1.08rem, 1.7vw, 1.42rem);
+  letter-spacing: -0.04em;
+}
+
+.layout-grid,
+.start-grid,
+.join-grid,
+.lower-grid,
+.embedded-grid {
+  gap: 0.78rem;
+}
+
+.layout-grid {
+  grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+}
+
+.start-grid,
+.join-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.82fr);
+}
+
+.meta-grid,
+.admin-stat-grid,
+.skip-admin-grid,
+.compact-qr-grid,
+.qr-grid,
+.settings-grid,
+.best-podium {
+  gap: 0.65rem;
+}
+
+.meta-grid {
+  margin-bottom: 0.72rem;
+}
+
+.meta-card,
+.admin-stat-card,
+.best-mini-card,
+.status-row,
+.access-row {
+  padding: 0.72rem;
+  border-radius: 15px;
+}
+
+.meta-card strong,
+.admin-stat-card strong,
+.best-mini-card strong {
+  font-size: clamp(1.06rem, 2vw, 1.45rem);
+}
+
+.song-card {
+  grid-template-columns: 4.8rem minmax(0, 1fr);
+  gap: 0.72rem;
+  padding: 0.68rem;
+  border-radius: 16px;
+}
+
+.song-thumb {
+  border-radius: 11px;
+}
+
+.song-line h3 {
+  font-size: clamp(0.98rem, 1.7vw, 1.08rem);
+}
+
+.song-subline {
+  font-size: 0.82rem;
+}
+
+.song-actions {
+  margin-top: 0.55rem;
+}
+
+.primary-button,
+.ghost-button,
+.chip-button {
+  min-height: 2.34rem;
+  padding: 0.54rem 0.86rem;
+  font-size: 0.86rem;
+}
+
+input,
+select,
+textarea {
+  min-height: 2.96rem;
+  border-radius: 14px;
+}
+
+textarea {
+  min-height: 6rem;
+}
+
+.compact-qr-card {
+  min-height: 0;
+  padding: 0.68rem;
+  border-radius: 16px;
+}
+
+.compact-qr-image {
+  width: clamp(4.6rem, 8vw, 5.8rem);
+}
+
+.compact-qr-text {
+  font-size: 0.78rem;
+}
+
+.collapsible-summary {
+  min-height: 3.65rem;
+  padding: 0.72rem 0.88rem;
+}
+
+.collapsible-panel > :not(summary),
+.collapsible-panel > form {
+  margin: 0.78rem;
+}
+
+.ambient-dock {
+  width: min(520px, calc(100vw - 1.2rem));
+  gap: 0.55rem;
+  padding: 0.58rem;
+  border-radius: 16px;
+}
+
+.ambient-copy strong {
+  max-width: 14rem;
+  font-size: 0.86rem;
+}
+
+.ambient-actions .primary-button,
+.ambient-actions .ghost-button {
+  min-height: 2.06rem;
+  padding: 0.4rem 0.72rem;
+  font-size: 0.8rem;
+}
+
+body[data-page="guest"] .guest-room-strip,
+body[data-page="start"] .hero-card,
+body[data-page="admin"] .hero-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+body[data-page="guest"] .guest-room-strip {
+  padding: 0.74rem 0.88rem;
+}
+
+body[data-page="guest"] .guest-room-strip .hero-copy h1 {
+  max-width: none;
+  font-size: clamp(1.28rem, 2.1vw, 1.72rem);
+}
+
+body[data-page="guest"] .guest-room-strip .hero-text {
+  margin-top: 0.16rem;
+  font-size: 0.82rem;
+}
+
+body[data-page="guest"] .guest-room-strip .hero-actions {
+  margin-top: 0;
+}
+
+body[data-page="guest"] .current-wrapper {
+  margin-top: 0.78rem;
+}
+
+body[data-page="admin"] .admin-stat-grid {
+  gap: 0.58rem;
+  margin-bottom: 0.8rem;
+}
+
+body[data-page="start"] .start-actions-grid {
+  gap: 0.58rem;
+}
+
+@media (min-width: 1280px) {
+  body[data-page="guest"] .layout-grid:first-of-type {
+    grid-template-columns: minmax(0, 0.9fr) minmax(330px, 0.7fr);
+  }
+
+  body[data-page="admin"] .layout-grid:first-of-type {
+    grid-template-columns: minmax(0, 0.74fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1040px) {
+  .layout-grid,
+  .start-grid,
+  .join-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-header {
+    grid-template-columns: 1fr;
+  }
+
+  .top-nav {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell-header,
+  .page-shell {
+    width: calc(100vw - 0.9rem);
+  }
+
+  .brand-logo {
+    width: 6.5rem;
+  }
+
+  .brand-copy span {
+    display: none;
+  }
+
+  .top-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .top-nav .nav-link-secondary {
+    display: none;
+  }
+
+  .top-nav a {
+    justify-content: center;
+    min-height: 2.04rem;
+    padding: 0.42rem 0.48rem;
+    font-size: 0.76rem;
+  }
+
+  .hero-card,
+  .panel,
+  .qr-card {
+    border-radius: 18px;
+  }
+
+  .hero-card,
+  body[data-page="guest"] .guest-room-strip,
+  body[data-page="start"] .hero-card,
+  body[data-page="admin"] .hero-card {
+    grid-template-columns: 1fr;
+    padding: 0.78rem;
+  }
+
+  .hero-copy h1 {
+    max-width: none;
+    font-size: clamp(1.72rem, 8vw, 2.2rem);
+  }
+
+  .hero-text,
+  body[data-page="guest"] .guest-room-strip .hero-text {
+    display: none;
+  }
+
+  .hero-actions,
+  body[data-page="guest"] .guest-room-strip .hero-actions,
+  body[data-page="admin"] .hero-actions.stacked,
+  .start-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.44rem;
+    width: 100%;
+  }
+
+  .panel,
+  .qr-card {
+    padding: 0.74rem;
+  }
+
+  .meta-grid,
+  .admin-stat-grid,
+  .compact-qr-grid {
+    gap: 0.48rem;
+  }
+
+  .song-card {
+    grid-template-columns: 4.2rem minmax(0, 1fr);
+  }
+
+  .compact-qr-image {
+    width: min(4.7rem, 26vw);
+  }
+
+  .ambient-dock {
+    position: static;
+    width: 100%;
+    margin-top: 0.72rem;
+  }
+}

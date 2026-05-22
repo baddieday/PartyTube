@@ -7,7 +7,7 @@ test.beforeEach(async ({ request }) => {
 
 test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Song rein/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Song einreichen/i })).toBeVisible();
   await openDetailsByHeading(page, "Extras");
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.locator("#queue-duration")).toBeVisible();

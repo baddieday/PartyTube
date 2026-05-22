@@ -9,7 +9,7 @@ test("Startseite: priorisiert Audio + TV, zeigt QR-Codes und sichere Host-Links"
   await loginAsAdmin(page);
   await page.goto("/start");
 
-  await expect(page.getByRole("heading", { name: /Loslegen/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Bereit/i })).toBeVisible();
   await page.locator("details").filter({ hasText: "Links und QR" }).locator("summary").click();
   await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
   await expect(page.getByAltText("Kleiner QR-Code fuer das WLAN")).toBeVisible();

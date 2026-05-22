@@ -18,18 +18,18 @@
             <img class="brand-logo" src="/static/img/logo.svg" alt="PartyTube">
             <div class="brand-copy">
                 <strong>{{ settings.party_name }}</strong>
-                <span>Party-Jukebox im Heimnetz</span>
+                <span>Code {{ settings.party_code }}</span>
             </div>
         </a>
         <nav class="top-nav">
-            <a href="/start" {% if page == "start" %}aria-current="page"{% endif %}>Start</a>
-            <a href="/" {% if page == "guest" %}aria-current="page"{% endif %}>Queue</a>
-            <a href="/history" {% if page == "history" %}aria-current="page"{% endif %}>Verlauf</a>
-            <a href="/player" {% if page == "player" %}aria-current="page"{% endif %}>TV</a>
-            <a href="/party-screen" {% if page == "party-screen" %}aria-current="page"{% endif %}>Screen</a>
-            <a href="/audio" target="_blank" rel="noreferrer">Audio</a>
-            <a href="/qr" {% if page == "qr" %}aria-current="page"{% endif %}>QR</a>
-            <a href="/admin" {% if page == "admin" %}aria-current="page"{% endif %}>Host</a>
+            <a class="nav-link-primary" href="/start" {% if page == "start" %}aria-current="page"{% endif %}>Start</a>
+            <a class="nav-link-primary" href="/" {% if page == "guest" %}aria-current="page"{% endif %}>Queue</a>
+            <a class="nav-link-primary" href="/player" {% if page == "player" %}aria-current="page"{% endif %}>TV</a>
+            <a class="nav-link-primary" href="/party-screen" {% if page == "party-screen" %}aria-current="page"{% endif %}>Screen</a>
+            <a class="nav-link-primary" href="/admin" {% if page == "admin" %}aria-current="page"{% endif %}>Host</a>
+            <a class="nav-link-secondary" href="/history" {% if page == "history" %}aria-current="page"{% endif %}>Verlauf</a>
+            <a class="nav-link-secondary" href="/audio" target="_blank" rel="noreferrer">Audio</a>
+            <a class="nav-link-secondary" href="/qr" {% if page == "qr" %}aria-current="page"{% endif %}>QR</a>
         </nav>
     </header>
 

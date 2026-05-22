@@ -809,7 +809,7 @@ async def party_screen_alias(request: Request) -> HTMLResponse:
     return await party_screen_page(request)
 
 
-@app.get("/manifest.webmanifest")
+@app.api_route("/manifest.webmanifest", methods=["GET", "HEAD"])
 async def manifest(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     return JSONResponse(
@@ -857,12 +857,23 @@ async def manifest(request: Request) -> JSONResponse:
                 },
             },
         }
+        ,
+        media_type="application/manifest+json",
     )
 
 
-@app.get("/sw.js")
+@app.api_route("/sw.js", methods=["GET", "HEAD"])
 async def service_worker() -> FileResponse:
     return FileResponse(ROOT_DIR / "app" / "static" / "sw.js", media_type="application/javascript")
+
+
+@app.get("/pwa-debug", response_class=HTMLResponse)
+async def pwa_debug(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request,
+        "pwa_debug.html",
+        _template_context(request, "pwa-debug"),
+    )
 
 
 @app.get("/api/state")

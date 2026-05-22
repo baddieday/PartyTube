@@ -10,6 +10,7 @@ test.beforeEach(async ({ request }) => {
 test("PWA: Manifest enthaelt Share Target und gueltige Icons", async ({ request }) => {
   const response = await request.get("/manifest.webmanifest");
   expect(response.ok()).toBeTruthy();
+  expect(response.headers()["content-type"]).toContain("application/manifest+json");
 
   const manifest = await response.json();
   expect(manifest.name).toContain("PartyTube");
@@ -27,6 +28,15 @@ test("PWA: Manifest enthaelt Share Target und gueltige Icons", async ({ request 
       url: "url",
     },
   });
+});
+
+test("PWA: Diagnose-Seite laedt und zeigt die wichtigsten Debug-Felder", async ({ page }) => {
+  await page.goto("/pwa-debug");
+
+  await expect(page.getByRole("heading", { name: "Installierbarkeit und Share Target pruefen" })).toBeVisible();
+  await expect(page.locator("#pwa-debug-manifest-url")).not.toHaveText("-");
+  await expect(page.locator("#pwa-debug-secure")).not.toHaveText("Pruefung laeuft...");
+  await expect(page.locator("#pwa-debug-sw")).not.toHaveText("Pruefung laeuft...");
 });
 
 test("Share Target: gueltige YouTube-Links werden serverseitig auf die Gastseite umgeleitet", async ({ request }) => {

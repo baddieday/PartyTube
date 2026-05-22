@@ -198,6 +198,7 @@ YouTube an PartyTube teilen:
 Fallback:
 
 - Wenn `Teilen an PartyTube` nicht angeboten wird, bleibt normales Kopieren und Einfuegen.
+- Fuer die Fehlersuche auf dem echten Handy hilft `https://party.lokal/pwa-debug`.
 
 ## Funktionen
 

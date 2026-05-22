@@ -1,0 +1,21 @@
+services:
+  caddy:
+    image: caddy:2.10.2-alpine
+    container_name: partytube-caddy
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "${HTTP_PUBLIC_PORT:-80}:80"
+      - "${HTTPS_PUBLIC_PORT:-443}:443"
+    volumes:
+      - ./deploy/Caddyfile.local-https:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

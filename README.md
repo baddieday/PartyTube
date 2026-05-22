@@ -19,6 +19,70 @@ Danach ist PartyTube standardmaessig unter Port `8088` erreichbar.
 http://<SERVER-IP>:8088/
 ```
 
+## HTTPS fuer PWA-Share-Target im Heimnetz
+
+Wenn PartyTube im Android-Teilen-Menue erscheinen soll, ist der saubere Weg eine installierte PWA ueber `https://party.lokal`.
+
+Der Stack dafuer ist im Repo enthalten:
+
+- `docker-compose.https.yml`
+- `deploy/Caddyfile.local-https`
+- `scripts/export-caddy-root-cert.sh`
+- `scripts/export-caddy-root-cert.ps1`
+
+### Schnellstart
+
+1. `cp .env.example .env`
+2. Optional `cp .env.https.example .env.https-notes` als Referenz ansehen.
+3. In `.env` diese Werte setzen:
+
+```dotenv
+PARTYTUBE_DOMAIN=party.lokal
+BASE_URL=https://party.lokal
+TRUSTED_HOSTS=party.lokal,192.168.178.77,localhost,127.0.0.1
+ENFORCE_HTTPS=true
+SESSION_COOKIE_SECURE=true
+HTTP_PUBLIC_PORT=80
+HTTPS_PUBLIC_PORT=443
+```
+
+4. Lokales DNS so setzen, dass `party.lokal` auf deinen PartyTube-Host zeigt.
+5. Stack starten:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.https.yml up -d --build
+```
+
+Hinweis:
+
+- Wenn auf dem Host bereits ein Reverse Proxy auf Port `80` laeuft, `HTTP_PUBLIC_PORT` in `.env` auf einen freien Port setzen, z. B. `8089`.
+- Fuer die eigentliche PWA-Installation und das Teilen-Menue ist `HTTPS_PUBLIC_PORT=443` die wichtige Einstellung.
+
+6. Root-CA aus Caddy exportieren:
+
+Linux/macOS:
+
+```bash
+./scripts/export-caddy-root-cert.sh
+```
+
+Windows PowerShell:
+
+```powershell
+./scripts/export-caddy-root-cert.ps1
+```
+
+7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geraeten als vertrauenswuerdige CA installieren.
+8. Alte PartyTube-Installation auf dem Handy loeschen, dann `https://party.lokal` in Chrome oeffnen und neu als App installieren.
+9. Danach erneut aus YouTube an PartyTube teilen.
+
+### Warum dieser Weg?
+
+- `share_target` wird vom Betriebssystem erst bei einer installierten PWA registriert.
+- Fuer lokale Hostnamen ist ein echter HTTPS-Kontext noetig.
+- Caddy erzeugt dafuer lokal eine eigene CA und signiert automatisch das Zertifikat fuer `party.lokal`.
+- Damit andere Geraete im WLAN diese Verbindung vertrauen, muessen sie das Root-Zertifikat kennen.
+
 Status pruefen:
 
 ```bash
@@ -126,6 +190,7 @@ Auf unterstuetzten Browsern kann PartyTube ueber das Browser-Menue als App insta
 YouTube an PartyTube teilen:
 
 - Auf unterstuetzten Android-/Chrome-Browsern erscheint PartyTube im Teilen-Menue.
+- Fuer das Teilen-Menue ist `https://party.lokal` mit installierter PWA die empfohlene Variante.
 - Einen YouTube-Link an PartyTube teilen.
 - PartyTube prueft den Link und reicht ihn direkt ein.
 - Beim normalen Kopieren und Einfuegen bleibt die manuelle Bestaetigung erhalten.
@@ -157,6 +222,9 @@ Die Konfiguration liegt in `.env`. Vorlage: `.env.example`.
 | Variable | Bedeutung |
 |---|---|
 | `PORT` | externer Port, Standard `8088` |
+| `PARTYTUBE_DOMAIN` | lokaler HTTPS-Hostname, z. B. `party.lokal` |
+| `HTTP_PUBLIC_PORT` | HTTP-Port fuer den Reverse Proxy, Standard `80` |
+| `HTTPS_PUBLIC_PORT` | HTTPS-Port fuer den Reverse Proxy, Standard `443` |
 | `HOST_IP` | IP-Adresse des PartyTube-Hosts |
 | `BASE_URL` | Basis-URL fuer Links und QR-Codes |
 | `PARTY_NAME` | angezeigter Name der Party |
@@ -202,6 +270,12 @@ npm run test:accessibility
 npm run test:load
 ```
 
+Compose-Konfiguration fuer HTTPS pruefen:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.https.yml config
+```
+
 ## Backup und Restore
 
 Backup der SQLite-Datenbank:
@@ -241,6 +315,7 @@ docker-compose.yml   lokaler Docker-Start
 - Titel- und Dauerermittlung ohne API-Key ist best effort.
 - Invite-only ersetzt keine vollstaendige Internet-Absicherung.
 - WLAN-Zugangsdaten sollten nicht unueberlegt auf einem Beamer angezeigt werden.
+- Das Teilen-Menue fuer PartyTube erscheint auf Android/Chrome erst verlaesslich mit installierter PWA und vertrauenswuerdigem HTTPS.
 
 ## Lizenz
 

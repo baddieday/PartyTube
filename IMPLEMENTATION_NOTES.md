@@ -16,6 +16,7 @@
 - CSRF wird per serverseitigem Token im Admin-Session-Datensatz und `X-PartyTube-CSRF` abgesichert.
 - `/api/player/ended` nutzt einen HMAC-Token aus Secret + Party-Code.
 - Standardwarnungen fuer Default-PIN, Platzhalter-Secrets und nicht erzwungenes HTTPS werden aktiv an die Host-UI gemeldet.
+- Fuer `share_target` im Heimnetz gibt es jetzt einen offiziellen HTTPS-Betriebsmodus mit Caddy, interner CA und Export-Skripten fuer das Root-Zertifikat.
 
 ## UX-Entscheidungen
 

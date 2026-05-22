@@ -1,0 +1,25 @@
+{
+    auto_https disable_redirects
+}
+
+http://{$PARTYTUBE_DOMAIN:party.lokal} {
+    redir https://{$PARTYTUBE_DOMAIN:party.lokal}{uri} 308
+}
+
+https://{$PARTYTUBE_DOMAIN:party.lokal} {
+    tls internal
+    encode zstd gzip
+
+    reverse_proxy app:8088 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        header_up X-Forwarded-For {remote_host}
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "same-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+}

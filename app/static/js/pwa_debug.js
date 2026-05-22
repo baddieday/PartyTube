@@ -78,7 +78,26 @@
     }
 
     try {
-      const registration = await navigator.serviceWorker.getRegistration("/");
+      let registration = await navigator.serviceWorker.getRegistration("/");
+      if (!registration) {
+        try {
+          registration = await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
+        } catch (error) {
+          setText(swEl, "Registrierung fehlgeschlagen");
+          setText(swNoteEl, error.message || String(error));
+          return;
+        }
+      }
+
+      try {
+        await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((resolve) => window.setTimeout(resolve, 1500)),
+        ]);
+      } catch (_error) {
+        // ignore and continue with the latest visible state
+      }
+
       if (!registration) {
         setText(swEl, "Nicht registriert");
         setText(swNoteEl, "Die App wurde noch nicht als PWA gebunden.");

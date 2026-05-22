@@ -394,10 +394,25 @@ function copyText(value, successMessage = "Kopiert.") {
 
 function registerPwaShell() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
+    window.__partyTubePwaRegistrationPromise = navigator.serviceWorker
       .register("/sw.js", { updateViaCache: "none" })
-      .then((registration) => registration.update().catch(() => null))
-      .catch(() => null);
+      .then((registration) => {
+        window.__partyTubePwaDebug = {
+          status: "registered",
+          scope: registration.scope,
+          error: "",
+        };
+        return registration.update().catch(() => null).then(() => registration);
+      })
+      .catch((error) => {
+        window.__partyTubePwaDebug = {
+          status: "failed",
+          scope: "",
+          error: error?.message || String(error),
+        };
+        console.error("PartyTube service worker registration failed", error);
+        throw error;
+      });
   }
 }
 

@@ -70,7 +70,16 @@ class SelectiveHTTPSRedirectMiddleware:
             await self.app(scope, receive, send)
             return
 
-        if scope.get("scheme") == "https" or scope.get("path") == "/health":
+        forwarded_proto = next(
+            (
+                value.decode("latin-1").split(",", 1)[0].strip().lower()
+                for key, value in scope.get("headers", [])
+                if key == b"x-forwarded-proto"
+            ),
+            "",
+        )
+
+        if scope.get("scheme") == "https" or forwarded_proto == "https" or scope.get("path") == "/health":
             await self.app(scope, receive, send)
             return
 

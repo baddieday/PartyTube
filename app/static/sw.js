@@ -1,4 +1,4 @@
-const CACHE_NAME = "partytube-assets-v9";
+const CACHE_NAME = "partytube-assets-v10";
 const STATIC_URLS = [
   "/static/css/styles.css",
   "/static/js/shared.js",
@@ -26,36 +26,55 @@ function isStaticAsset(request) {
   return STATIC_URLS.includes(url.pathname) || url.pathname.startsWith("/static/");
 }
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) {
-    return cached;
+function shouldBypassCache(request) {
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return true;
+  if (url.pathname.startsWith("/api/")) return true;
+  if (url.pathname === "/admin" || url.pathname === "/player" || url.pathname === "/audio") return true;
+  if (url.pathname.startsWith("/admin/") || url.pathname.startsWith("/player/") || url.pathname.startsWith("/audio/")) {
+    return true;
   }
+  return false;
+}
 
-  const response = await fetch(request);
+async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);
-  cache.put(request, response.clone());
-  return response;
+  try {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response && response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_error) {
+    const cached = await cache.match(request);
+    if (cached) {
+      return cached;
+    }
+    throw _error;
+  }
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_URLS)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_URLS)).then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
-    ),
+    ).then(() => self.clients.claim()),
   );
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  if (shouldBypassCache(event.request)) return;
 
   if (!isStaticAsset(event.request)) {
     return;
   }
 
-  event.respondWith(cacheFirst(event.request));
+  event.respondWith(networkFirst(event.request));
 });

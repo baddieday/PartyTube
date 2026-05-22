@@ -394,7 +394,10 @@ function copyText(value, successMessage = "Kopiert.") {
 
 function registerPwaShell() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js").catch(() => null);
+    navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((registration) => registration.update().catch(() => null))
+      .catch(() => null);
   }
 }
 

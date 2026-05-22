@@ -119,6 +119,21 @@ Hinweise:
 - YouTube-Autoplay kann je nach Browser blockiert werden. Dann einmal manuell `Playback starten` oder `Audio starten` klicken.
 - Der Party-Code ist eine einfache Einladung, kein starkes Passwort.
 
+## Als App installieren
+
+Auf unterstuetzten Browsern kann PartyTube ueber das Browser-Menue als App installiert werden. Danach startet PartyTube im eigenstaendigen PWA-Fenster.
+
+YouTube an PartyTube teilen:
+
+- Auf unterstuetzten Android-/Chrome-Browsern erscheint PartyTube im Teilen-Menue.
+- Einen YouTube-Link an PartyTube teilen.
+- PartyTube uebernimmt den Link ins Eingabefeld.
+- Der Song wird erst nach Klick auf `Song in die Queue` eingereicht.
+
+Fallback:
+
+- Wenn `Teilen an PartyTube` nicht angeboten wird, bleibt normales Kopieren und Einfuegen.
+
 ## Funktionen
 
 - YouTube-Queue fuer Partys im lokalen Netzwerk

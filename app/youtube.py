@@ -11,6 +11,10 @@ from urllib.request import Request, urlopen
 
 VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
 LENGTH_SECONDS_PATTERN = re.compile(r'"lengthSeconds":"(?P<seconds>\d+)"')
+YOUTUBE_URL_CANDIDATE_PATTERN = re.compile(
+    r"(?P<url>(?:https?://|www\.)[^\s<>'\"`]+|(?:m\.)?youtube\.com/[^\s<>'\"`]+|youtu\.be/[^\s<>'\"`]+)",
+    re.IGNORECASE,
+)
 
 
 class InvalidYouTubeUrl(ValueError):
@@ -79,6 +83,42 @@ def extract_video_id(value: str) -> str:
                 return video_id
 
     raise InvalidYouTubeUrl("Bitte gib einen gueltigen YouTube-Link ein.")
+
+
+def _trim_candidate_url(value: str) -> str:
+    return value.strip().rstrip(".,;:!?)]}>\"'")
+
+
+def extract_first_youtube_url(
+    value: str,
+    *,
+    max_input_length: int = 2000,
+    max_url_length: int = 500,
+) -> str | None:
+    cleaned = "".join(char for char in str(value or "").strip() if char.isprintable())
+    if not cleaned or len(cleaned) > max_input_length:
+        return None
+
+    candidates: list[str] = []
+    if not re.search(r"\s", cleaned):
+        candidates.append(cleaned)
+
+    for match in YOUTUBE_URL_CANDIDATE_PATTERN.finditer(cleaned):
+        candidate = _trim_candidate_url(match.group("url"))
+        if candidate:
+            candidates.append(candidate)
+
+    seen: set[str] = set()
+    for candidate in candidates:
+        normalized = candidate.strip()
+        if not normalized or normalized in seen or len(normalized) > max_url_length:
+            continue
+        seen.add(normalized)
+        try:
+            return canonical_watch_url(extract_video_id(normalized))
+        except InvalidYouTubeUrl:
+            continue
+    return None
 
 
 def canonical_watch_url(video_id: str) -> str:

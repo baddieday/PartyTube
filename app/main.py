@@ -9,7 +9,7 @@ import time
 from collections import defaultdict, deque
 from contextlib import suppress
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.gzip import GZipMiddleware
@@ -48,7 +48,7 @@ from .storage import (
     PartyStore,
     QueueLimitError,
 )
-from .youtube import InvalidYouTubeUrl, parse_video
+from .youtube import InvalidYouTubeUrl, extract_first_youtube_url, parse_video
 
 
 settings = load_settings()
@@ -677,6 +677,28 @@ async def guest_join_gate(request: Request, code: str = ""):
     return templates.TemplateResponse("join_gate.html", _template_context(request, "join", invite_gate=True))
 
 
+@app.get("/share-target")
+async def share_target(request: Request, title: str = "", text: str = "", url: str = "") -> RedirectResponse:
+    shared_url = None
+    max_scan_length = max(settings.max_url_length * 4, 1200)
+    for candidate in (url, text, title):
+        shared_url = extract_first_youtube_url(
+            candidate,
+            max_input_length=max_scan_length,
+            max_url_length=settings.max_url_length,
+        )
+        if shared_url:
+            break
+
+    if not shared_url:
+        return RedirectResponse(url="/?share_error=invalid", status_code=303)
+
+    return RedirectResponse(
+        url=f"/?{urlencode({'shared_url': shared_url})}",
+        status_code=303,
+    )
+
+
 @app.get("/start", response_class=HTMLResponse)
 async def start_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("start.html", _template_context(request, "start"))
@@ -760,12 +782,14 @@ async def manifest(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     return JSONResponse(
         {
-            "name": resolved_settings["party_name"],
+            "name": f"{settings.app_name} - {resolved_settings['party_name']}",
             "short_name": settings.app_name,
+            "description": "Lokale Party-Jukebox fuer YouTube-Links, Voting und TV-Screen im Heimnetz.",
+            "start_url": "/",
+            "scope": "/",
             "display": "standalone",
             "background_color": "#050505",
             "theme_color": "#050505",
-            "start_url": "/",
             "icons": [
                 {
                     "src": "/static/img/icon.svg",
@@ -791,6 +815,15 @@ async def manifest(request: Request) -> JSONResponse:
                     "purpose": "any maskable",
                 },
             ],
+            "share_target": {
+                "action": "/share-target",
+                "method": "GET",
+                "params": {
+                    "title": "title",
+                    "text": "text",
+                    "url": "url",
+                },
+            },
         }
     )
 

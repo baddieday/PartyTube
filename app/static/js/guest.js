@@ -32,6 +32,44 @@
   const chatStatusNote = document.getElementById("chat-status-note");
   const chatPanel = document.getElementById("chat-panel");
 
+  function looksLikeSharedYouTubeUrl(value) {
+    if (!value || value.length > 500) {
+      return false;
+    }
+    try {
+      const parsed = new URL(value);
+      const host = parsed.hostname.toLowerCase();
+      return host === "youtube.com"
+        || host === "www.youtube.com"
+        || host === "m.youtube.com"
+        || host === "music.youtube.com"
+        || host === "youtu.be"
+        || host === "www.youtu.be"
+        || host === "youtube-nocookie.com"
+        || host === "www.youtube-nocookie.com";
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function applySharedLinkFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = (params.get("shared_url") || "").trim();
+    const shareError = (params.get("share_error") || "").trim();
+
+    if (sharedUrl && looksLikeSharedYouTubeUrl(sharedUrl)) {
+      urlInput.value = sharedUrl;
+      toast("Geteilter YouTube-Link erkannt.", "success");
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
+
+    if (sharedUrl || shareError === "invalid") {
+      toast("Kein gueltiger YouTube-Link erkannt.", "error");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }
+
   function retryHint(error) {
     if (!error?.retryAfterSeconds) {
       return "";
@@ -322,6 +360,7 @@
     copyText(appConfig.joinUrl, "Party-Link kopiert.");
   });
 
+  applySharedLinkFromQuery();
   connectLive(renderState);
   apiFetch(`/api/state?deviceId=${encodeURIComponent(getDeviceId())}&role=guest`)
     .then(renderState)

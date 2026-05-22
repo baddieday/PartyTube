@@ -286,10 +286,13 @@ def _resolved_settings(request: Request) -> dict[str, Any]:
         runtime_settings.get("partyScreenShowSkipStatus"),
         settings.party_screen_show_skip_status,
     )
-    max_songs_per_device = _runtime_int(
-        runtime_settings.get("maxSongsPerDevice"),
-        settings.max_songs_per_device,
-        minimum=1,
+    max_songs_per_device = min(
+        100,
+        _runtime_int(
+            runtime_settings.get("maxSongsPerDevice"),
+            settings.max_songs_per_device,
+            minimum=1,
+        ),
     )
     max_queue_items = _runtime_int(
         runtime_settings.get("maxQueueItems"),
@@ -534,9 +537,9 @@ def _ensure_device_not_muted(device_id: str) -> None:
     muted = store.is_device_muted(device_id)
     if not muted:
         return
-    detail = "Dieses Geraet wurde voruebergehend gesperrt."
+    detail = "Dieses Gerät wurde vorübergehend gesperrt."
     if muted.get("expiresAt"):
-        detail = "Dieses Geraet wurde voruebergehend gesperrt. Bitte spaeter erneut versuchen."
+        detail = "Dieses Gerät wurde vorübergehend gesperrt. Bitte später erneut versuchen."
     raise HTTPException(status_code=403, detail=detail)
 
 
@@ -674,7 +677,7 @@ async def health() -> dict[str, str]:
 @app.get("/metrics")
 async def metrics_endpoint() -> PlainTextResponse:
     if not settings.enable_metrics:
-        raise HTTPException(status_code=404, detail="Nicht verfuegbar.")
+        raise HTTPException(status_code=404, detail="Nicht verfügbar.")
     state = store.get_state()
     metrics.set_gauge("songs_active", state["stats"]["activeCount"])
     metrics.set_gauge("messages_visible", state["stats"]["messageCount"])
@@ -785,7 +788,7 @@ async def qr_page(request: Request) -> HTMLResponse:
 async def history_page(request: Request) -> HTMLResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["history_public"] and not is_admin_request(request, store):
-        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur fuer den Host sichtbar.")
+        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur für den Host sichtbar.")
     return templates.TemplateResponse("history.html", _template_context(request, "history"))
 
 
@@ -816,7 +819,7 @@ async def manifest(request: Request) -> JSONResponse:
         {
             "name": f"{settings.app_name} - {resolved_settings['party_name']}",
             "short_name": settings.app_name,
-            "description": "Lokale Party-Jukebox fuer YouTube-Links, Voting und TV-Screen im Heimnetz.",
+            "description": "Lokale Party-Jukebox für YouTube-Links, Voting und TV-Screen im Heimnetz.",
             "start_url": "/",
             "scope": "/",
             "display": "standalone",
@@ -956,7 +959,10 @@ async def api_admin_update_settings(request: Request) -> JSONResponse:
     party_screen_show_skip_status = bool(
         payload.get("partyScreenShowSkipStatus", settings.party_screen_show_skip_status)
     )
-    max_songs_per_device = _runtime_int(payload.get("maxSongsPerDevice"), settings.max_songs_per_device, minimum=1)
+    max_songs_per_device = min(
+        100,
+        _runtime_int(payload.get("maxSongsPerDevice"), settings.max_songs_per_device, minimum=1),
+    )
     max_queue_items = _runtime_int(payload.get("maxQueueItems"), settings.max_queue_items, minimum=1)
 
     if base_url:
@@ -1038,7 +1044,7 @@ async def add_song(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     url = str(payload.get("url", "")).strip()
     if not url:
-        raise HTTPException(status_code=400, detail="Bitte fuege einen YouTube-Link ein.")
+        raise HTTPException(status_code=400, detail="Bitte füge einen YouTube-Link ein.")
     if len(url) > settings.max_url_length:
         raise HTTPException(status_code=400, detail="Der Link ist zu lang.")
 
@@ -1048,7 +1054,7 @@ async def add_song(request: Request) -> JSONResponse:
     if store.count_active_songs_for_device(device_id) >= resolved_settings["max_songs_per_device"]:
         raise HTTPException(
             status_code=409,
-            detail=f"Dieses Geraet hat bereits {resolved_settings['max_songs_per_device']} aktive Songs in der Queue.",
+            detail=f"Dieses Gerät hat bereits {resolved_settings['max_songs_per_device']} aktive Songs in der Queue.",
         )
 
     await rate_limiter.check(
@@ -1095,7 +1101,7 @@ async def add_song(request: Request) -> JSONResponse:
 async def vote_song(song_id: int, request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["voting_enabled"]:
-        raise HTTPException(status_code=403, detail="Voting ist fuer diese Party aktuell deaktiviert.")
+        raise HTTPException(status_code=403, detail="Voting ist für diese Party aktuell deaktiviert.")
 
     payload = await request.json()
     device_id = _record_activity_from_payload(request, payload, role="guest")
@@ -1122,13 +1128,13 @@ async def vote_song(song_id: int, request: Request) -> JSONResponse:
 async def skip_vote_current(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["skip_voting_enabled"]:
-        raise HTTPException(status_code=403, detail="Skip-Voting ist fuer diese Party aktuell deaktiviert.")
+        raise HTTPException(status_code=403, detail="Skip-Voting ist für diese Party aktuell deaktiviert.")
 
     payload = await request.json()
     guest_name = _sanitize_guest_name(payload.get("guestName"))
     device_id = _record_activity_from_payload(request, payload, role="guest")
     if not device_id or len(device_id) < 8:
-        raise HTTPException(status_code=400, detail="Ungueltiges Geraet. Bitte lade die Seite neu.")
+        raise HTTPException(status_code=400, detail="Ungültiges Gerät. Bitte lade die Seite neu.")
     _ensure_device_not_muted(device_id)
     await rate_limiter.check(
         f"skip:{_client_ip(request)}:{device_id}",
@@ -1158,7 +1164,7 @@ async def skip_vote_current(request: Request) -> JSONResponse:
 async def delete_skip_vote_current(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["skip_voting_enabled"]:
-        raise HTTPException(status_code=403, detail="Skip-Voting ist fuer diese Party aktuell deaktiviert.")
+        raise HTTPException(status_code=403, detail="Skip-Voting ist für diese Party aktuell deaktiviert.")
     payload = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
     device_id = _record_activity_from_payload(request, payload, role="guest")
     try:
@@ -1177,7 +1183,7 @@ async def delete_skip_vote_current(request: Request) -> JSONResponse:
 async def add_message(request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["chat_enabled"]:
-        raise HTTPException(status_code=403, detail="Der Chat ist fuer diese Party aktuell deaktiviert.")
+        raise HTTPException(status_code=403, detail="Der Chat ist für diese Party aktuell deaktiviert.")
 
     payload = await request.json()
     device_id = _record_activity_from_payload(request, payload, role="guest")
@@ -1340,7 +1346,7 @@ async def admin_export(request: Request) -> JSONResponse:
 async def api_history(request: Request, status: str = "all", q: str = "") -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["history_public"] and not is_admin_request(request, store):
-        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur fuer den Host sichtbar.")
+        raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur für den Host sichtbar.")
     return JSONResponse({"ok": True, "history": store.get_history(status_filter=status, search=q)})
 
 
@@ -1348,7 +1354,7 @@ async def api_history(request: Request, status: str = "all", q: str = "") -> JSO
 async def api_readd_history_song(song_id: int, request: Request) -> JSONResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["readd_enabled"] and not is_admin_request(request, store):
-        raise HTTPException(status_code=403, detail="Re-Add ist fuer diese Party aktuell deaktiviert.")
+        raise HTTPException(status_code=403, detail="Re-Add ist für diese Party aktuell deaktiviert.")
     payload = await request.json()
     guest_name = _sanitize_guest_name(payload.get("guestName"))
     device_id = _record_activity_from_payload(request, payload, role="guest")
@@ -1356,7 +1362,7 @@ async def api_readd_history_song(song_id: int, request: Request) -> JSONResponse
     if store.count_active_songs_for_device(device_id) >= resolved_settings["max_songs_per_device"]:
         raise HTTPException(
             status_code=409,
-            detail=f"Dieses Geraet hat bereits {resolved_settings['max_songs_per_device']} aktive Songs in der Queue.",
+            detail=f"Dieses Gerät hat bereits {resolved_settings['max_songs_per_device']} aktive Songs in der Queue.",
         )
     await rate_limiter.check(
         f"readd:{_client_ip(request)}:{device_id}",
@@ -1426,7 +1432,7 @@ async def player_ended(request: Request) -> JSONResponse:
     if not candidate:
         raise HTTPException(status_code=401, detail="Player-Token fehlt.")
     if not validate_player_token(candidate, settings, resolved_settings["party_code"]):
-        raise HTTPException(status_code=403, detail="Player-Token ungueltig.")
+        raise HTTPException(status_code=403, detail="Player-Token ungültig.")
     store.mark_current_played("ended")
     metrics.increment("player_ended_events")
     await _broadcast_state()
@@ -1436,7 +1442,7 @@ async def player_ended(request: Request) -> JSONResponse:
 @app.post("/api/test/reset")
 async def test_reset(request: Request) -> JSONResponse:
     if not settings.test_mode:
-        raise HTTPException(status_code=404, detail="Nicht verfuegbar.")
+        raise HTTPException(status_code=404, detail="Nicht verfügbar.")
     store.reset_party()
     store.clear_runtime_settings()
     store.clear_admin_sessions()

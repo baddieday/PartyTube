@@ -7,7 +7,7 @@ test.beforeEach(async ({ request }) => {
   await resetTestState(request);
 });
 
-test("PWA: Manifest enthaelt Share Target und gueltige Icons", async ({ request }) => {
+test("PWA: Manifest enthaelt Share Target und gültige Icons", async ({ request }) => {
   const response = await request.get("/manifest.webmanifest");
   expect(response.ok()).toBeTruthy();
   expect(response.headers()["content-type"]).toContain("application/manifest+json");
@@ -30,7 +30,7 @@ test("PWA: Manifest enthaelt Share Target und gueltige Icons", async ({ request 
   });
 });
 
-test("Share Target: gueltige YouTube-Links werden serverseitig auf die Gastseite umgeleitet", async ({ request }) => {
+test("Share Target: gültige YouTube-Links werden serverseitig auf die Gastseite umgeleitet", async ({ request }) => {
   const viaUrl = await request.get(`/share-target?url=${encodeURIComponent(SAMPLE_URLS.watch)}`, {
     maxRedirects: 0,
   });
@@ -59,7 +59,7 @@ test("Share Target: gueltige YouTube-Links werden serverseitig auf die Gastseite
   expect(invalid.headers().location).toBe("/?share_error=invalid");
 });
 
-test("Share Target: Gastseite uebernimmt geteilte Links nur als Vorbelegung", async ({ page }) => {
+test("Share Target: Gastseite übernimmt geteilte Links nur als Vorbelegung", async ({ page }) => {
   await page.goto(`/?shared_url=${encodeURIComponent(SAMPLE_URLS.watch)}`);
 
   await expect(page.getByLabel("YouTube-Link")).toHaveValue(SAMPLE_URLS.watch);
@@ -67,7 +67,7 @@ test("Share Target: Gastseite uebernimmt geteilte Links nur als Vorbelegung", as
   await expect(page.locator("[data-song-id]")).toHaveCount(0);
 });
 
-test("Share Target: Teilen-Flow reicht einen gueltigen Link automatisch ein", async ({ page }) => {
+test("Share Target: Teilen-Flow reicht einen gültigen Link automatisch ein", async ({ page }) => {
   await page.goto(`/share-target?url=${encodeURIComponent(SAMPLE_URLS.watch)}`);
 
   await expect(page.locator(".toast").filter({ hasText: "Geteilter Song ist live:" }).last()).toBeVisible();
@@ -76,9 +76,9 @@ test("Share Target: Teilen-Flow reicht einen gueltigen Link automatisch ein", as
   await expect(page.getByLabel("YouTube-Link")).toHaveValue("");
 });
 
-test("Share Target: ungueltige Daten zeigen einen kurzen Fehler", async ({ page }) => {
+test("Share Target: ungültige Daten zeigen einen kurzen Fehler", async ({ page }) => {
   await page.goto("/?share_error=invalid");
 
-  await expect(page.locator(".toast").filter({ hasText: "Kein gueltiger YouTube-Link erkannt." }).last()).toBeVisible();
+  await expect(page.locator(".toast").filter({ hasText: "Kein gültiger YouTube-Link erkannt." }).last()).toBeVisible();
   await expect(page.getByLabel("YouTube-Link")).toHaveValue("");
 });

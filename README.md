@@ -1,6 +1,6 @@
 # PartyTube
 
-PartyTube ist eine lokale Party-Jukebox fuer YouTube im Heimnetz. Gaeste oeffnen eine Webseite im Browser, fuegen Songs zur Queue hinzu, voten live mit und sehen auf TV oder Beamer, was gerade laeuft.
+PartyTube ist eine lokale Party-Jukebox für YouTube im Heimnetz. Gäste öffnen eine Webseite im Browser, fügen Songs zur Queue hinzu, voten live mit und sehen auf TV oder Beamer, was gerade läuft.
 
 ## Installation mit Docker
 
@@ -13,7 +13,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Danach ist PartyTube standardmaessig unter Port `8088` erreichbar.
+Danach ist PartyTube standardmäßig unter Port `8088` erreichbar.
 
 ```text
 http://<SERVER-IP>:8088/
@@ -53,8 +53,8 @@ docker compose -f docker-compose.yml -f docker-compose.https.yml up -d --build
 
 Hinweis:
 
-- Wenn auf dem Host bereits ein Reverse Proxy auf Port `80` laeuft, `HTTP_PUBLIC_PORT` in `.env` auf einen freien Port setzen, z. B. `8089`.
-- Fuer die eigentliche PWA-Installation und das Teilen-Menue ist `HTTPS_PUBLIC_PORT=443` die wichtige Einstellung.
+- Wenn auf dem Host bereits ein Reverse Proxy auf Port `80` läuft, `HTTP_PUBLIC_PORT` in `.env` auf einen freien Port setzen, z. B. `8089`.
+- Für die eigentliche PWA-Installation und das Teilen-Menü ist `HTTPS_PUBLIC_PORT=443` die wichtige Einstellung.
 
 6. Root-CA aus Caddy exportieren:
 
@@ -70,16 +70,16 @@ Windows PowerShell:
 ./scripts/export-caddy-root-cert.ps1
 ```
 
-7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geraeten als vertrauenswuerdige CA installieren.
-8. Danach `https://party.lokal` im Browser neu oeffnen.
+7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geräten als vertrauenswürdige CA installieren.
+8. Danach `https://party.lokal` im Browser neu öffnen.
 
 ### Warum dieser Weg?
 
-- Fuer lokale Hostnamen ist ein echter HTTPS-Kontext noetig.
-- Caddy erzeugt dafuer lokal eine eigene CA und signiert automatisch das Zertifikat fuer `party.lokal`.
-- Damit andere Geraete im WLAN diese Verbindung vertrauen, muessen sie das Root-Zertifikat kennen.
+- Für lokale Hostnamen ist ein echter HTTPS-Kontext nötig.
+- Caddy erzeugt dafür lokal eine eigene CA und signiert automatisch das Zertifikat für `party.lokal`.
+- Damit andere Geräte im WLAN diese Verbindung vertrauen, müssen sie das Root-Zertifikat kennen.
 
-Status pruefen:
+Status prüfen:
 
 ```bash
 docker compose ps
@@ -98,7 +98,7 @@ Update auf einem Docker-Server:
 ./scripts/deploy-local.sh
 ```
 
-Das Skript zieht den aktuellen Git-Stand, baut den Container neu, startet ihn und prueft `/health`.
+Das Skript zieht den aktuellen Git-Stand, baut den Container neu, startet ihn und prüft `/health`.
 Wenn der Serverordner noch kein Git-Repo ist, PartyTube dort einmal sauber klonen. Nach UI-Updates hilft im Browser ggf. `Strg+F5`.
 
 Stoppen:
@@ -136,10 +136,10 @@ PORT=8088 uvicorn app.main:app --host 0.0.0.0 --port 8088
 
 ## Erste Einrichtung
 
-1. `.env` oeffnen.
-2. `HOST_IP` auf die IP des Rechners setzen, auf dem PartyTube laeuft.
+1. `.env` öffnen.
+2. `HOST_IP` auf die IP des Rechners setzen, auf dem PartyTube läuft.
 3. `BASE_URL` passend setzen, z. B. `http://192.168.178.77:8088`.
-4. `ADMIN_PIN` aendern.
+4. `ADMIN_PIN` ändern.
 5. `SESSION_SECRET` und `PLAYER_TOKEN_SECRET` durch eigene lange Zufallswerte ersetzen.
 6. Optional WLAN-Daten setzen, wenn ein WLAN-QR-Code angezeigt werden soll.
 7. App neu starten.
@@ -154,12 +154,12 @@ docker compose restart app
 
 | Seite | Zweck |
 |---|---|
-| `/` | Gaeste-Ansicht zum Hinzufuegen, Voten und Chatten |
+| `/` | Gäste-Ansicht zum Hinzufügen, Voten und Chatten |
 | `/start` | Host-Startseite mit QR-Codes und Startlinks |
-| `/admin` | Admin-Bereich fuer Queue, Moderation und Einstellungen |
+| `/admin` | Admin-Bereich für Queue, Moderation und Einstellungen |
 | `/player` | TV-/Beamer-Ansicht mit Video |
-| `/audio` | separates Audio-Fenster fuer stabile Wiedergabe |
-| `/party-screen` | QR- und Info-Screen fuer Gaeste |
+| `/audio` | separates Audio-Fenster für stabile Wiedergabe |
+| `/party-screen` | QR- und Info-Screen für Gäste |
 | `/history` | Verlauf der gespielten Songs |
 | `/qr` | druckbare QR-Posteransicht |
 | `/health` | Healthcheck |
@@ -167,31 +167,31 @@ docker compose restart app
 ## Nutzung auf einer Party
 
 1. PartyTube starten.
-2. `/admin` oeffnen und mit der Host-PIN anmelden.
-3. `/start` oeffnen.
-4. QR-Code oder Link mit den Gaesten teilen.
+2. `/admin` öffnen und mit der Host-PIN anmelden.
+3. `/start` öffnen.
+4. QR-Code oder Link mit den Gästen teilen.
 5. `Audio + TV starten` verwenden.
 6. Das Audio-Fenster offen lassen, damit die Wiedergabe stabil bleibt.
 
 Hinweise:
 
-- Gaeste brauchen keine App, nur einen Browser im gleichen Netzwerk.
+- Gäste brauchen keine App, nur einen Browser im gleichen Netzwerk.
 - YouTube-Autoplay kann je nach Browser blockiert werden. Dann einmal manuell `Playback starten` oder `Audio starten` klicken.
 - Der Party-Code ist eine einfache Einladung, kein starkes Passwort.
 
 ## Funktionen
 
-- YouTube-Queue fuer Partys im lokalen Netzwerk
-- Unterstuetzung fuer `watch`, `youtu.be`, `shorts`, `embed` und direkte YouTube-IDs
+- YouTube-Queue für Partys im lokalen Netzwerk
+- Unterstützung für `watch`, `youtu.be`, `shorts`, `embed` und direkte YouTube-IDs
 - Live-Updates per WebSocket
 - Voting und demokratisches Skip-Voting
 - Chat mit Moderationsfunktionen
 - Admin-Bereich mit Queue-Kontrolle
 - TV-/Beamer-Modus
 - separates Audio-Deck
-- Invite-only-Modus ueber `/join/{party_code}`
+- Invite-only-Modus über `/join/{party_code}`
 - Verlauf, Re-Add und Best-of-Abend
-- QR-Codes fuer Join-Link und optional WLAN
+- QR-Codes für Join-Link und optional WLAN
 - Rate-Limits, Duplicate-Schutz, Admin-Session, CSRF-Schutz und Player-Token
 - SQLite-Datenhaltung mit persistenter Datenbank im `data`-Ordner
 
@@ -203,28 +203,28 @@ Die Konfiguration liegt in `.env`. Vorlage: `.env.example`.
 |---|---|
 | `PORT` | externer Port, Standard `8088` |
 | `PARTYTUBE_DOMAIN` | lokaler HTTPS-Hostname, z. B. `party.lokal` |
-| `HTTP_PUBLIC_PORT` | HTTP-Port fuer den Reverse Proxy, Standard `80` |
-| `HTTPS_PUBLIC_PORT` | HTTPS-Port fuer den Reverse Proxy, Standard `443` |
+| `HTTP_PUBLIC_PORT` | HTTP-Port für den Reverse Proxy, Standard `80` |
+| `HTTPS_PUBLIC_PORT` | HTTPS-Port für den Reverse Proxy, Standard `443` |
 | `HOST_IP` | IP-Adresse des PartyTube-Hosts |
-| `BASE_URL` | Basis-URL fuer Links und QR-Codes |
+| `BASE_URL` | Basis-URL für Links und QR-Codes |
 | `PARTY_NAME` | angezeigter Name der Party |
-| `PARTY_CODE` | Code fuer Invite-only-Links |
+| `PARTY_CODE` | Code für Invite-only-Links |
 | `INVITE_ONLY_MODE` | aktiviert die Join-Code-Seite |
-| `ADMIN_PIN` | PIN fuer den Admin-Bereich |
-| `SESSION_SECRET` | Wert fuer Admin-Sessions |
-| `PLAYER_TOKEN_SECRET` | Wert fuer Player-Events |
-| `WIFI_SSID` | WLAN-Name fuer optionale Anzeige |
+| `ADMIN_PIN` | PIN für den Admin-Bereich |
+| `SESSION_SECRET` | Wert für Admin-Sessions |
+| `PLAYER_TOKEN_SECRET` | Wert für Player-Events |
+| `WIFI_SSID` | WLAN-Name für optionale Anzeige |
 | `WIFI_QR_ENABLED` | aktiviert WLAN-QR-Code |
-| `SHOW_WIFI_PASSWORD_ON_SCREEN` | steuert, ob der WLAN-Schluessel angezeigt wird |
-| `SKIP_VOTE_THRESHOLD_PERCENT` | Schwelle fuer demokratisches Skippen |
-| `MAX_QUEUE_ITEMS` | maximale Queue-Laenge |
+| `SHOW_WIFI_PASSWORD_ON_SCREEN` | steuert, ob der WLAN-Schlüssel angezeigt wird |
+| `SKIP_VOTE_THRESHOLD_PERCENT` | Schwelle für demokratisches Skippen |
+| `MAX_QUEUE_ITEMS` | maximale Queue-Länge |
 | `ENABLE_METRICS` | aktiviert `/metrics` |
 
-Empfehlung fuer Partys:
+Empfehlung für Partys:
 
-- `ADMIN_PIN` vor der Nutzung aendern.
+- `ADMIN_PIN` vor der Nutzung ändern.
 - `SESSION_SECRET` und `PLAYER_TOKEN_SECRET` setzen.
-- `SHOW_WIFI_PASSWORD_ON_SCREEN=false` lassen, wenn der Screen fuer viele sichtbar ist.
+- `SHOW_WIFI_PASSWORD_ON_SCREEN=false` lassen, wenn der Screen für viele sichtbar ist.
 - `WIFI_QR_ENABLED` nur bewusst aktivieren.
 
 ## Tests
@@ -250,7 +250,7 @@ npm run test:accessibility
 npm run test:load
 ```
 
-Compose-Konfiguration fuer HTTPS pruefen:
+Compose-Konfiguration für HTTPS prüfen:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.https.yml config
@@ -290,11 +290,11 @@ docker-compose.yml   lokaler Docker-Start
 
 ## Bekannte Grenzen
 
-- PartyTube ist primaer fuer das lokale Netzwerk gedacht.
-- YouTube kann Autoplay je nach Browser oder Geraet blockieren.
+- PartyTube ist primär für das lokale Netzwerk gedacht.
+- YouTube kann Autoplay je nach Browser oder Gerät blockieren.
 - Titel- und Dauerermittlung ohne API-Key ist best effort.
-- Invite-only ersetzt keine vollstaendige Internet-Absicherung.
-- WLAN-Zugangsdaten sollten nicht unueberlegt auf einem Beamer angezeigt werden.
+- Invite-only ersetzt keine vollständige Internet-Absicherung.
+- WLAN-Zugangsdaten sollten nicht unüberlegt auf einem Beamer angezeigt werden.
 
 ## Lizenz
 

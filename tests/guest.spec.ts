@@ -9,7 +9,7 @@ test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async (
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Song einreichen/i })).toBeVisible();
   await openDetailsByHeading(page, "Extras");
-  await expect(page.getByAltText("Kleiner QR-Code fuer die Party-Seite")).toBeVisible();
+  await expect(page.getByAltText("Kleiner QR-Code für die Party-Seite")).toBeVisible();
   await expect(page.locator("#queue-duration")).toBeVisible();
 
   await addSong(page, SAMPLE_URLS.watch, "Gast A");
@@ -23,7 +23,7 @@ test("Gastmodus: Startseite, Linktypen, Fehler und Duplicate-Erkennung", async (
 
   await page.getByLabel("YouTube-Link").fill("https://example.com/not-youtube");
   await page.getByRole("button", { name: "Song in die Queue" }).click();
-  await expectToast(page, "Bitte gib einen gueltigen YouTube-Link ein.");
+  await expectToast(page, "Bitte gib einen gültigen YouTube-Link ein.");
 
   await page.getByLabel("YouTube-Link").fill(SAMPLE_URLS.watch);
   await page.getByRole("button", { name: "Song in die Queue" }).click();

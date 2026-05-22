@@ -170,7 +170,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackControls("Browser blockiert? Play druecken.");
+    showPlaybackControls("Browser blockiert? Play drücken.");
     return true;
   }
 
@@ -194,7 +194,7 @@
     }
 
     player.cueVideoById({ videoId: song.videoId, startSeconds });
-    showPlaybackControls("Browser blockiert? Play druecken.");
+    showPlaybackControls("Browser blockiert? Play drücken.");
   }
 
   function renderState(payload) {
@@ -295,7 +295,7 @@
           }
           if (event.data === window.YT.PlayerState.CUED || event.data === window.YT.PlayerState.UNSTARTED) {
             if (!hasActivation()) {
-              showPlaybackControls("Browser blockiert? Play druecken.");
+              showPlaybackControls("Browser blockiert? Play drücken.");
             }
           }
           if (event.data === window.YT.PlayerState.PLAYING) {
@@ -306,7 +306,7 @@
           }
         },
         onError: () => {
-          toast("YouTube-Fehler. Naechsten Song starten.", "error");
+          toast("YouTube-Fehler. Nächsten Song starten.", "error");
         },
       },
     });

@@ -180,7 +180,7 @@ def load_settings() -> Settings:
         party_screen_show_active_guests=_bool_env("PARTY_SCREEN_SHOW_ACTIVE_GUESTS", True),
         party_screen_show_skip_status=_bool_env("PARTY_SCREEN_SHOW_SKIP_STATUS", True),
         max_queue_items=_int_env("MAX_QUEUE_ITEMS", 100),
-        max_songs_per_device=_int_env("MAX_SONGS_PER_DEVICE", 5),
+        max_songs_per_device=min(100, _int_env("MAX_SONGS_PER_DEVICE", 100)),
         max_guest_name_length=_int_env("MAX_GUEST_NAME_LENGTH", 32),
         max_url_length=_int_env("MAX_URL_LENGTH", 500),
         max_message_length=_int_env("MAX_MESSAGE_LENGTH", 240),

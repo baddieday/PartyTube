@@ -21,7 +21,7 @@ test("Chat: Nachricht senden, live anzeigen, XSS nicht ausfuehren und Admin-Loes
 
   await expect(adminPage.locator("#admin-message-list")).toContainText("<img src=x onerror=alert(1)> Halloooo");
   await adminPage.locator("#admin-message-list [data-action='delete-message']").first().click();
-  await expectToast(adminPage, "Nachricht geloescht.");
+  await expectToast(adminPage, "Nachricht gelöscht.");
   await expect(page.locator("#chat-list")).not.toContainText("Halloooo");
 
   await adminContext.close();

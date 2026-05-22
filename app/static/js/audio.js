@@ -243,7 +243,7 @@
         },
         onError: () => {
           writeWindowState("error", stateStore.current?.title || "");
-          toast("Audio-Fehler. Start druecken.", "error");
+          toast("Audio-Fehler. Start drücken.", "error");
         },
       },
     });

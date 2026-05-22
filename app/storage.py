@@ -263,15 +263,15 @@ class PartyStore:
 
     def _status_label(self, status: str, completed_reason: str | None = None) -> str:
         if status == "current":
-            return "Laeuft gerade"
+            return "Läuft gerade"
         if status == "queued":
             return "In der Queue"
         if status == "played":
             return "Gespielt"
         if status == "skipped_by_vote":
-            return "Demokratisch uebersprungen"
+            return "Demokratisch übersprungen"
         if status == "skipped":
-            return "Uebersprungen"
+            return "Übersprungen"
         if status == "removed":
             return "Entfernt" if completed_reason != "cleared" else "Aus Queue geleert"
         return status
@@ -618,7 +618,7 @@ class PartyStore:
                 "SELECT id FROM songs WHERE status = 'current' LIMIT 1"
             ).fetchone()
             if not current:
-                raise NotFoundError("Aktuell laeuft kein Song.")
+                raise NotFoundError("Aktuell läuft kein Song.")
 
             try:
                 self.connection.execute(
@@ -629,7 +629,7 @@ class PartyStore:
                     (current["id"], device_id[:80], guest_name[:80], now),
                 )
             except sqlite3.IntegrityError as exc:
-                raise AlreadySkipVotedError("Dieses Geraet hat fuer den aktuellen Song bereits Skip gevotet.") from exc
+                raise AlreadySkipVotedError("Dieses Gerät hat für den aktuellen Song bereits Skip gevotet.") from exc
 
             status = self.get_skip_status(
                 device_id=device_id,
@@ -665,7 +665,7 @@ class PartyStore:
                 "SELECT id FROM songs WHERE status = 'current' LIMIT 1"
             ).fetchone()
             if not current:
-                raise NotFoundError("Aktuell laeuft kein Song.")
+                raise NotFoundError("Aktuell läuft kein Song.")
             self.connection.execute(
                 "DELETE FROM skip_votes WHERE song_id = ? AND device_id = ?",
                 (current["id"], device_id[:80]),
@@ -779,7 +779,7 @@ class PartyStore:
                     (song_id, device_id, now),
                 )
             except sqlite3.IntegrityError as exc:
-                raise AlreadyVotedError("Dieses Geraet hat fuer den Song schon gevotet.") from exc
+                raise AlreadyVotedError("Dieses Gerät hat für den Song schon gevotet.") from exc
 
             self.connection.execute("UPDATE songs SET votes = votes + 1 WHERE id = ?", (song_id,))
             return self._query_song("SELECT * FROM songs WHERE id = ?", (song_id,)) or {}

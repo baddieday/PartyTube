@@ -47,8 +47,8 @@
         </div>
         <div class="status-stack">
             <div class="status-row">
-                <span class="counter-pill" id="start-host-auth">Host-Login prueft...</span>
-                <span class="subtle-note" id="start-host-auth-note">Login pruefen.</span>
+                <span class="counter-pill" id="start-host-auth">Host-Login prüft...</span>
+                <span class="subtle-note" id="start-host-auth-note">Login prüfen.</span>
             </div>
             <div class="status-row">
                 <span class="counter-pill" id="start-audio-state">Audio-Fenster aus</span>
@@ -59,7 +59,7 @@
                 <span class="subtle-note">Video stumm.</span>
             </div>
             <div class="status-row">
-                <span class="counter-pill">Gaeste auf /</span>
+                <span class="counter-pill">Gäste auf /</span>
                 <span class="subtle-note">Queue live.</span>
             </div>
         </div>
@@ -83,7 +83,7 @@
             <p class="eyebrow">Mehr</p>
             <h2>Links und QR</h2>
         </div>
-        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+        <span class="counter-pill collapsible-indicator">Öffnen</span>
     </summary>
 <section class="layout-grid embedded-grid">
     <article class="panel">
@@ -133,12 +133,12 @@
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Queue</p>
-                <h2>Ueberblick</h2>
+                <h2>Überblick</h2>
             </div>
         </div>
         <div class="meta-grid queue-meta-grid">
             <div class="meta-card">
-                <span class="eyebrow">Als naechstes</span>
+                <span class="eyebrow">Als nächstes</span>
                 <strong id="start-next-song">Noch offen</strong>
             </div>
             <div class="meta-card">
@@ -160,13 +160,13 @@
     <div class="compact-qr-grid">
         <article class="compact-qr-card">
             <span class="tag-pill">Party Join</span>
-            <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+            <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code für die Party-Seite">
             <p class="compact-qr-text">{{ settings.join_url }}</p>
         </article>
         <article class="compact-qr-card">
             <span class="tag-pill">WLAN</span>
             {% if wifi_qr_data_uri %}
-            <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+            <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code für das WLAN">
             <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
             {% else %}
             <div class="compact-qr-placeholder">
@@ -194,7 +194,7 @@
     <article class="panel">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Naechstes</p>
+                <p class="eyebrow">Nächstes</p>
                 <h2>Queue</h2>
             </div>
             <span class="counter-pill" id="start-queue-count">0 offen</span>

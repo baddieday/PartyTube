@@ -16,7 +16,7 @@
 
   function render(bestOf) {
     if (!bestOf.length) {
-      list.innerHTML = emptyState("Noch keine abgeschlossenen Songs fuer ein Best-of.");
+      list.innerHTML = emptyState("Noch keine abgeschlossenen Songs für ein Best-of.");
       return;
     }
     list.innerHTML = bestOf

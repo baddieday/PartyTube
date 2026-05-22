@@ -5,7 +5,7 @@ test.beforeEach(async ({ request }) => {
   await resetTestState(request);
 });
 
-test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", async ({ page }) => {
+test("History: gespielt, übersprungen, entfernt, Re-Add, Exporte und Best-of", async ({ page }) => {
   await page.goto("/");
   await addSong(page, SAMPLE_URLS.watch, "Gast A");
   await addSong(page, SAMPLE_URLS.short, "Gast B");
@@ -15,14 +15,14 @@ test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", 
   await page.getByRole("button", { name: "Gespielt" }).click();
   await expectToast(page, "Als gespielt markiert.");
   await page.locator("#skip-current").click();
-  await expectToast(page, "Song uebersprungen.");
+  await expectToast(page, "Song übersprungen.");
   await page.locator("#admin-current-song [data-action='remove']").click();
   await expectToast(page, "Song entfernt.");
 
   await page.goto("/history");
   await expect(page.getByRole("heading", { name: "Verlauf" })).toBeVisible();
   await expect(page.locator("#history-page-list")).toContainText("Gespielt");
-  await expect(page.locator("#history-page-list")).toContainText("Uebersprungen");
+  await expect(page.locator("#history-page-list")).toContainText("Übersprungen");
   await expect(page.locator("#history-page-list")).toContainText("Entfernt");
 
   await page.locator("#history-page-list [data-action='readd-history']").first().click();
@@ -57,10 +57,10 @@ test("History: gespielt, uebersprungen, entfernt, Re-Add, Exporte und Best-of", 
   await expect(page.locator("#best-of-list .best-of-card")).toHaveCount(3);
 });
 
-test("History: HISTORY_PUBLIC=false sperrt Gaeste, Admin bleibt erlaubt", async ({ page, request }) => {
+test("History: HISTORY_PUBLIC=false sperrt Gäste, Admin bleibt erlaubt", async ({ page, request }) => {
   await loginAsAdmin(page);
   await openAdminSettings(page);
-  await page.getByLabel("Verlauf fuer Gaeste sichtbar").uncheck();
+  await page.getByLabel("Verlauf für Gäste sichtbar").uncheck();
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");
 

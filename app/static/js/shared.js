@@ -204,7 +204,7 @@ function songMetaChips(song) {
     chips.push('<span class="tag-pill">Priorisiert</span>');
   }
   if (Number.isFinite(song.readdCount) && song.readdCount > 0) {
-    chips.push(`<span class="tag-pill">${song.readdCount}x erneut gewuenscht</span>`);
+    chips.push(`<span class="tag-pill">${song.readdCount}x erneut gewünscht</span>`);
   }
   if (Number.isFinite(song.durationSeconds)) {
     chips.push(`<span class="tag-pill">${formatDuration(song.durationSeconds)}</span>`);
@@ -242,12 +242,12 @@ function songCard(song, options = {}) {
           ${song.guestName ? `von <strong>${escapeHtml(song.guestName)}</strong>` : "von einem Gast"}
           <span class="dot-sep"></span>
           ${relativeTime(song.addedAt)}
-          ${song.submitterLabel ? `<span class="dot-sep"></span>Geraet ${escapeHtml(song.submitterLabel)}` : ""}
+          ${song.submitterLabel ? `<span class="dot-sep"></span>Gerät ${escapeHtml(song.submitterLabel)}` : ""}
         </p>
         ${completedAt ? `<p class="song-subline">${escapeHtml(song.statusLabel || "Abgeschlossen")} ${relativeTime(completedAt)}</p>` : ""}
         ${
           song.readdedFromSongId
-            ? `<p class="song-subline">erneut hinzugefuegt aus Verlauf #${escapeHtml(song.readdedFromSongId)}</p>`
+            ? `<p class="song-subline">erneut hinzugefügt aus Verlauf #${escapeHtml(song.readdedFromSongId)}</p>`
             : ""
         }
         <div class="song-actions">
@@ -262,15 +262,15 @@ function songCard(song, options = {}) {
             adminMode
               ? `
                 ${["queued", "current"].includes(song.status) ? `<button class="chip-button" data-action="pin">${song.pinned ? "Entpinnen" : "Priorisieren"}</button>` : ""}
-                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="clear-device">Geraet-Songs loeschen</button>' : ""}
-                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="mute-device">Geraet sperren</button>' : ""}
+                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="clear-device">Gerät-Songs löschen</button>' : ""}
+                ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="mute-device">Gerät sperren</button>' : ""}
                 ${["queued", "current"].includes(song.status) ? '<button class="chip-button danger" data-action="remove">Entfernen</button>' : ""}
               `
               : ""
           }
           ${
             canReadd
-              ? `<button class="chip-button" data-action="readd-history">Erneut hinzufuegen</button>`
+              ? `<button class="chip-button" data-action="readd-history">Erneut hinzufügen</button>`
               : ""
           }
           <a class="chip-button link-chip" href="${escapeHtml(song.canonicalUrl)}" target="_blank" rel="noreferrer">YouTube</a>
@@ -293,8 +293,8 @@ function messageCard(message, options = {}) {
         adminMode
           ? `
             <div class="chat-actions">
-              <button class="chip-button danger" data-action="delete-message">Loeschen</button>
-              <button class="chip-button danger" data-action="mute-message-device">Geraet sperren</button>
+              <button class="chip-button danger" data-action="delete-message">Löschen</button>
+              <button class="chip-button danger" data-action="mute-message-device">Gerät sperren</button>
             </div>
           `
           : ""
@@ -508,14 +508,14 @@ function buildAmbientAudioController() {
       title.textContent = "Audio bereit";
       status.textContent = audioStatus.active
         ? "Wartet auf Songs."
-        : "Einmal oeffnen.";
+        : "Einmal öffnen.";
       toggle.textContent = audioStatus.active ? "Audio zeigen" : "Audio";
       return;
     }
 
     title.textContent = currentSong.title;
     if (audioStatus.active && audioStatus.state === "playing") {
-      status.textContent = "Ton laeuft.";
+      status.textContent = "Ton läuft.";
       toggle.textContent = "Audio zeigen";
       return;
     }

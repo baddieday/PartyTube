@@ -122,10 +122,10 @@
             (device) => `
               <article class="muted-card" data-device-id="${device.deviceId}">
                 <div class="chat-line">
-                  <strong>${device.guestName || "Unbekanntes Geraet"}</strong>
-                  <span>Geraet ${device.deviceLabel}</span>
+                  <strong>${device.guestName || "Unbekanntes Gerät"}</strong>
+                  <span>Gerät ${device.deviceLabel}</span>
                 </div>
-                <p>${device.reason || "Temporar gesperrt"}</p>
+                <p>${device.reason || "Temporär gesperrt"}</p>
                 <p class="song-subline">${device.expiresAt ? `bis ${new Date(device.expiresAt).toLocaleString("de-DE")}` : "ohne Ablauf"}</p>
                 <div class="chat-actions">
                   <button class="chip-button" data-action="unmute-device">Freigeben</button>
@@ -134,7 +134,7 @@
             `,
           )
           .join("")
-      : emptyState("Aktuell keine Geraete gesperrt.");
+      : emptyState("Aktuell keine Geräte gesperrt.");
   }
 
   function renderSettings(payload) {
@@ -179,7 +179,7 @@
   function renderSkipStatus(skip) {
     if (!skipStatus) return;
     if (!skip?.currentSongId) {
-      skipStatus.innerHTML = emptyState("Kein aktueller Song fuer Skip-Voting.");
+      skipStatus.innerHTML = emptyState("Kein aktueller Song für Skip-Voting.");
       return;
     }
     skipStatus.innerHTML = `
@@ -189,7 +189,7 @@
           <strong>${skip.currentSkipVoteCount || 0}/${skip.skipVotesNeeded || "-"}</strong>
         </div>
         <div class="meta-card">
-          <span class="eyebrow">Aktive Gaeste</span>
+          <span class="eyebrow">Aktive Gäste</span>
           <strong>${skip.activeGuestCount || 0}</strong>
         </div>
         <div class="meta-card">
@@ -234,7 +234,7 @@
             `,
           )
           .join("")
-      : emptyState("Noch keine abgeschlossenen Songs fuer Best-of.");
+      : emptyState("Noch keine abgeschlossenen Songs für Best-of.");
   }
 
   function renderState(payload) {
@@ -364,7 +364,7 @@
         method: "POST",
         body: JSON.stringify({}),
       });
-      toast(`${payload.removedSongs || 0} Song(s) des Geraets entfernt.`, "success");
+      toast(`${payload.removedSongs || 0} Song(s) des Geräts entfernt.`, "success");
       await loadAdminSettings();
       return;
     }
@@ -373,7 +373,7 @@
         method: "POST",
         body: JSON.stringify({}),
       });
-      toast(`Geraet gesperrt, ${payload.removedSongs || 0} Song(s) entfernt.`, "success");
+      toast(`Gerät gesperrt, ${payload.removedSongs || 0} Song(s) entfernt.`, "success");
       await loadAdminSettings();
     }
   }
@@ -425,7 +425,7 @@
   document.getElementById("skip-current")?.addEventListener("click", async () => {
     try {
       await apiFetch("/api/admin/skip", { method: "POST", body: JSON.stringify({}) });
-      toast("Song uebersprungen.", "success");
+      toast("Song übersprungen.", "success");
     } catch (error) {
       toast(error.message, "error");
     }
@@ -453,20 +453,20 @@
   document.getElementById("reset-skip-votes")?.addEventListener("click", async () => {
     try {
       await apiFetch("/api/admin/current/reset-skip-votes", { method: "POST", body: JSON.stringify({}) });
-      toast("Skip-Votes fuer den aktuellen Song zurueckgesetzt.", "success");
+      toast("Skip-Votes für den aktuellen Song zurückgesetzt.", "success");
     } catch (error) {
       toast(error.message, "error");
     }
   });
 
   document.getElementById("reset-party")?.addEventListener("click", async () => {
-    const confirmed = window.confirm("Wirklich alles fuer einen neuen Abend zuruecksetzen?");
+    const confirmed = window.confirm("Wirklich alles für einen neuen Abend zurücksetzen?");
     if (!confirmed) return;
     try {
       await apiFetch("/api/admin/reset", { method: "POST", body: JSON.stringify({}) });
       clearRememberedVotes();
       await loadAdminSettings();
-      toast("Party wurde komplett zurueckgesetzt.", "success");
+      toast("Party wurde komplett zurückgesetzt.", "success");
     } catch (error) {
       toast(error.message, "error");
     }
@@ -518,7 +518,7 @@
     try {
       if (button.dataset.action === "delete-message") {
         await apiFetch(`/api/admin/messages/${messageId}`, { method: "DELETE" });
-        toast("Nachricht geloescht.", "success");
+        toast("Nachricht gelöscht.", "success");
         return;
       }
       if (button.dataset.action === "mute-message-device") {
@@ -527,7 +527,7 @@
           body: JSON.stringify({}),
         });
         await loadAdminSettings();
-        toast("Geraet des Chat-Users gesperrt.", "success");
+        toast("Gerät des Chat-Users gesperrt.", "success");
       }
     } catch (error) {
       toast(error.message, "error");
@@ -545,7 +545,7 @@
         body: JSON.stringify({}),
       });
       await loadAdminSettings();
-      toast("Geraet wieder freigegeben.", "success");
+      toast("Gerät wieder freigegeben.", "success");
     } catch (error) {
       toast(error.message, "error");
     }

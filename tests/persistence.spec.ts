@@ -45,7 +45,7 @@ async function waitForServer(url: string) {
   throw new Error(`Server ${url} did not start in time`);
 }
 
-test("Persistenz: Queue ueberlebt Server-Neustart", async ({ browser }) => {
+test("Persistenz: Queue überlebt Server-Neustart", async ({ browser }) => {
   const tempDir = path.join(process.cwd(), ".tmp");
   const dbPath = path.join(tempDir, "persist-check.db");
   fs.mkdirSync(tempDir, { recursive: true });

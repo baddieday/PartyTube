@@ -20,7 +20,7 @@
     count.textContent = `${history.length} Song${history.length === 1 ? "" : "s"}`;
     list.innerHTML = history.length
       ? history.map((song) => songCard(song, { historyMode: true })).join("")
-      : emptyState("Noch kein Verlauf fuer diesen Abend.");
+      : emptyState("Noch kein Verlauf für diesen Abend.");
   }
 
   function renderState(payload) {

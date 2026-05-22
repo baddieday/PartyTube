@@ -59,7 +59,7 @@
       return;
     }
     submit.disabled = true;
-    submit.textContent = "Wird hinzugefuegt...";
+    submit.textContent = "Wird hinzugefügt...";
     try {
       const response = await apiFetch("/api/songs", {
         method: "POST",
@@ -111,7 +111,7 @@
     }
 
     if (sharedUrl || shareError === "invalid") {
-      toast("Kein gueltiger YouTube-Link erkannt.", "error");
+      toast("Kein gültiger YouTube-Link erkannt.", "error");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }
@@ -129,14 +129,14 @@
       alerts.push({
         level: "info",
         title: "Invite-only aktiv",
-        detail: "Der Party-Code ist der Einladungslink fuer diese Session. Teile am besten den QR-Code oder `/join/{code}`.",
+        detail: "Der Party-Code ist der Einladungslink für diese Session. Teile am besten den QR-Code oder `/join/{code}`.",
       });
     }
     if (!runtime.votingEnabled) {
       alerts.push({
         level: "warning",
         title: "Voting pausiert",
-        detail: "Voting ist aus. Songs koennen weiter rein.",
+        detail: "Voting ist aus. Songs können weiter rein.",
       });
     }
     if (!runtime.chatEnabled) {
@@ -149,8 +149,8 @@
     if (stateStore.skipVoting?.lastTriggered) {
       alerts.push({
         level: "info",
-        title: "Demokratisch uebersprungen",
-        detail: "Song per Veto beendet. Naechster Track startet.",
+        title: "Demokratisch übersprungen",
+        detail: "Song per Veto beendet. Nächster Track startet.",
       });
       stateStore.skipVoting.lastTriggered = false;
     }
@@ -184,10 +184,10 @@
           <div class="skip-vote-panel" aria-live="polite">
             <div>
               <strong>Song-Veto</strong>
-              <p>${neededText} · ${skip.activeGuestCount || 0} aktive Gaeste · Schwelle ${skip.skipThresholdPercent || stateStore.runtime.skipThresholdPercent}%</p>
+              <p>${neededText} · ${skip.activeGuestCount || 0} aktive Gäste · Schwelle ${skip.skipThresholdPercent || stateStore.runtime.skipThresholdPercent}%</p>
             </div>
             <button class="primary-button" id="skip-vote-button" type="button" ${skip.hasCurrentDeviceSkipVoted ? "disabled" : ""}>
-              ${skip.hasCurrentDeviceSkipVoted ? "Skip-Vote abgegeben" : "Song ueberspringen"}
+              ${skip.hasCurrentDeviceSkipVoted ? "Skip-Vote abgegeben" : "Song überspringen"}
             </button>
           </div>
         `
@@ -215,7 +215,7 @@
   function renderHistory(history) {
     historyList.innerHTML = history.length
       ? history.map((song) => songCard(song, { historyMode: true })).join("")
-      : emptyState("Noch kein Verlauf fuer diesen Abend.");
+      : emptyState("Noch kein Verlauf für diesen Abend.");
   }
 
   function renderMessages(messages, runtime) {
@@ -225,8 +225,8 @@
     }
     if (chatStatusNote) {
       chatStatusNote.textContent = runtime.chatEnabled
-        ? "Live fuer alle."
-        : "Der Host hat den Chat fuer diese Party aktuell deaktiviert.";
+        ? "Live für alle."
+        : "Der Host hat den Chat für diese Party aktuell deaktiviert.";
     }
     chatCount.textContent = `${messages.length} live`;
     messageList.innerHTML = messages.length
@@ -266,7 +266,7 @@
     event.preventDefault();
     const submit = document.getElementById("submit-song");
     submit.disabled = true;
-    submit.textContent = "Wird hinzugefuegt...";
+    submit.textContent = "Wird hinzugefügt...";
     try {
       const response = await apiFetch("/api/songs", {
         method: "POST",
@@ -298,7 +298,7 @@
     const button = event.target.closest("[data-action='vote']");
     if (!button) return;
     if (!stateStore.runtime.votingEnabled) {
-      toast("Voting ist fuer diese Party aktuell deaktiviert.", "error");
+      toast("Voting ist für diese Party aktuell deaktiviert.", "error");
       return;
     }
     const card = button.closest("[data-song-id]");
@@ -332,7 +332,7 @@
         body: JSON.stringify({ deviceId: getDeviceId(), guestName: nameInput?.value || "" }),
       });
       if (response.triggered) {
-        toast("Song wurde demokratisch uebersprungen.", "success");
+        toast("Song wurde demokratisch übersprungen.", "success");
       } else {
         toast("Skip-Vote registriert.", "success");
       }
@@ -373,7 +373,7 @@
   messageForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!stateStore.runtime.chatEnabled) {
-      toast("Der Chat ist fuer diese Party aktuell deaktiviert.", "error");
+      toast("Der Chat ist für diese Party aktuell deaktiviert.", "error");
       return;
     }
     const submit = document.getElementById("submit-message");

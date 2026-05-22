@@ -12,7 +12,7 @@
         {% if not app_config.playerAuthorized %}
         <div class="alert-card alert-warning player-sidebar-section">
             <strong>Host-Link fehlt</strong>
-            <p>Video laeuft. Auto-Weiter ist gesperrt.</p>
+            <p>Video läuft. Auto-Weiter ist gesperrt.</p>
         </div>
         {% endif %}
         <p class="subtle-note" id="player-mode-note">Video am TV. Ton kommt aus dem Audio-Fenster.</p>
@@ -35,7 +35,7 @@
     <div class="panel player-sidebar">
         <div class="panel-header compact">
             <div>
-                <p class="eyebrow">Naechstes</p>
+                <p class="eyebrow">Nächstes</p>
                 <h2>Queue</h2>
             </div>
         </div>
@@ -51,13 +51,13 @@
             <div class="compact-qr-grid compact-qr-grid-tight">
                 <article class="compact-qr-card">
                     <span class="tag-pill">Party Join</span>
-                    <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+                    <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code für die Party-Seite">
                     <p class="compact-qr-text">{{ settings.join_url }}</p>
                 </article>
                 <article class="compact-qr-card">
                     <span class="tag-pill">WLAN</span>
                     {% if wifi_qr_data_uri %}
-                    <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+                    <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code für das WLAN">
                     <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
                     {% else %}
                     <div class="compact-qr-placeholder">

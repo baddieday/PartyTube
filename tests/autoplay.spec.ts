@@ -5,7 +5,7 @@ test.beforeEach(async ({ request }) => {
   await resetTestState(request);
 });
 
-test("Autoplay-Fallback: wenn die Queue leer wird, laeuft der Party-Verlauf weiter", async ({ page, request }) => {
+test("Autoplay-Fallback: wenn die Queue leer wird, läuft der Party-Verlauf weiter", async ({ page, request }) => {
   await loginAsAdmin(page);
   await openAdminSettings(page);
   await page.getByLabel("Autoplay aus Verlauf").check();

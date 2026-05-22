@@ -20,7 +20,7 @@ test("Admin: PIN-Schutz, Entfernen, Skip, Queue leeren und Logout", async ({ pag
 
   await loginAsAdmin(page);
   await page.locator("#skip-current").click();
-  await expectToast(page, "Song uebersprungen.");
+  await expectToast(page, "Song übersprungen.");
 
   await page.locator("#admin-queue-list [data-action='remove']").first().click();
   await expectToast(page, "Song entfernt.");
@@ -42,15 +42,15 @@ test("Admin: Party-, Invite-only- und Live-Settings lassen sich pflegen", async 
 
   await page.getByLabel("Party-Name").fill("Afterwork Mix");
   await page.getByLabel("Party-Code").fill("afterwork");
-  await page.getByLabel("Oeffentliche Basis-URL (optional)").fill("http://party.lokal");
+  await page.getByLabel("Öffentliche Basis-URL (optional)").fill("http://party.lokal");
   await page.getByLabel("WLAN-SSID").fill("Party Mesh");
   await page.getByLabel("WLAN-Passwort").fill("NeonBeat2026");
   await page.getByLabel("WLAN-Sicherheit").selectOption("WPA");
   await page.getByLabel("Autoplay aus Verlauf").check();
   await page.getByLabel("Chat aktivieren").uncheck();
   await page.getByLabel("Invite-only aktivieren").check();
-  await page.getByLabel("Max Songs pro Geraet").fill("3");
-  await page.getByLabel("Max Queue-Laenge").fill("50");
+  await page.getByLabel("Max Songs pro Gerät").fill("3");
+  await page.getByLabel("Max Queue-Länge").fill("50");
   await page.getByRole("button", { name: "Netzwerkdaten speichern" }).click();
   await expectToast(page, "Party- und Netzwerkdaten gespeichert.");
   await expect(page.locator("#settings-join-preview")).toHaveText("http://party.lokal/join/afterwork");

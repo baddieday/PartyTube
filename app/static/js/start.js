@@ -150,7 +150,7 @@
     }
     const popup = ambientAudio.openWindow();
     if (popup) {
-      toast("Audio-Deck geoeffnet.", "success");
+      toast("Audio-Deck geöffnet.", "success");
       window.setTimeout(renderAudioState, 250);
     }
   });

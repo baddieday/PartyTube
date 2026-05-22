@@ -82,7 +82,7 @@ def extract_video_id(value: str) -> str:
             if video_id:
                 return video_id
 
-    raise InvalidYouTubeUrl("Bitte gib einen gueltigen YouTube-Link ein.")
+    raise InvalidYouTubeUrl("Bitte gib einen gültigen YouTube-Link ein.")
 
 
 def _trim_candidate_url(value: str) -> str:

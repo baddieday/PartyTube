@@ -54,7 +54,7 @@
         </div>
         <div class="admin-stat-grid" aria-label="Live Dashboard Werte">
             <article class="admin-stat-card">
-                <span>Aktive Gaeste</span>
+                <span>Aktive Gäste</span>
                 <strong id="admin-stat-guests">0</strong>
                 <em>im Live-Fenster</em>
             </article>
@@ -103,7 +103,7 @@
             <p class="eyebrow">Mehr</p>
             <h2>Links und QR</h2>
         </div>
-        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+        <span class="counter-pill collapsible-indicator">Öffnen</span>
     </summary>
 
     <section class="layout-grid embedded-grid">
@@ -156,13 +156,13 @@
         <div class="compact-qr-grid">
             <article class="compact-qr-card">
                 <span class="tag-pill">Party Join</span>
-                <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code fuer die Party-Seite">
+                <img class="compact-qr-image" src="{{ link_qr_data_uri }}" alt="Kleiner QR-Code für die Party-Seite">
                 <p class="compact-qr-text">{{ settings.join_url }}</p>
             </article>
             <article class="compact-qr-card">
                 <span class="tag-pill">WLAN</span>
                 {% if wifi_qr_data_uri %}
-                <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code fuer das WLAN">
+                <img class="compact-qr-image" src="{{ wifi_qr_data_uri }}" alt="Kleiner QR-Code für das WLAN">
                 <p class="compact-qr-text">{{ settings.wifi_security }} / {{ settings.wifi_ssid }}</p>
                 {% else %}
                 <div class="compact-qr-placeholder">
@@ -180,12 +180,12 @@
         <div class="panel-header">
             <div>
                 <p class="eyebrow">Queue</p>
-                <h2>Naechste Songs</h2>
+                <h2>Nächste Songs</h2>
             </div>
         </div>
         <div class="meta-grid queue-meta-grid">
             <div class="meta-card">
-                <span class="eyebrow">Als naechstes</span>
+                <span class="eyebrow">Als nächstes</span>
                 <strong id="admin-next-song">Noch offen</strong>
             </div>
             <div class="meta-card">
@@ -202,7 +202,7 @@
                 <p class="eyebrow">Verlauf</p>
                 <h2>Zuletzt</h2>
             </div>
-            <span class="counter-pill collapsible-indicator">Oeffnen</span>
+            <span class="counter-pill collapsible-indicator">Öffnen</span>
         </summary>
         <div id="admin-history-list" class="history-list"></div>
         <div class="admin-actions">
@@ -220,7 +220,7 @@
             <p class="eyebrow">Mehr</p>
             <h2>Best-of und Moderation</h2>
         </div>
-        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+        <span class="counter-pill collapsible-indicator">Öffnen</span>
     </summary>
 
     <section class="panel embedded-panel">
@@ -230,7 +230,7 @@
                 <h2>Top Tracks</h2>
             </div>
             <div class="hero-actions">
-                <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Grossansicht</a>
+                <a class="ghost-button" href="/admin/best-of" target="_blank" rel="noreferrer">Großansicht</a>
                 <a class="ghost-button" href="/api/admin/best-of/export.csv" target="_blank" rel="noreferrer">CSV Export</a>
             </div>
         </div>
@@ -253,7 +253,7 @@
         <div class="panel-header compact">
             <div>
                 <p class="eyebrow">Sperren</p>
-                <h2>Geraete</h2>
+                <h2>Geräte</h2>
             </div>
         </div>
         <div id="admin-muted-devices" class="muted-list"></div>
@@ -267,7 +267,7 @@
             <p class="eyebrow">Einstellungen</p>
             <h2>Party und Netzwerk</h2>
         </div>
-        <span class="counter-pill collapsible-indicator">Oeffnen</span>
+        <span class="counter-pill collapsible-indicator">Öffnen</span>
     </summary>
     <form class="add-form settings-form" id="admin-settings-form">
         <div class="settings-grid">
@@ -280,7 +280,7 @@
                 <input id="settings-party-code" name="partyCode" type="text" maxlength="40" placeholder="party">
             </label>
             <label class="settings-span-2">
-                <span>Oeffentliche Basis-URL (optional)</span>
+                <span>Öffentliche Basis-URL (optional)</span>
                 <input id="settings-base-url" name="baseUrl" type="url" inputmode="url" maxlength="240" placeholder="leer = automatisch aus aktuellem Host">
             </label>
             <label>
@@ -329,7 +329,7 @@
             </label>
             <label class="checkbox-label">
                 <input id="settings-history-public" name="historyPublic" type="checkbox">
-                <span>Verlauf fuer Gaeste sichtbar</span>
+                <span>Verlauf für Gäste sichtbar</span>
             </label>
             <label class="checkbox-label">
                 <input id="settings-readd-enabled" name="readdEnabled" type="checkbox">
@@ -349,18 +349,18 @@
             </label>
             <label class="checkbox-label">
                 <input id="settings-screen-active-guests" name="partyScreenShowActiveGuests" type="checkbox">
-                <span>Aktive Gaeste auf Party-Screen zeigen</span>
+                <span>Aktive Gäste auf Party-Screen zeigen</span>
             </label>
             <label class="checkbox-label">
                 <input id="settings-screen-skip-status" name="partyScreenShowSkipStatus" type="checkbox">
                 <span>Skip-Status auf Party-Screen zeigen</span>
             </label>
             <label>
-                <span>Max Songs pro Geraet</span>
-                <input id="settings-max-songs-per-device" name="maxSongsPerDevice" type="number" min="1" max="20" inputmode="numeric">
+                <span>Max Songs pro Gerät</span>
+                <input id="settings-max-songs-per-device" name="maxSongsPerDevice" type="number" min="1" max="100" inputmode="numeric">
             </label>
             <label>
-                <span>Max Queue-Laenge</span>
+                <span>Max Queue-Länge</span>
                 <input id="settings-max-queue-items" name="maxQueueItems" type="number" min="1" max="500" inputmode="numeric">
             </label>
         </div>

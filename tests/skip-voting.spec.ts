@@ -23,7 +23,7 @@ test("Skip-Voting: 40-Prozent-Schwelle, Duplicate-Schutz, Reset und demokratisch
   await loginAsAdmin(host);
   await expect(host.locator("#admin-skip-status")).toContainText("0/2");
 
-  await guestA.getByRole("button", { name: "Song ueberspringen" }).click();
+  await guestA.getByRole("button", { name: "Song überspringen" }).click();
   await expectToast(guestA, "Skip-Vote registriert.");
   await expect(host.locator("#admin-skip-status")).toContainText("1/2");
 
@@ -40,12 +40,12 @@ test("Skip-Voting: 40-Prozent-Schwelle, Duplicate-Schutz, Reset und demokratisch
   expect(duplicate.body.detail).toContain("bereits Skip gevotet");
 
   await host.getByRole("button", { name: "Skip-Votes resetten" }).click();
-  await expectToast(host, "Skip-Votes fuer den aktuellen Song zurueckgesetzt.");
+  await expectToast(host, "Skip-Votes für den aktuellen Song zurückgesetzt.");
   await expect(host.locator("#admin-skip-status")).toContainText("0/2");
 
-  await guestA.getByRole("button", { name: "Song ueberspringen" }).click();
-  await guestB.getByRole("button", { name: "Song ueberspringen" }).click();
-  await expectToast(guestB, "Song wurde demokratisch uebersprungen.");
+  await guestA.getByRole("button", { name: "Song überspringen" }).click();
+  await guestB.getByRole("button", { name: "Song überspringen" }).click();
+  await expectToast(guestB, "Song wurde demokratisch übersprungen.");
   await expect(guestA.locator("#current-song")).toContainText("YouTube Video 3JZ4pnNtyxQ");
 
   const history = await guestA.evaluate(async () => {
@@ -57,7 +57,7 @@ test("Skip-Voting: 40-Prozent-Schwelle, Duplicate-Schutz, Reset und demokratisch
   await Promise.all([guestAContext.close(), guestBContext.close(), guestCContext.close(), hostContext.close()]);
 });
 
-test("Skip-Voting: deaktivierte Einstellung lehnt Gast-Votes ab, Admin-Skip bleibt moeglich", async ({ page }) => {
+test("Skip-Voting: deaktivierte Einstellung lehnt Gast-Votes ab, Admin-Skip bleibt möglich", async ({ page }) => {
   await page.goto("/");
   await addSong(page, SAMPLE_URLS.watch, "Gast A");
 
@@ -86,5 +86,5 @@ test("Skip-Voting: deaktivierte Einstellung lehnt Gast-Votes ab, Admin-Skip blei
 
   await page.goto("/admin");
   await page.locator("#skip-current").click();
-  await expectToast(page, "Song uebersprungen.");
+  await expectToast(page, "Song übersprungen.");
 });

@@ -27,7 +27,7 @@
     const queueMeta = payload.queueMeta || {};
     const chips = [];
     if (appConfig.partyScreenShowActiveGuests !== false) {
-      chips.push(`<span class="tag-pill">${skip.activeGuestCount || 0} aktive Gaeste</span>`);
+      chips.push(`<span class="tag-pill">${skip.activeGuestCount || 0} aktive Gäste</span>`);
     }
     if (appConfig.partyScreenShowSkipStatus !== false && stateStore.runtime.skipVotingEnabled) {
       chips.push(
@@ -77,7 +77,7 @@
             `,
           )
           .join("")
-      : emptyState("Noch keine naechsten Songs.");
+      : emptyState("Noch keine nächsten Songs.");
     renderStats(payload);
   }
 

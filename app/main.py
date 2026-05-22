@@ -16,7 +16,6 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -60,6 +59,29 @@ store = PartyStore(
 )
 templates = Jinja2Templates(directory=str(ROOT_DIR / "app" / "templates"))
 metrics = MetricsTracker()
+
+
+class SelectiveHTTPSRedirectMiddleware:
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        if scope.get("scheme") == "https" or scope.get("path") == "/health":
+            await self.app(scope, receive, send)
+            return
+
+        host = next((value.decode("latin-1") for key, value in scope.get("headers", []) if key == b"host"), "")
+        path = scope.get("raw_path", b"").decode("latin-1") or scope.get("path", "/")
+        query = scope.get("query_string", b"").decode("latin-1")
+        destination = f"https://{host}{path}"
+        if query:
+            destination = f"{destination}?{query}"
+        response = RedirectResponse(destination, status_code=307)
+        await response(scope, receive, send)
 
 
 class ConnectionHub:
@@ -578,7 +600,7 @@ if settings.trusted_hosts:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.trusted_hosts))
 
 if settings.enforce_https:
-    app.add_middleware(HTTPSRedirectMiddleware)
+    app.add_middleware(SelectiveHTTPSRedirectMiddleware)
 
 app.add_middleware(
     SessionMiddleware,

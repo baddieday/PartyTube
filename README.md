@@ -73,6 +73,11 @@ Windows PowerShell:
 7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geräten als vertrauenswürdige CA installieren.
 8. Danach `https://party.lokal` im Browser neu öffnen.
 
+### Portainer
+
+Das Projekt ist kompatibel mit Portainer und wahrscheinlich auch anderen compose/swarm plattformen.
+Damit die Umgebungsvariablen korrekt geladen werden, muss eine Variable `ENV_FILE` mit dem Wert `stack.env` eingetragen werden.
+
 ### Warum dieser Weg?
 
 - Für lokale Hostnamen ist ein echter HTTPS-Kontext nötig.

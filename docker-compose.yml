@@ -10,7 +10,7 @@ services:
     ports:
       - "${PORT:-8088}:8088"
     volumes:
-      - ./data:/app/data
+      - database:/app/data
     healthcheck:
       test:
         [
@@ -40,3 +40,5 @@ services:
     profiles:
       - tests
 
+volumes:
+  database:

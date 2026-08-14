@@ -1,0 +1,9 @@
+services:
+  app:
+    env_file:
+      - stack.env
+
+  tests:
+  app:
+    env_file:
+      - stack.env

@@ -6,7 +6,7 @@ services:
     container_name: partytube
     restart: unless-stopped
     env_file:
-      - .env
+      - ${ENV_FILE:-.env}
     ports:
       - "${PORT:-8088}:8088"
     volumes:
@@ -32,7 +32,7 @@ services:
       app:
         condition: service_healthy
     env_file:
-      - .env
+      - ${ENV_FILE:-.env}
     environment:
       BASE_URL: "http://app:8088"
       PYTHON_BIN: "python3"

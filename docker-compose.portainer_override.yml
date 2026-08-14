@@ -4,6 +4,5 @@ services:
       - stack.env
 
   tests:
-  app:
     env_file:
       - stack.env

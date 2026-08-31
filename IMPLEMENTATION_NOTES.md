@@ -46,6 +46,8 @@
 - Die Migration laeuft beim Start ueber additive SQLite-Spalten und `CREATE TABLE IF NOT EXISTS`.
 - Bestehende aktive Queue-Eintraege bleiben erhalten.
 - Alte `played`-Historie bleibt sichtbar; neue Abschlussgruende werden ueber `completed_reason` differenziert.
+- Der Standard-Compose-Stack behält `./data`, damit bestehende Installationen keine scheinbar leere Datenbank erhalten.
+- Der separate Portainer-Stack nutzt ein Named Volume und legt die SQLite-Datenbank beim ersten Start automatisch an. Ein Wechsel zwischen beiden Speicherarten erfordert eine bewusste Sicherung und Übertragung von `party.db`.
 
 ## Teststrategie
 

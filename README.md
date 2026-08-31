@@ -19,6 +19,22 @@ Danach ist PartyTube standardmäßig unter Port `8088` erreichbar.
 http://<SERVER-IP>:8088/
 ```
 
+## Installation mit Portainer
+
+Für Portainer auf **Docker Standalone** ist `docker-compose.portainer.yml` vorgesehen. Der normale Compose-Stack bleibt absichtlich unverändert.
+
+1. In Portainer `Stacks > Add stack > Git repository` öffnen.
+2. Repository-URL `https://github.com/baddieday/PartyTube.git` eintragen.
+3. Als Compose-Pfad `docker-compose.portainer.yml` wählen.
+4. Die Werte aus `.env.example` unter `Environment variables` importieren und mindestens `ADMIN_PIN`, `SESSION_SECRET`, `PLAYER_TOKEN_SECRET`, `HOST_IP` und `BASE_URL` anpassen.
+5. Stack deployen und warten, bis der Healthcheck `healthy` meldet.
+
+Portainer stellt diese Werte dem Container über `stack.env` bereit. Das gilt für Docker Standalone, nicht für Docker Swarm.
+
+Die SQLite-Datei wird beim ersten Start automatisch im Named Volume `<STACKNAME>_partytube_data` angelegt. Es muss keine leere Datenbank hochgeladen werden. Beim Aktualisieren oder Neuerstellen des Containers bleibt das Volume erhalten.
+
+Wichtig beim Wechsel einer bestehenden Installation: `docker-compose.yml` nutzt weiterhin `./data`. Vor einem Wechsel zum Portainer-Stack muss `data/party.db` gesichert und bewusst in das neue Volume übertragen werden; PartyTube migriert Bind-Mount-Daten nicht automatisch.
+
 ## HTTPS im Heimnetz
 
 Wenn du PartyTube lokal unter `https://party.lokal` nutzen willst, ist der passende Stack im Repo enthalten:
@@ -235,6 +251,8 @@ Die Konfiguration liegt in `.env`. Vorlage: `.env.example`.
 | `SKIP_VOTE_THRESHOLD_PERCENT` | Schwelle für demokratisches Skippen |
 | `MAX_QUEUE_ITEMS` | maximale Queue-Länge |
 | `ENABLE_METRICS` | aktiviert `/metrics` |
+
+`/health` liefert neben `status` auch die laufende Release-Version.
 
 Empfehlung für Partys:
 

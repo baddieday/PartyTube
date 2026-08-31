@@ -73,6 +73,12 @@ Windows PowerShell:
 7. Die exportierte Datei `artifacts/certs/partytube-local-root.crt` auf Android-Geräten als vertrauenswürdige CA installieren.
 8. Danach `https://party.lokal` im Browser neu öffnen.
 
+### Gast-App und YouTube-Teilen
+
+- Android/Chrome: PartyTube öffnen, `App installieren` wählen und danach einen YouTube-Link direkt an PartyTube teilen. Der Song wird nach der serverseitigen Linkprüfung eingereicht.
+- iPhone/Safari: `Teilen` und `Zum Home-Bildschirm` wählen. Da iOS Web-Apps nicht als Web Share Target registriert, in YouTube `Link kopieren` und in PartyTube `Link einfügen` tippen.
+- Installation und Android Share Target benötigen eine vom Gerät als vertrauenswürdig erkannte HTTPS-Verbindung.
+
 ### Warum dieser Weg?
 
 - Für lokale Hostnamen ist ein echter HTTPS-Kontext nötig.

@@ -4,6 +4,8 @@
 
 ### Added
 
+- installierbarer Gast-PWA-Flow mit Android Share Target und iPhone-Zwischenablage-Fallback
+
 - serverseitige Admin-Sessions mit CSRF-Schutz
 - geschuetzter Player-Token fuer `/api/player/ended`
 - Invite-only Join-Gate mit `/join/{party_code}`

@@ -1,4 +1,4 @@
-const CACHE_NAME = "partytube-assets-v11";
+const CACHE_NAME = "partytube-assets-v12";
 const STATIC_URLS = [
   "/static/css/styles.css",
   "/static/js/shared.js",
@@ -11,6 +11,7 @@ const STATIC_URLS = [
   "/static/js/history.js",
   "/static/js/best_of.js",
   "/static/js/party_screen.js",
+  "/static/js/pwa.js",
   "/static/img/logo.svg",
   "/static/img/icon.svg",
   "/static/img/icon-128.png",
@@ -55,7 +56,11 @@ async function networkFirst(request) {
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(STATIC_URLS))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {

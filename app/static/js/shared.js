@@ -1,6 +1,7 @@
 const appConfig = JSON.parse(document.getElementById("app-config")?.textContent || "{}");
 
 const stateStore = {
+  revision: -1,
   current: null,
   queue: [],
   history: [],
@@ -354,6 +355,14 @@ function updateConnectionPill(connected) {
   pill.classList.toggle("live-ok", connected);
 }
 
+function acceptStateRevision(payload) {
+  const revision = Number(payload?.revision);
+  if (!Number.isSafeInteger(revision) || revision < 0) return true;
+  if (revision < stateStore.revision) return false;
+  stateStore.revision = revision;
+  return true;
+}
+
 function connectLive(onState) {
   const protocol = location.protocol === "https:" ? "wss" : "ws";
   const params = new URLSearchParams({
@@ -390,6 +399,7 @@ function connectLive(onState) {
       try {
         const payload = JSON.parse(event.data);
         if (payload.type !== "state") return;
+        if (!acceptStateRevision(payload)) return;
         if (payload.runtime) Object.assign(stateStore.runtime, payload.runtime);
         if (payload.skipVoting) Object.assign(stateStore.skipVoting, payload.skipVoting);
         onState(payload);
@@ -609,6 +619,7 @@ window.PartyTube = {
   songCard,
   messageCard,
   emptyState,
+  acceptStateRevision,
   connectLive,
   apiFetch,
   toast,

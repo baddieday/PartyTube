@@ -5,6 +5,7 @@
     getDeviceId,
     songCard,
     emptyState,
+    acceptStateRevision,
     connectLive,
     apiFetch,
     toast,
@@ -24,6 +25,7 @@
   }
 
   function renderState(payload) {
+    if (!acceptStateRevision(payload)) return;
     if (payload.runtime) {
       updateAppConfig({ runtime: payload.runtime });
     }

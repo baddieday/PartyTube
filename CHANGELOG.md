@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-08-31
+
 ### Added
 
 - installierbarer Gast-PWA-Flow mit Android Share Target und iPhone-Zwischenablage-Fallback
+- eigener Portainer-Compose-Stack mit automatisch persistentem SQLite-Volume
 - konfigurierbarer Audio-Crossfade mit festen Werten von 1, 2, 3, 5 oder 10 Sekunden
 - Playwright-Abdeckung für Crossfade und begrenzte TV-/Audio-Zustände
 
@@ -30,6 +33,7 @@
 
 ### Changed
 
+- `/health` meldet zusätzlich die laufende PartyTube-Version
 - Player, Audio und Party-Screen erhalten nur noch die drei nächsten Songs; der Audio-Host hält höchstens zwei YouTube-Player
 - WebSocket-Reconnect nutzt begrenztes Backoff und räumt Verbindungen beim Verlassen der Seite auf
 - Admin-Oberflaeche klarer strukturiert und sicherer verdrahtet
@@ -42,6 +46,7 @@
 
 ### Fixed
 
+- neue Songs erscheinen auf dem sendenden Gerät sofort, auch wenn dessen WebSocket gerade erst verbindet
 - Player-Token-Leak ueber oeffentliche Seiten verhindert
 - zu lange Chat-Nachrichten werden sauber abgewiesen
 - Invite-only-Fehlpfade liefern jetzt verstaendliche Seiten statt nur rohe Fehler

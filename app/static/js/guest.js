@@ -78,6 +78,7 @@
         }),
       });
       rememberVote(response.song.id);
+      if (response.state) renderState(response.state);
       urlInput.value = "";
       toast(successMessage(response.song), "success");
       return true;

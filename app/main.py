@@ -48,6 +48,7 @@ from .storage import (
     QueueLimitError,
 )
 from .youtube import InvalidYouTubeUrl, extract_first_youtube_url, parse_video
+from .version import APP_VERSION
 
 
 settings = load_settings()
@@ -698,7 +699,7 @@ async def security_headers(request: Request, call_next):
 
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "version": APP_VERSION}
 
 
 @app.get("/metrics")
@@ -1132,7 +1133,13 @@ async def add_song(request: Request) -> JSONResponse:
 
     metrics.increment("songs_added")
     await _broadcast_state()
-    return JSONResponse({"ok": True, "song": song})
+    return JSONResponse(
+        {
+            "ok": True,
+            "song": song,
+            "state": _state_payload(request, device_id=device_id, role="guest"),
+        }
+    )
 
 
 @app.post("/api/songs/{song_id}/vote")

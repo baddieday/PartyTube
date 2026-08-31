@@ -8,6 +8,7 @@ const stateStore = {
   queueMeta: {},
   runtime: {
     autoplayEnabled: Boolean(appConfig.autoplayEnabled),
+    crossfadeSeconds: Number(appConfig.crossfadeSeconds || 0),
     chatEnabled: Boolean(appConfig.chatEnabled),
     votingEnabled: Boolean(appConfig.votingEnabled),
     inviteOnlyMode: Boolean(appConfig.inviteOnlyMode),
@@ -363,26 +364,50 @@ function connectLive(onState) {
   if (guestName) {
     params.set("guest_name", guestName.slice(0, 80));
   }
-  const socket = new WebSocket(`${protocol}://${location.host}/ws?${params.toString()}`);
+  let socket = null;
+  let reconnectTimer = null;
+  let stopped = false;
+  let reconnectDelay = 1000;
 
-  socket.addEventListener("open", () => updateConnectionPill(true));
-  socket.addEventListener("close", () => {
-    updateConnectionPill(false);
-    setTimeout(() => connectLive(onState), 1500);
-  });
-  socket.addEventListener("message", (event) => {
-    const payload = JSON.parse(event.data);
-    if (payload.type === "state") {
-      if (payload.runtime) {
-        Object.assign(stateStore.runtime, payload.runtime);
+  function open() {
+    if (stopped) return;
+    socket = new WebSocket(`${protocol}://${location.host}/ws?${params.toString()}`);
+
+    socket.addEventListener("open", () => {
+      reconnectDelay = 1000;
+      updateConnectionPill(true);
+    });
+    socket.addEventListener("close", () => {
+      updateConnectionPill(false);
+      if (stopped || reconnectTimer) return;
+      reconnectTimer = window.setTimeout(() => {
+        reconnectTimer = null;
+        reconnectDelay = Math.min(reconnectDelay * 2, 10000);
+        open();
+      }, reconnectDelay);
+    });
+    socket.addEventListener("message", (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type !== "state") return;
+        if (payload.runtime) Object.assign(stateStore.runtime, payload.runtime);
+        if (payload.skipVoting) Object.assign(stateStore.skipVoting, payload.skipVoting);
+        onState(payload);
+      } catch (_error) {
+        // Ignore malformed frames and keep the current UI state intact.
       }
-      if (payload.skipVoting) {
-        Object.assign(stateStore.skipVoting, payload.skipVoting);
-      }
-      onState(payload);
-    }
-  });
-  return socket;
+    });
+  }
+
+  function close() {
+    stopped = true;
+    if (reconnectTimer) window.clearTimeout(reconnectTimer);
+    socket?.close();
+  }
+
+  window.addEventListener("pagehide", close, { once: true });
+  open();
+  return { close };
 }
 
 function copyText(value, successMessage = "Kopiert.") {

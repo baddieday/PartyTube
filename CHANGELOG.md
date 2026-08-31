@@ -5,6 +5,8 @@
 ### Added
 
 - installierbarer Gast-PWA-Flow mit Android Share Target und iPhone-Zwischenablage-Fallback
+- konfigurierbarer Audio-Crossfade mit festen Werten von 1, 2, 3, 5 oder 10 Sekunden
+- Playwright-Abdeckung für Crossfade und begrenzte TV-/Audio-Zustände
 
 - serverseitige Admin-Sessions mit CSRF-Schutz
 - geschuetzter Player-Token fuer `/api/player/ended`
@@ -28,6 +30,8 @@
 
 ### Changed
 
+- Player, Audio und Party-Screen erhalten nur noch die drei nächsten Songs; der Audio-Host hält höchstens zwei YouTube-Player
+- WebSocket-Reconnect nutzt begrenztes Backoff und räumt Verbindungen beim Verlassen der Seite auf
 - Admin-Oberflaeche klarer strukturiert und sicherer verdrahtet
 - Guest-Ansicht mit Chat, Queue-Meta und besseren Fehlermeldungen
 - Start- und Player-Flows kommunizieren sichere Host-Links klarer

@@ -11,6 +11,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 
 DEFAULT_ADMIN_PIN = "2468"
 DEFAULT_SECRET_MARKERS = ("change-me", "changeme", "replace-me", "default", "insecure")
+ALLOWED_CROSSFADE_SECONDS = (0, 1, 2, 3, 5, 10)
 
 
 def _load_env_file() -> None:
@@ -44,6 +45,11 @@ def _int_env(name: str, default: int) -> int:
 def _float_env(name: str, default: float) -> float:
     value = os.getenv(name)
     return float(value) if value is not None else default
+
+
+def _choice_int_env(name: str, default: int, choices: tuple[int, ...]) -> int:
+    value = _int_env(name, default)
+    return value if value in choices else default
 
 
 def _csv_env(name: str) -> tuple[str, ...]:
@@ -87,6 +93,7 @@ class Settings:
     wifi_security: str
     wifi_hidden: bool
     autoplay_enabled: bool
+    crossfade_seconds: int
     invite_only_mode: bool
     chat_enabled: bool
     voting_enabled: bool
@@ -166,6 +173,7 @@ def load_settings() -> Settings:
         wifi_security=os.getenv("WIFI_SECURITY", "WPA").strip().upper() or "WPA",
         wifi_hidden=_bool_env("WIFI_HIDDEN", False),
         autoplay_enabled=_bool_env("AUTOPLAY_ENABLED", False),
+        crossfade_seconds=_choice_int_env("CROSSFADE_SECONDS", 0, ALLOWED_CROSSFADE_SECONDS),
         invite_only_mode=_bool_env("INVITE_ONLY_MODE", False),
         chat_enabled=_bool_env("CHAT_ENABLED", True),
         voting_enabled=_bool_env("VOTING_ENABLED", True),

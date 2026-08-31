@@ -15,9 +15,12 @@
             <p>Audio läuft. Auto-Weiter ist gesperrt.</p>
         </div>
         {% endif %}
-        <p class="subtle-note" id="audio-mode-note">Dieses Fenster offen lassen.</p>
+        <p class="subtle-note" id="audio-mode-note">Dieses Fenster offen lassen. <span id="audio-transition-note">Übergang aus.</span></p>
         <div class="player-frame-wrap audio-only-wrap">
-            <div id="audio-youtube-player" class="player-frame"></div>
+            <div class="audio-deck-stack">
+                <div id="audio-youtube-player-a" class="player-frame audio-player-deck active"></div>
+                <div id="audio-youtube-player-b" class="player-frame audio-player-deck"></div>
+            </div>
             <div id="audio-overlay" class="audio-start-overlay">
                 <div>
                     <strong>Audio starten</strong>

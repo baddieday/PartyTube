@@ -183,7 +183,16 @@ Hinweise:
 
 - Gäste brauchen keine App, nur einen Browser im gleichen Netzwerk.
 - YouTube-Autoplay kann je nach Browser blockiert werden. Dann einmal manuell `Playback starten` oder `Audio starten` klicken.
+- Der Host kann unter `Admin > Einstellungen > Übergang zwischen Songs` einen festen Übergang von 1, 2, 3, 5 oder 10 Sekunden wählen.
 - Der Party-Code ist eine einfache Einladung, kein starkes Passwort.
+
+### TV, Audio und Übergänge
+
+- `/player` zeigt das Video, `/audio` liefert den Ton und `/party-screen` zeigt den Beitritts-Screen.
+- Player, Audio und Party-Screen erhalten nur die drei nächsten Songs. Das hält den Speicherverbrauch auf langen Partys begrenzt.
+- Für einen Übergang hält das Audio-Fenster genau zwei YouTube-Player bereit und blendet anhand der von YouTube gemeldeten Laufzeit über.
+- Echte Stilleerkennung ist im Browser nicht möglich, weil der YouTube-IFrame keine Audiodaten bereitstellt. Bei ungenauer Laufzeit fällt PartyTube auf den normalen Songwechsel zurück.
+- Übergänge und automatisches Weiterschalten benötigen den sicheren Audio-Link von `/start`.
 
 ## Funktionen
 
@@ -222,6 +231,7 @@ Die Konfiguration liegt in `.env`. Vorlage: `.env.example`.
 | `WIFI_SSID` | WLAN-Name für optionale Anzeige |
 | `WIFI_QR_ENABLED` | aktiviert WLAN-QR-Code |
 | `SHOW_WIFI_PASSWORD_ON_SCREEN` | steuert, ob der WLAN-Schlüssel angezeigt wird |
+| `CROSSFADE_SECONDS` | fester Audio-Übergang: `0`, `1`, `2`, `3`, `5` oder `10` Sekunden |
 | `SKIP_VOTE_THRESHOLD_PERCENT` | Schwelle für demokratisches Skippen |
 | `MAX_QUEUE_ITEMS` | maximale Queue-Länge |
 | `ENABLE_METRICS` | aktiviert `/metrics` |
@@ -298,6 +308,7 @@ docker-compose.yml   lokaler Docker-Start
 
 - PartyTube ist primär für das lokale Netzwerk gedacht.
 - YouTube kann Autoplay je nach Browser oder Gerät blockieren.
+- Crossfade ist laufzeitbasiert; YouTube stellt der App keine Roh-Audiodaten für Stilleerkennung bereit.
 - Titel- und Dauerermittlung ohne API-Key ist best effort.
 - Invite-only ersetzt keine vollständige Internet-Absicherung.
 - WLAN-Zugangsdaten sollten nicht unüberlegt auf einem Beamer angezeigt werden.

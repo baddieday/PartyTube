@@ -19,7 +19,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from .config import ROOT_DIR, Settings, _normalized_party_code, load_settings
+from .config import ALLOWED_CROSSFADE_SECONDS, ROOT_DIR, Settings, _normalized_party_code, load_settings
 from .metrics import MetricsTracker
 from .qr import make_qr_data_uri, make_wifi_qr_payload
 from .security import (
@@ -51,6 +51,7 @@ from .youtube import InvalidYouTubeUrl, extract_first_youtube_url, parse_video
 
 
 settings = load_settings()
+CLIENT_ROLES = frozenset({"guest", "admin", "player", "audio", "screen", "start"})
 store = PartyStore(
     settings.db_path,
     history_limit=settings.history_limit,
@@ -206,6 +207,16 @@ def _runtime_int(value: Any, default: int, minimum: int = 0) -> int:
         return default
 
 
+def _runtime_crossfade(value: Any, default: int) -> int:
+    candidate = _runtime_int(value, default)
+    return candidate if candidate in ALLOWED_CROSSFADE_SECONDS else default
+
+
+def _client_role(value: Any) -> str:
+    role = str(value or "guest").strip().lower()
+    return role if role in CLIENT_ROLES else "guest"
+
+
 def _clean_text(value: Any, limit: int) -> str:
     cleaned = "".join(char for char in str(value or "").strip() if char.isprintable())
     return cleaned[:limit]
@@ -265,6 +276,7 @@ def _resolved_settings(request: Request) -> dict[str, Any]:
     voting_enabled = _runtime_flag(runtime_settings.get("votingEnabled"), settings.voting_enabled)
     invite_only_mode = _runtime_flag(runtime_settings.get("inviteOnlyMode"), settings.invite_only_mode)
     autoplay_enabled = _runtime_flag(runtime_settings.get("autoplayEnabled"), settings.autoplay_enabled)
+    crossfade_seconds = _runtime_crossfade(runtime_settings.get("crossfadeSeconds"), settings.crossfade_seconds)
     skip_voting_enabled = _runtime_flag(runtime_settings.get("skipVotingEnabled"), settings.skip_voting_enabled)
     skip_vote_threshold_percent = min(
         100,
@@ -323,6 +335,7 @@ def _resolved_settings(request: Request) -> dict[str, Any]:
         "wifi_configured": bool(wifi_ssid and (wifi_password or wifi_security == "NOPASS")),
         "base_url_override": runtime_settings.get("baseUrl", "").strip(),
         "autoplay_enabled": autoplay_enabled,
+        "crossfade_seconds": crossfade_seconds,
         "chat_enabled": chat_enabled,
         "voting_enabled": voting_enabled,
         "invite_only_mode": invite_only_mode,
@@ -350,6 +363,7 @@ def _runtime_public_state(request: Request | None = None) -> dict[str, Any]:
     resolved = _resolved_settings(request) if request else None
     return {
         "autoplayEnabled": resolved["autoplay_enabled"] if resolved else _runtime_flag(runtime_settings.get("autoplayEnabled"), settings.autoplay_enabled),
+        "crossfadeSeconds": resolved["crossfade_seconds"] if resolved else _runtime_crossfade(runtime_settings.get("crossfadeSeconds"), settings.crossfade_seconds),
         "chatEnabled": resolved["chat_enabled"] if resolved else _runtime_flag(runtime_settings.get("chatEnabled"), settings.chat_enabled),
         "votingEnabled": resolved["voting_enabled"] if resolved else _runtime_flag(runtime_settings.get("votingEnabled"), settings.voting_enabled),
         "inviteOnlyMode": resolved["invite_only_mode"] if resolved else _runtime_flag(runtime_settings.get("inviteOnlyMode"), settings.invite_only_mode),
@@ -368,7 +382,17 @@ def _runtime_public_state(request: Request | None = None) -> dict[str, Any]:
     }
 
 
-def _state_payload(request: Request, device_id: str | None = None) -> dict[str, Any]:
+def _bounded_state_for_role(state: dict[str, Any], role: str) -> dict[str, Any]:
+    if role not in {"player", "audio", "screen"}:
+        return state
+
+    state["queue"] = state.get("queue", [])[:3]
+    state["messages"] = []
+    state["history"] = [] if role == "screen" else state.get("history", [])[:12]
+    return state
+
+
+def _state_payload(request: Request, device_id: str | None = None, role: str = "guest") -> dict[str, Any]:
     state = store.get_state()
     resolved_settings = _resolved_settings(request)
     player_authorized = is_player_authorized(request, settings, resolved_settings["party_code"], store)
@@ -392,10 +416,10 @@ def _state_payload(request: Request, device_id: str | None = None) -> dict[str, 
     state["runtime"] = _runtime_public_state(request)
     state["skipVoting"] = skip_status
     state.update(skip_status)
-    return state
+    return _bounded_state_for_role(state, role)
 
 
-def _state_payload_without_request(device_id: str | None = None) -> dict[str, Any]:
+def _state_payload_without_request(device_id: str | None = None, role: str = "guest") -> dict[str, Any]:
     state = store.get_state()
     runtime = _runtime_public_state()
     skip_status = store.get_skip_status(
@@ -408,14 +432,16 @@ def _state_payload_without_request(device_id: str | None = None) -> dict[str, An
     state["runtime"] = runtime
     state["skipVoting"] = skip_status
     state.update(skip_status)
-    return state
+    return _bounded_state_for_role(state, role)
 
 
 async def _broadcast_state() -> None:
     stale: list[WebSocket] = []
     for socket, meta in await hub.snapshot():
         try:
-            await socket.send_text(json.dumps(_state_payload_without_request(meta.get("deviceId"))))
+            await socket.send_text(
+                json.dumps(_state_payload_without_request(meta.get("deviceId"), meta.get("role", "guest")))
+            )
         except RuntimeError:
             stale.append(socket)
     for socket in stale:
@@ -455,6 +481,7 @@ def _template_context(request: Request, page: str, *, join_error: str = "", invi
         "adminAuthenticated": admin_authenticated,
         "wifiConfigured": resolved_settings["wifi_configured"],
         "autoplayEnabled": resolved_settings["autoplay_enabled"],
+        "crossfadeSeconds": resolved_settings["crossfade_seconds"],
         "chatEnabled": resolved_settings["chat_enabled"],
         "votingEnabled": resolved_settings["voting_enabled"],
         "inviteOnlyMode": resolved_settings["invite_only_mode"],
@@ -881,10 +908,10 @@ async def service_worker() -> FileResponse:
 @app.get("/api/state")
 async def api_state(request: Request) -> JSONResponse:
     device_id = request.query_params.get("deviceId", "").strip()[:80] or None
-    role = request.query_params.get("role", "guest").strip()
+    role = _client_role(request.query_params.get("role"))
     if device_id and role == "guest":
         store.record_guest_activity(device_id, request.query_params.get("guestName", "").strip()[:80], role="guest")
-    return JSONResponse(_state_payload(request, device_id=device_id))
+    return JSONResponse(_state_payload(request, device_id=device_id, role=role))
 
 
 @app.get("/api/admin/status")
@@ -911,6 +938,7 @@ async def api_admin_settings(request: Request) -> JSONResponse:
             "wifiHidden": _runtime_flag(runtime_settings.get("wifiHidden"), settings.wifi_hidden),
             "wifiConfigured": resolved_settings["wifi_configured"],
             "autoplayEnabled": resolved_settings["autoplay_enabled"],
+            "crossfadeSeconds": resolved_settings["crossfade_seconds"],
             "chatEnabled": resolved_settings["chat_enabled"],
             "votingEnabled": resolved_settings["voting_enabled"],
             "inviteOnlyMode": resolved_settings["invite_only_mode"],
@@ -948,6 +976,7 @@ async def api_admin_update_settings(request: Request) -> JSONResponse:
     wifi_security = _clean_text(payload.get("wifiSecurity"), 16).upper() or settings.wifi_security
     wifi_hidden = bool(payload.get("wifiHidden"))
     autoplay_enabled = bool(payload.get("autoplayEnabled"))
+    crossfade_seconds = _runtime_crossfade(payload.get("crossfadeSeconds"), settings.crossfade_seconds)
     chat_enabled = bool(payload.get("chatEnabled", settings.chat_enabled))
     voting_enabled = bool(payload.get("votingEnabled", settings.voting_enabled))
     invite_only_mode = bool(payload.get("inviteOnlyMode", settings.invite_only_mode))
@@ -990,6 +1019,7 @@ async def api_admin_update_settings(request: Request) -> JSONResponse:
         "wifiSecurity": wifi_security if wifi_ssid else None,
         "wifiHidden": wifi_hidden if wifi_ssid else None,
         "autoplayEnabled": autoplay_enabled,
+        "crossfadeSeconds": crossfade_seconds,
         "chatEnabled": chat_enabled,
         "votingEnabled": voting_enabled,
         "inviteOnlyMode": invite_only_mode,
@@ -1464,12 +1494,12 @@ async def test_reset(request: Request) -> JSONResponse:
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     device_id = websocket.query_params.get("device_id", "").strip()[:80]
-    role = websocket.query_params.get("role", "guest").strip()
+    role = _client_role(websocket.query_params.get("role"))
     guest_name = websocket.query_params.get("guest_name", "").strip()[:80]
     if device_id:
         store.record_guest_activity(device_id, guest_name, role=role)
     await hub.connect(websocket, {"deviceId": device_id, "role": role, "guestName": guest_name})
-    await websocket.send_text(json.dumps(_state_payload_without_request(device_id)))
+    await websocket.send_text(json.dumps(_state_payload_without_request(device_id, role)))
     try:
         while True:
             with suppress(asyncio.TimeoutError):

@@ -147,6 +147,7 @@
     document.getElementById("settings-wifi-security").value = payload.wifiSecurity || "WPA";
     document.getElementById("settings-wifi-hidden").checked = Boolean(payload.wifiHidden);
     document.getElementById("settings-autoplay-enabled").checked = Boolean(payload.autoplayEnabled);
+    document.getElementById("settings-crossfade-seconds").value = String(payload.crossfadeSeconds || 0);
     document.getElementById("settings-chat-enabled").checked = Boolean(payload.chatEnabled);
     document.getElementById("settings-voting-enabled").checked = Boolean(payload.votingEnabled);
     document.getElementById("settings-invite-only").checked = Boolean(payload.inviteOnlyMode);
@@ -486,6 +487,7 @@
           wifiSecurity: document.getElementById("settings-wifi-security").value,
           wifiHidden: document.getElementById("settings-wifi-hidden").checked,
           autoplayEnabled: document.getElementById("settings-autoplay-enabled").checked,
+          crossfadeSeconds: Number(document.getElementById("settings-crossfade-seconds").value || 0),
           chatEnabled: document.getElementById("settings-chat-enabled").checked,
           votingEnabled: document.getElementById("settings-voting-enabled").checked,
           inviteOnlyMode: document.getElementById("settings-invite-only").checked,

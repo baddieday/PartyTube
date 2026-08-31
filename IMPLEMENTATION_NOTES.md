@@ -9,6 +9,7 @@
 - YouTube-Metadaten ohne API-Key bleiben best effort.
 - Skip-Voting zaehlt aktive Guests ueber WebSocket/API-Aktivitaet, nicht ueber harte Benutzerkonten.
 - WLAN-Passwort und WLAN-QR auf dem Party-Screen sind bewusst opt-in.
+- Der Audio-Übergang nutzt feste Werte und die vom YouTube-Player gemeldete Restlaufzeit. Der IFrame stellt keine PCM-/Pegel-Daten für echte Stilleerkennung bereit.
 
 ## Sicherheitsentscheidungen
 
@@ -22,6 +23,8 @@
 
 - `/start` bleibt als Host-Setup-Seite sichtbar, startet Audio/TV aber nur sicher nach Admin-Login.
 - Das Audio-Deck bleibt das primaere Mittel gegen Tonabbrueche und Echo.
+- Das Audio-Deck verwendet genau zwei Player: einen aktiven und einen stumm vorgeladenen. Ihre Lautstärken ergeben während des Übergangs zusammen 100 Prozent, damit kein Lautstärke-Peak entsteht.
+- TV-, Audio- und Party-Screen-Clients erhalten höchstens drei kommende Songs; Chat wird für diese Rollen nicht übertragen.
 - Kleine QR-Karten wurden auf den wichtigsten Seiten integriert, die grossformatige Poster-Seite bleibt `/qr`.
 - `/party-screen` blendet die normale Navigation aus, damit TV/Beamer keine Admin-Links oder Textwuesten zeigen.
 - `/history` ist standardmaessig oeffentlich, kann aber per `HISTORY_PUBLIC=false` auf Admin-only gesetzt werden.
@@ -63,5 +66,6 @@
 - Keine kryptographisch starke Trennung zwischen Invite-Link und Host-Rechten; Host-Rechte laufen separat ueber Session und Player-Token.
 - Device-IDs sind fuer den LAN-MVP ausreichend, aber kein starker Identitaetsnachweis gegen absichtliche Manipulation.
 - YouTube-Fortschritt auf dem Party-Screen ist nur soweit sichtbar, wie der bestehende Player-State es hergibt; kein globales exaktes Playback-Telemetrie-System.
+- Crossfade ist ein Laufzeit-Fade und keine Stilleanalyse. Browser-Autoplay-Regeln oder ungenaue YouTube-Dauern können den normalen, harten Wechsel auslösen.
 - Das Redesign nutzt Systemschriften statt externer Premium-Fonts, damit LAN-/Offline-Betrieb und Performance stabil bleiben.
 - Visual Regression ist bewusst leichtgewichtig ueber Playwright-Screenshots als Artefakte geloest, nicht als pixelgenaue CI-Blockade.

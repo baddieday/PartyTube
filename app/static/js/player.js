@@ -207,7 +207,7 @@
       ? songCard(payload.current, { playerMode: true, highlight: true })
       : emptyState("Keine Wiedergabe aktiv.");
     queuePreview.innerHTML = payload.queue.length
-      ? payload.queue.slice(0, 6).map((song) => songCard(song, { playerMode: true })).join("")
+      ? payload.queue.slice(0, 3).map((song) => songCard(song, { playerMode: true })).join("")
       : emptyState("Queue ist leer.");
 
     if (payload.current?.videoId && payload.current.videoId !== previousVideoId) {

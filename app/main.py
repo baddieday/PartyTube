@@ -741,10 +741,15 @@ async def guest_home(request: Request) -> HTMLResponse:
     resolved_settings = _resolved_settings(request)
     if resolved_settings["invite_only_mode"]:
         return templates.TemplateResponse(
-            "join_gate.html",
-            _template_context(request, "join", invite_gate=True),
+            request=request,
+            name="join_gate.html",
+            context=_template_context(request, "join", invite_gate=True),
         )
-    return templates.TemplateResponse("guest.html", _template_context(request, "guest"))
+    return templates.TemplateResponse(
+        request=request,
+        name="guest.html",
+        context=_template_context(request, "guest"),
+    )
 
 
 @app.get("/join", response_class=HTMLResponse)
@@ -752,7 +757,11 @@ async def guest_join_gate(request: Request, code: str = ""):
     normalized = _normalized_party_code(code) if code else ""
     if normalized:
         return RedirectResponse(url=f"/join/{normalized}", status_code=303)
-    return templates.TemplateResponse("join_gate.html", _template_context(request, "join", invite_gate=True))
+    return templates.TemplateResponse(
+        request=request,
+        name="join_gate.html",
+        context=_template_context(request, "join", invite_gate=True),
+    )
 
 
 @app.get("/share-target")
@@ -780,7 +789,11 @@ async def share_target(request: Request, title: str = "", text: str = "", url: s
 
 @app.get("/start", response_class=HTMLResponse)
 async def start_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("start.html", _template_context(request, "start"))
+    return templates.TemplateResponse(
+        request=request,
+        name="start.html",
+        context=_template_context(request, "start"),
+    )
 
 
 @app.get("/join/{party_code}", response_class=HTMLResponse)
@@ -789,8 +802,9 @@ async def guest_join(request: Request, party_code: str) -> HTMLResponse:
     if party_code != resolved_settings["party_code"]:
         if resolved_settings["invite_only_mode"]:
             return templates.TemplateResponse(
-                "join_gate.html",
-                _template_context(
+                request=request,
+                name="join_gate.html",
+                context=_template_context(
                     request,
                     "join",
                     join_error="Der Party-Code passt nicht zu dieser Session. Bitte scanne den QR-Code erneut oder frage den Host nach dem richtigen Link.",
@@ -799,18 +813,26 @@ async def guest_join(request: Request, party_code: str) -> HTMLResponse:
                 status_code=404,
             )
         raise HTTPException(status_code=404, detail="Falscher Party-Code.")
-    return templates.TemplateResponse("guest.html", _template_context(request, "guest"))
+    return templates.TemplateResponse(
+        request=request,
+        name="guest.html",
+        context=_template_context(request, "guest"),
+    )
 
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("admin.html", _template_context(request, "admin"))
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context=_template_context(request, "admin"),
+    )
 
 
 @app.get("/player", response_class=HTMLResponse)
 async def player_page(request: Request) -> HTMLResponse:
     context = _template_context(request, "player")
-    response = templates.TemplateResponse("player.html", context)
+    response = templates.TemplateResponse(request=request, name="player.html", context=context)
     _set_player_cookie_if_authorized(request, response, context["settings"]["party_code"])
     return response
 
@@ -818,14 +840,18 @@ async def player_page(request: Request) -> HTMLResponse:
 @app.get("/audio", response_class=HTMLResponse)
 async def audio_page(request: Request) -> HTMLResponse:
     context = _template_context(request, "audio")
-    response = templates.TemplateResponse("audio.html", context)
+    response = templates.TemplateResponse(request=request, name="audio.html", context=context)
     _set_player_cookie_if_authorized(request, response, context["settings"]["party_code"])
     return response
 
 
 @app.get("/qr", response_class=HTMLResponse)
 async def qr_page(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse("qr.html", _template_context(request, "qr"))
+    return templates.TemplateResponse(
+        request=request,
+        name="qr.html",
+        context=_template_context(request, "qr"),
+    )
 
 
 @app.get("/history", response_class=HTMLResponse)
@@ -833,13 +859,21 @@ async def history_page(request: Request) -> HTMLResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["history_public"] and not is_admin_request(request, store):
         raise HTTPException(status_code=403, detail="Der Verlauf ist aktuell nur für den Host sichtbar.")
-    return templates.TemplateResponse("history.html", _template_context(request, "history"))
+    return templates.TemplateResponse(
+        request=request,
+        name="history.html",
+        context=_template_context(request, "history"),
+    )
 
 
 @app.get("/admin/best-of", response_class=HTMLResponse)
 async def best_of_page(request: Request) -> HTMLResponse:
     require_admin(request, store)
-    return templates.TemplateResponse("best_of.html", _template_context(request, "best-of"))
+    return templates.TemplateResponse(
+        request=request,
+        name="best_of.html",
+        context=_template_context(request, "best-of"),
+    )
 
 
 @app.get("/party-screen", response_class=HTMLResponse)
@@ -847,7 +881,11 @@ async def party_screen_page(request: Request) -> HTMLResponse:
     resolved_settings = _resolved_settings(request)
     if not resolved_settings["party_screen_enabled"]:
         raise HTTPException(status_code=404, detail="Party-Screen ist aktuell deaktiviert.")
-    return templates.TemplateResponse("party_screen.html", _template_context(request, "party-screen"))
+    return templates.TemplateResponse(
+        request=request,
+        name="party_screen.html",
+        context=_template_context(request, "party-screen"),
+    )
 
 
 @app.get("/screen", response_class=HTMLResponse)

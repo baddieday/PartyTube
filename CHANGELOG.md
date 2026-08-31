@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.1.2 - 2026-08-31
+
+### Changed
+
+- FastAPI auf `0.141.1` aktualisiert und Template-Aufrufe an die aktuelle Starlette-API angepasst.
+
 ## 1.1.1 - 2026-08-31
 
 ### Fixed

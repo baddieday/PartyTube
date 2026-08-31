@@ -1133,7 +1133,13 @@ async def add_song(request: Request) -> JSONResponse:
 
     metrics.increment("songs_added")
     await _broadcast_state()
-    return JSONResponse({"ok": True, "song": song})
+    return JSONResponse(
+        {
+            "ok": True,
+            "song": song,
+            "state": _state_payload(request, device_id=device_id, role="guest"),
+        }
+    )
 
 
 @app.post("/api/songs/{song_id}/vote")

@@ -46,6 +46,7 @@
 
 ### Fixed
 
+- neue Songs erscheinen auf dem sendenden Gerät sofort, auch wenn dessen WebSocket gerade erst verbindet
 - Player-Token-Leak ueber oeffentliche Seiten verhindert
 - zu lange Chat-Nachrichten werden sauber abgewiesen
 - Invite-only-Fehlpfade liefern jetzt verstaendliche Seiten statt nur rohe Fehler

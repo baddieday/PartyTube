@@ -15,6 +15,7 @@ test("PWA: Manifest enthaelt Share Target und gültige Icons", async ({ request 
   const manifest = await response.json();
   expect(manifest.name).toContain("PartyTube");
   expect(manifest.short_name).toBe("PartyTube");
+  expect(manifest.id).toBe("/");
   expect(manifest.start_url).toBe("/");
   expect(manifest.scope).toBe("/");
   expect(manifest.display).toBe("standalone");
@@ -28,6 +29,34 @@ test("PWA: Manifest enthaelt Share Target und gültige Icons", async ({ request 
       url: "url",
     },
   });
+});
+
+test("PWA: Gastseite bindet Manifest, Service Worker und Installationshilfe ein", async ({ page, request }) => {
+  const worker = await request.get("/sw.js");
+  expect(worker.ok()).toBeTruthy();
+  expect(worker.headers()["content-type"]).toContain("application/javascript");
+  expect(worker.headers()["cache-control"]).toContain("no-cache");
+  expect(worker.headers()["service-worker-allowed"]).toBe("/");
+
+  await page.goto("/");
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest");
+  await page.getByRole("button", { name: "App installieren" }).click();
+  await expect(page.locator("#install-dialog")).toBeVisible();
+  await expect(page.locator("#install-dialog-copy")).toContainText(/Browser-Menü|HTTPS|Safari/);
+});
+
+test("PWA: Zwischenablage-Fallback reicht einen YouTube-Link bewusst ein", async ({ page }) => {
+  await page.addInitScript((sharedUrl) => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { readText: async () => `Aus YouTube geteilt: ${sharedUrl}` },
+    });
+  }, SAMPLE_URLS.watch);
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Link einfügen" }).click();
+  await expect(page.locator(".toast").filter({ hasText: "Geteilter Song ist live:" }).last()).toBeVisible();
+  await expect(page.locator("[data-song-id]")).toHaveCount(1);
 });
 
 test("Share Target: gültige YouTube-Links werden serverseitig auf die Gastseite umgeleitet", async ({ request }) => {

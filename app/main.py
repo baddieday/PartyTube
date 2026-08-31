@@ -819,6 +819,7 @@ async def manifest(request: Request) -> JSONResponse:
         {
             "name": f"{settings.app_name} - {resolved_settings['party_name']}",
             "short_name": settings.app_name,
+            "id": "/",
             "description": "Lokale Party-Jukebox für YouTube-Links, Voting und TV-Screen im Heimnetz.",
             "start_url": "/",
             "scope": "/",
@@ -867,7 +868,14 @@ async def manifest(request: Request) -> JSONResponse:
 
 @app.api_route("/sw.js", methods=["GET", "HEAD"])
 async def service_worker() -> FileResponse:
-    return FileResponse(ROOT_DIR / "app" / "static" / "sw.js", media_type="application/javascript")
+    return FileResponse(
+        ROOT_DIR / "app" / "static" / "sw.js",
+        media_type="application/javascript",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Service-Worker-Allowed": "/",
+        },
+    )
 
 
 @app.get("/api/state")

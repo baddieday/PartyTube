@@ -1245,6 +1245,71 @@ textarea {
     rgba(5, 5, 5, 0.78);
 }
 
+/* Guest install and one-tap link intake */
+.guest-submit-actions,
+.install-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.guest-submit-actions > * {
+  flex: 1 1 12rem;
+}
+
+.install-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+  padding: 0;
+  overflow: visible;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: transparent;
+  box-shadow: var(--shadow-soft), var(--shadow-red);
+}
+
+.install-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.76);
+  backdrop-filter: blur(8px);
+}
+
+.install-dialog-card {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 4vw, 1.5rem);
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgba(36, 20, 22, 0.98), rgba(10, 10, 12, 0.99));
+}
+
+.install-dialog-card p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 2.6rem;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .guest-submit-actions,
+  .install-dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
 .audio-start-overlay strong {
   display: block;
   color: #fff;

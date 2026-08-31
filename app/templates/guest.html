@@ -8,6 +8,7 @@
     </div>
     <div class="hero-actions">
         <a class="primary-button" href="#add-song-form">Einreichen</a>
+        <button class="ghost-button" id="install-app" type="button">App installieren</button>
         <button class="ghost-button" id="copy-join-link" type="button">Link kopieren</button>
     </div>
 </section>
@@ -32,7 +33,10 @@
                 <span>Dein Name (optional)</span>
                 <input id="guest-name" name="guestName" type="text" maxlength="32" placeholder="z. B. Alex">
             </label>
-            <button class="primary-button" id="submit-song" type="submit">Song in die Queue</button>
+            <div class="guest-submit-actions">
+                <button class="primary-button" id="submit-song" type="submit">Song in die Queue</button>
+                <button class="ghost-button" id="paste-song-link" type="button">Link einfügen</button>
+            </div>
         </form>
         <div class="current-wrapper">
             <div class="panel-header compact">
@@ -139,7 +143,25 @@
 
     </section>
 </details>
+
+<dialog class="install-dialog" id="install-dialog" aria-labelledby="install-dialog-title">
+    <form method="dialog" class="install-dialog-card">
+        <div class="panel-header compact">
+            <div>
+                <p class="eyebrow">PartyTube App</p>
+                <h2 id="install-dialog-title">Installieren</h2>
+            </div>
+            <button class="icon-button" type="submit" aria-label="Dialog schließen">×</button>
+        </div>
+        <p id="install-dialog-copy">Öffne das Browser-Menü und wähle „App installieren“.</p>
+        <div class="install-dialog-actions">
+            <button class="primary-button" id="install-dialog-action" type="button">Installieren</button>
+            <button class="ghost-button" type="submit">Schließen</button>
+        </div>
+    </form>
+</dialog>
 {% endblock %}
 {% block scripts %}
+<script src="/static/js/pwa.js" defer></script>
 <script src="/static/js/guest.js" defer></script>
 {% endblock %}

@@ -31,7 +31,9 @@
   const chatCount = document.getElementById("chat-count");
   const chatStatusNote = document.getElementById("chat-status-note");
   const chatPanel = document.getElementById("chat-panel");
+  const pasteLinkButton = document.getElementById("paste-song-link");
   const SHARED_SUBMIT_STORAGE_PREFIX = "partytube.shared-submit.";
+  let submitInProgress = false;
 
   function looksLikeSharedYouTubeUrl(value) {
     if (!value || value.length > 500) {
@@ -53,38 +55,50 @@
     }
   }
 
-  async function submitSharedSong(sharedUrl) {
+  function extractSharedYouTubeUrl(value) {
+    const candidates = String(value || "").match(/https?:\/\/[^\s<>"']+/gi) || [];
+    return candidates
+      .map((candidate) => candidate.replace(/[.,;:!?\])}]+$/g, ""))
+      .find((candidate) => looksLikeSharedYouTubeUrl(candidate)) || null;
+  }
+
+  async function submitSong(songUrl, successMessage) {
+    if (submitInProgress) return false;
     const submit = document.getElementById("submit-song");
-    if (!submit) {
-      return;
-    }
+    submitInProgress = true;
     submit.disabled = true;
     submit.textContent = "Wird hinzugefügt...";
     try {
       const response = await apiFetch("/api/songs", {
         method: "POST",
         body: JSON.stringify({
-          url: sharedUrl,
+          url: songUrl,
           guestName: nameInput?.value || "",
           deviceId: getDeviceId(),
         }),
       });
       rememberVote(response.song.id);
       urlInput.value = "";
-      toast(`Geteilter Song ist live: ${response.song.title}`, "success");
+      toast(successMessage(response.song), "success");
+      return true;
     } catch (error) {
       if (error.status === 409 && error.payload?.duplicate) {
-        const duplicate = error.payload.duplicate;
-        toast(`Schon in der Queue: ${duplicate.title}`, "error");
+        toast(`Schon in der Queue: ${error.payload.duplicate.title}`, "error");
       } else if (error.status === 429) {
         toast(`${error.message}${retryHint(error)}`, "error");
       } else {
         toast(error.message, "error");
       }
+      return false;
     } finally {
+      submitInProgress = false;
       submit.disabled = false;
       submit.textContent = "Song in die Queue";
     }
+  }
+
+  async function submitSharedSong(sharedUrl) {
+    return submitSong(sharedUrl, (song) => `Geteilter Song ist live: ${song.title}`);
   }
 
   async function applySharedLinkFromQuery() {
@@ -264,33 +278,29 @@
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const submit = document.getElementById("submit-song");
-    submit.disabled = true;
-    submit.textContent = "Wird hinzugefügt...";
+    await submitSong(urlInput.value, (song) => `Song ist live in der Queue: ${song.title}`);
+  });
+
+  pasteLinkButton?.addEventListener("click", async () => {
+    if (!navigator.clipboard?.readText) {
+      toast("Link kopieren und ins Feld einfügen.", "error");
+      urlInput.focus();
+      return;
+    }
+    pasteLinkButton.disabled = true;
     try {
-      const response = await apiFetch("/api/songs", {
-        method: "POST",
-        body: JSON.stringify({
-          url: urlInput.value,
-          guestName: nameInput.value,
-          deviceId: getDeviceId(),
-        }),
-      });
-      rememberVote(response.song.id);
-      urlInput.value = "";
-      toast(`Song ist live in der Queue: ${response.song.title}`, "success");
-    } catch (error) {
-      if (error.status === 409 && error.payload?.duplicate) {
-        const duplicate = error.payload.duplicate;
-        toast(`Schon in der Queue: ${duplicate.title}`, "error");
-      } else if (error.status === 429) {
-        toast(`${error.message}${retryHint(error)}`, "error");
-      } else {
-        toast(error.message, "error");
+      const sharedUrl = extractSharedYouTubeUrl(await navigator.clipboard.readText());
+      if (!sharedUrl) {
+        toast("Kein gültiger YouTube-Link in der Zwischenablage.", "error");
+        return;
       }
+      urlInput.value = sharedUrl;
+      await submitSharedSong(sharedUrl);
+    } catch (_error) {
+      toast("Zwischenablage blockiert. Link ins Feld einfügen.", "error");
+      urlInput.focus();
     } finally {
-      submit.disabled = false;
-      submit.textContent = "Song in die Queue";
+      pasteLinkButton.disabled = false;
     }
   });
 

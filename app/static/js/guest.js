@@ -8,6 +8,7 @@
     songCard,
     messageCard,
     emptyState,
+    acceptStateRevision,
     connectLive,
     apiFetch,
     toast,
@@ -250,6 +251,7 @@
   }
 
   function renderState(payload) {
+    if (!acceptStateRevision(payload)) return;
     stateStore.current = payload.current;
     stateStore.queue = payload.queue;
     stateStore.history = payload.history;

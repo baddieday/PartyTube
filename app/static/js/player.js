@@ -6,6 +6,7 @@
     emptyState,
     buildAutoplayPool,
     autoplayCard,
+    acceptStateRevision,
     connectLive,
     apiFetch,
     toast,
@@ -198,6 +199,7 @@
   }
 
   function renderState(payload) {
+    if (!acceptStateRevision(payload)) return;
     const previousVideoId = stateStore.current?.videoId;
     stateStore.current = payload.current;
     stateStore.queue = payload.queue;

@@ -61,6 +61,7 @@ store = PartyStore(
 )
 templates = Jinja2Templates(directory=str(ROOT_DIR / "app" / "templates"))
 metrics = MetricsTracker()
+_state_revision = 0
 
 
 class SelectiveHTTPSRedirectMiddleware:
@@ -416,11 +417,16 @@ def _state_payload(request: Request, device_id: str | None = None, role: str = "
     }
     state["runtime"] = _runtime_public_state(request)
     state["skipVoting"] = skip_status
+    state["revision"] = _state_revision
     state.update(skip_status)
     return _bounded_state_for_role(state, role)
 
 
-def _state_payload_without_request(device_id: str | None = None, role: str = "guest") -> dict[str, Any]:
+def _state_payload_without_request(
+    device_id: str | None = None,
+    role: str = "guest",
+    revision: int | None = None,
+) -> dict[str, Any]:
     state = store.get_state()
     runtime = _runtime_public_state()
     skip_status = store.get_skip_status(
@@ -432,16 +438,26 @@ def _state_payload_without_request(device_id: str | None = None, role: str = "gu
     state["type"] = "state"
     state["runtime"] = runtime
     state["skipVoting"] = skip_status
+    state["revision"] = _state_revision if revision is None else revision
     state.update(skip_status)
     return _bounded_state_for_role(state, role)
 
 
 async def _broadcast_state() -> None:
+    global _state_revision
+    _state_revision += 1
+    revision = _state_revision
     stale: list[WebSocket] = []
     for socket, meta in await hub.snapshot():
         try:
             await socket.send_text(
-                json.dumps(_state_payload_without_request(meta.get("deviceId"), meta.get("role", "guest")))
+                json.dumps(
+                    _state_payload_without_request(
+                        meta.get("deviceId"),
+                        meta.get("role", "guest"),
+                        revision,
+                    )
+                )
             )
         except RuntimeError:
             stale.append(socket)

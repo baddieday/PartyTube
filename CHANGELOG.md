@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-08-31
+
+### Fixed
+
+- Ein verspäteter HTTP-Initialzustand überschreibt keinen neueren WebSocket-Zustand mehr.
+
 ## 1.1.0 - 2026-08-31
 
 ### Added

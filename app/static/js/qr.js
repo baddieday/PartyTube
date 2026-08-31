@@ -1,7 +1,8 @@
 (function () {
-  const { appConfig, copyText, connectLive, apiFetch, toast } = window.PartyTube;
+  const { appConfig, copyText, acceptStateRevision, connectLive, apiFetch, toast } = window.PartyTube;
 
   function renderState(payload) {
+    if (!acceptStateRevision(payload)) return;
     window.PartyTube.ambientAudio.sync(payload.current);
   }
 

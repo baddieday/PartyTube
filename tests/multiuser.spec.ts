@@ -42,3 +42,50 @@ test("Multiuser: Gast A, Gast B und Host bleiben live synchron", async ({ browse
 
   await Promise.all([guestA.close(), guestB.close(), host.close()]);
 });
+
+test("Multiuser: verspäteter Initialzustand überschreibt kein Live-Update", async ({ browser }) => {
+  const delayedGuest = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const activeGuest = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const delayedPage = await delayedGuest.newPage();
+  const activePage = await activeGuest.newPage();
+
+  let releaseInitialState!: () => void;
+  let initialStateCaptured!: () => void;
+  let initialStateDelivered!: () => void;
+  const releaseGate = new Promise<void>((resolve) => {
+    releaseInitialState = resolve;
+  });
+  const stateCaptured = new Promise<void>((resolve) => {
+    initialStateCaptured = resolve;
+  });
+  const stateDelivered = new Promise<void>((resolve) => {
+    initialStateDelivered = resolve;
+  });
+  let intercepted = false;
+
+  await delayedPage.route("**/api/state?**", async (route) => {
+    if (intercepted) {
+      await route.continue();
+      return;
+    }
+    intercepted = true;
+
+    // Capture the empty snapshot, then deliver it only after a newer WebSocket state.
+    const response = await route.fetch();
+    initialStateCaptured();
+    await releaseGate;
+    await route.fulfill({ response });
+    initialStateDelivered();
+  });
+
+  await Promise.all([delayedPage.goto("/"), activePage.goto("/")]);
+  await stateCaptured;
+  await addSong(activePage, SAMPLE_URLS.watch, "Live Gast");
+  await expect(delayedPage.locator("#current-song")).toContainText("YouTube Video dQw4w9WgXcQ");
+
+  releaseInitialState();
+  await stateDelivered;
+  await expect(delayedPage.locator("#current-song")).toContainText("YouTube Video dQw4w9WgXcQ");
+
+  await Promise.all([delayedGuest.close(), activeGuest.close()]);
+});

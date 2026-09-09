@@ -13,6 +13,6 @@
     "generate:icons": "node scripts/generate-icons.mjs"
   },
   "devDependencies": {
-    "playwright": "1.62.1"
+    "playwright": "1.63.0"
   }
 }
